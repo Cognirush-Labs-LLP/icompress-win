@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "miCompressor (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "miCompressor (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
