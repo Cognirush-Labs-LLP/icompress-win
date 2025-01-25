@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "miCompressor", "miCompresso
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoNotifyGenerator", "AutoNotifyGenerator\AutoNotifyGenerator.csproj", "{A011B4CD-DDBD-4A6E-8540-EB2E37CC2ED2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "miCompressor.IntegrationTests", "miCompressor.IntegrationTests\miCompressor.IntegrationTests.csproj", "{176ACE00-ED59-4971-90AC-72C82991E689}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -47,6 +49,18 @@ Global
 		{A011B4CD-DDBD-4A6E-8540-EB2E37CC2ED2}.Release|x64.Build.0 = Release|Any CPU
 		{A011B4CD-DDBD-4A6E-8540-EB2E37CC2ED2}.Release|x86.ActiveCfg = Release|Any CPU
 		{A011B4CD-DDBD-4A6E-8540-EB2E37CC2ED2}.Release|x86.Build.0 = Release|Any CPU
+		{176ACE00-ED59-4971-90AC-72C82991E689}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{176ACE00-ED59-4971-90AC-72C82991E689}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{176ACE00-ED59-4971-90AC-72C82991E689}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{176ACE00-ED59-4971-90AC-72C82991E689}.Debug|x64.Build.0 = Debug|Any CPU
+		{176ACE00-ED59-4971-90AC-72C82991E689}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{176ACE00-ED59-4971-90AC-72C82991E689}.Debug|x86.Build.0 = Debug|Any CPU
+		{176ACE00-ED59-4971-90AC-72C82991E689}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{176ACE00-ED59-4971-90AC-72C82991E689}.Release|ARM64.Build.0 = Release|Any CPU
+		{176ACE00-ED59-4971-90AC-72C82991E689}.Release|x64.ActiveCfg = Release|Any CPU
+		{176ACE00-ED59-4971-90AC-72C82991E689}.Release|x64.Build.0 = Release|Any CPU
+		{176ACE00-ED59-4971-90AC-72C82991E689}.Release|x86.ActiveCfg = Release|Any CPU
+		{176ACE00-ED59-4971-90AC-72C82991E689}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

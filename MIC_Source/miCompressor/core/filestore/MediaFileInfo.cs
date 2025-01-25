@@ -17,17 +17,17 @@ namespace miCompressor.core
         /// <summary>
         /// The root directory selected by the user.
         /// </summary>
-        public string SelectedPath { get; }
+        public string SelectedRootPath { get; }
 
         /// <summary>
         /// The full path to the image file.
         /// </summary>
-        public string FilePath { get; }
+        public FileInfo fileToProcess { get; }
 
         /// <summary>
         /// The relative path of the image within the selected directory.
         /// </summary>
-        public string RelativePath => Path.GetRelativePath(SelectedPath, FilePath);
+        public string RelativePath => Path.GetRelativePath(SelectedRootPath, fileToProcess.FullName);
 
         [AutoNotify]
         private int width;
@@ -74,13 +74,14 @@ namespace miCompressor.core
         /// </summary>
         /// <param name="selectedPath">The root directory selected by the user.</param>
         /// <param name="filePath">The full file path of the image.</param>
-        public MediaFileInfo(string selectedPath, string filePath)
+        /// <exception cref="FileNotFoundException">Throws exception if file doesn't exist.</exception>
+        public MediaFileInfo(string selectedPath, FileInfo mediaFile)
         {
-            if (!File.Exists(filePath))
-                throw new FileNotFoundException("File not found", filePath);
+            if (!mediaFile.Exists)
+                throw new FileNotFoundException("File not found", mediaFile.FullName);
 
-            SelectedPath = selectedPath;
-            FilePath = filePath;
+            SelectedRootPath = selectedPath;
+            fileToProcess = mediaFile;
 
             // Load metadata asynchronously
             _ = LoadImageMetadataAsync();
@@ -93,20 +94,20 @@ namespace miCompressor.core
         {
             try
             {
-                StorageFile file = await StorageFile.GetFileFromPathAsync(FilePath);
+                StorageFile file = await StorageFile.GetFileFromPathAsync(fileToProcess.FullName);
                 ImageProperties properties = await file.Properties.GetImagePropertiesAsync();
                
                 Width = (int)properties.Width;
                 Height = (int)properties.Height;
-                FileSize = (await file.GetBasicPropertiesAsync()).Size;
+                FileSize = (ulong) fileToProcess.Length;
                 raisePropertyChanged(nameof(FileSizeToShow));
                 CameraModel = properties.CameraModel;
                 DateTaken = properties.DateTaken;
 
-                Console.WriteLine(width);
+                /*Console.WriteLine(width);
                 Console.WriteLine(Height);
                 Console.WriteLine(FileSize);
-                Console.WriteLine(DateTaken);
+                Console.WriteLine(DateTaken);*/
             }
             catch (Exception ex)
             {
