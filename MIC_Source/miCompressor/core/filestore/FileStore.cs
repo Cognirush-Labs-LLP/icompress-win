@@ -59,16 +59,28 @@ namespace miCompressor.core
         /// Initializes a new instance of the <see cref="SelectedPath"/> class.
         /// </summary>
         /// <param name="path">The file or directory path.</param>
-        /// <param name="includeSubDirs">Specifies whether to scan subdirectories.</param>
-        public SelectedPath(string path, bool includeSubDirs)
+        /// <param name="includeSubDirectories">Specifies whether to scan subdirectories.</param>
+        public SelectedPath(string path, bool includeSubDirectories)
         {
             if (string.IsNullOrWhiteSpace(path) || (!File.Exists(path) && !Directory.Exists(path)))
                 throw new ArgumentException("Invalid path.", nameof(path));
 
             Path = path;
             IsDirectory = Directory.Exists(path);
-            includeSubDirectories = includeSubDirs;
+            this.IncludeSubDirectories = includeSubDirectories;
 
+            ScanForMediaFiles().ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Changes the settings to include or exclude sub-directories. Make sure UI looks for `ScanningForFiles` and disable the toggle control to avoid inconsistency. 
+        /// </summary>
+        /// <param name="includeSubDirectories"></param>
+        public void ChangeToIncludeSubDirectories(bool includeSubDirectories)
+        {
+            if (this.IncludeSubDirectories == includeSubDirectories) return; //no change was made to the setting.
+
+            this.IncludeSubDirectories = includeSubDirectories;
             ScanForMediaFiles().ConfigureAwait(false);
         }
 
@@ -164,6 +176,13 @@ namespace miCompressor.core
         {
             get
             {
+                int totalWaitMs = 0;
+                while( SelectedPaths.Any(selection => selection.ScanningForFiles ) && totalWaitMs < 10*1000) //wait for scanning to finish, max 10 seconds
+                {
+                    Thread.Sleep(10);
+                    totalWaitMs += 10;
+                }
+
                 using (_lock.ReadLock())
                     return _store.SelectMany(sp => sp.Files).DistinctBy(media => media.fileToProcess.FullName).ToList().AsReadOnly();
             }
@@ -171,12 +190,12 @@ namespace miCompressor.core
 
 
         /// <summary>
-        /// Adds a new path to the store, ensuring thread safety.
+        /// Adds a new path to the store. This method returns the result just after making entry in selected path but all files to process will populate only after 
         /// </summary>
         /// <param name="path">The file or directory path.</param>
         /// <param name="scanSubDirectories">Indicates whether subdirectories should be scanned.</param>
         /// <returns>The result of the add operation.</returns>
-        public PathAddedResult Add(string path, bool scanSubDirectories = false)
+        public PathAddedResult AddAsync(string path, bool scanSubDirectories = false)
         {
             using (_lock.WriteLock())
             {
@@ -212,6 +231,26 @@ namespace miCompressor.core
 
                 _store.Remove(selectedPath);
                 raisePropertyChanged(nameof(SelectedPaths));
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Change setting of scanning the added path to include Subdirectories or not. No change if settings are not changed. 
+        /// </summary>
+        /// <param name="path">The path to remove.</param>
+        /// <param name="includeSubDirectories">Should Include Sub-Directories or not</param>
+        /// <returns>True if the path was found as selected path and will be taken up for making setting change if aplicable.</returns>
+        public bool ChangeIncludeSubDirectoriesSetting(string path, bool includeSubDirectories)
+        {
+            using (_lock.ReadLock())
+            {
+                var selectedPath = _store.FirstOrDefault(sp => sp.Path.Equals(path, StringComparison.OrdinalIgnoreCase));
+
+                if (selectedPath == null) return false;
+
+                selectedPath.ChangeToIncludeSubDirectories(includeSubDirectories);
+
                 return true;
             }
         }

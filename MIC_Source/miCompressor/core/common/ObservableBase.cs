@@ -33,7 +33,7 @@ namespace miCompressor.core
     ///     set
     ///     {
     ///         // Custom logic before change:
-    ///         if (value < 0)
+    ///         if (value &lt; 0)
     ///             throw new ArgumentException("Width cannot be negative");
     ///         
     ///         // Optionally get the previous value (if needed)

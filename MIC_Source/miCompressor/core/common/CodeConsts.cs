@@ -11,6 +11,5 @@ namespace miCompressor.core.common
         public static int ThumbSize = 100;
         public static string[] SupportedInputExtensions = ["jpg", "jpeg", "png"];
         public static string[] SupportedOutputExtensions = ["jpeg", "png", "webp"];
-
     }
 }

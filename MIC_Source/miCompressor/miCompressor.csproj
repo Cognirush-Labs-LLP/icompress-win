@@ -23,6 +23,7 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <WindowsPackageType>None</WindowsPackageType>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
@@ -68,9 +69,7 @@
     <Folder Include="ui\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AutoNotifyGenerator\AutoNotifyGenerator.csproj" 
-                      OutputItemType="Analyzer"
-                      ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\AutoNotifyGenerator\AutoNotifyGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <!--
