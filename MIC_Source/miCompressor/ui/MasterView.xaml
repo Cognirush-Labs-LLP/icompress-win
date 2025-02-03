@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="miCompressor.ui.MasterView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:miCompressor.ui"
+    xmlns:vm="using:miCompressor.viewmodels"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+
+    <Page.DataContext>
+        <vm:MasterState />
+    </Page.DataContext>
+
+    <Page.Resources>
+        <toolkit:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </Page.Resources>
+
+    <Grid
+        AllowDrop="True"
+        DragOver="MasterView_DragOver"
+        Drop="MasterView_Drop"
+        Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Vertical" VerticalAlignment="Top" Grid.Column="0">
+            <Border x:Name="WarningBanner"
+                Background="{ThemeResource SystemAccentColorLight2}"
+                Padding="10"
+                Visibility="Collapsed"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Top">
+                <TextBlock x:Name="WarningText"
+                       Foreground="Black"
+                       FontSize="14"
+                       Text="Unsupported files were ignored." />
+            </Border>
+
+        </StackPanel>
+
+        <Grid Grid.Row="1" Margin="10">
+            <!-- Empty Files View (Uses x:Load for performance) -->
+            <local:EmptyFilesView x:Name="FileSelectionPage" Visibility="{x:Bind IsEmptyViewVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
+
+            <!-- File Selection View (Uses Visibility for smooth transitions) -->
+            <local:FileSelectionView  Visibility="{x:Bind IsFileSelectionViewVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
+        </Grid>
+
+        <!-- Right Side (Settings View) -->
+        <local:SettingsView Grid.Column="1"  Visibility="{x:Bind IsFileSelectionViewVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"/>
+    </Grid>
+
+</Page>

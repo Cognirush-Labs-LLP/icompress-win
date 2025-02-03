@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using miCompressor.core;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -28,12 +29,28 @@ namespace miCompressor
     public partial class App : Application
     {
         /// <summary>
+        /// App-wide instance of FileStore.
+        /// </summary>
+        public static FileStore FileStoreInstance { get; } = new();
+
+        /// <summary>
+        /// App-wide instance of OutputSettings.
+        /// </summary>
+        public static OutputSettings OutputSettingsInstance { get; } = new();
+
+
+        /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
         /// </summary>
         public App()
         {
             this.InitializeComponent();
+            //_ = Task.Run(async () =>
+            //{
+            //    await Task.Delay(5000);
+            //    FileStoreInstance.AddAsync(@"F:\OpenSource\MassImageCompressor_4\MIC_Source\miCompressor.IntegrationTests\test_imgs");
+            //    });
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -12,7 +13,7 @@ namespace miCompressor.core
     /// Represents an image file, storing metadata and relative path for compression.
     /// Uses async loading to prevent UI blocking and supports automatic UI updates.
     /// </summary>
-    public partial class MediaFileInfo : ObservableBase
+    public partial class MediaFileInfo 
     {
         /// <summary>
         /// The root directory selected by the user.
@@ -44,6 +45,10 @@ namespace miCompressor.core
         [AutoNotify]
         private DateTimeOffset? dateTaken;
 
+        [AutoNotify]
+        private bool scanningForFiles = false;
+        
+
         /// <summary>
         /// Exclude the media from processing and hide the file in gallery, used for files are not eligible due to filter settings.
         /// </summary>
@@ -57,7 +62,7 @@ namespace miCompressor.core
         private bool excludeAndShow = false;
 
         /// <summary>
-        /// returns excludeAndHide && excludeAndShow
+        /// returns excludeAndHide AND excludeAndShow
         /// </summary>
         public bool ShouldProcess
         {
@@ -73,7 +78,7 @@ namespace miCompressor.core
         /// Initializes a new instance of <see cref="MediaFileInfo"/>.
         /// </summary>
         /// <param name="selectedPath">The root directory selected by the user.</param>
-        /// <param name="filePath">The full file path of the image.</param>
+        /// <param name="mediaFile">FileInfo of the image/video</param>
         /// <exception cref="FileNotFoundException">Throws exception if file doesn't exist.</exception>
         public MediaFileInfo(string selectedPath, FileInfo mediaFile)
         {
@@ -100,7 +105,7 @@ namespace miCompressor.core
                 Width = (int)properties.Width;
                 Height = (int)properties.Height;
                 FileSize = (ulong) fileToProcess.Length;
-                raisePropertyChanged(nameof(FileSizeToShow));
+                OnPropertyChanged(nameof(FileSizeToShow));
                 CameraModel = properties.CameraModel;
                 DateTaken = properties.DateTaken;
 

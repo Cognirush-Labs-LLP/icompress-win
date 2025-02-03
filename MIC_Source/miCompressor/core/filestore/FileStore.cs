@@ -1,5 +1,4 @@
-﻿using miCompressor.core.common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -112,7 +111,7 @@ namespace miCompressor.core
                 }
 
                 _files = mediaFileInfos;
-                raisePropertyChanged(nameof(Files));
+                OnPropertyChanged(nameof(Files));
 
                 ScanningForFiles = false;
             });
@@ -151,10 +150,10 @@ namespace miCompressor.core
     /// <summary>
     /// Manages a thread-safe collection of selected file paths.
     /// </summary>
-    public class FileStore : ObservableBase
+    public class FileStore: ObservableBase
     {
         private readonly List<SelectedPath> _store = new();
-        private readonly ReaderWriterLockSlim _lock = new(LockRecursionPolicy.NoRecursion);
+        private readonly ReaderWriterLockSlim _lock = new(LockRecursionPolicy.SupportsRecursion);
 
         /// <summary>
         /// Retrieves a thread-safe read-only collection of selected paths.
@@ -206,7 +205,7 @@ namespace miCompressor.core
                 {
                     var selectedPath = new SelectedPath(path, scanSubDirectories);
                     _store.Add(selectedPath);
-                    raisePropertyChanged(nameof(SelectedPaths));
+                    OnPropertyChanged(nameof(SelectedPaths));
                     return PathAddedResult.Success;
                 }
                 catch (ArgumentException)
@@ -230,7 +229,7 @@ namespace miCompressor.core
                 if (selectedPath == null) return false;
 
                 _store.Remove(selectedPath);
-                raisePropertyChanged(nameof(SelectedPaths));
+                OnPropertyChanged(nameof(SelectedPaths));
                 return true;
             }
         }
@@ -263,7 +262,7 @@ namespace miCompressor.core
             using (_lock.WriteLock())
             {
                 _store.Clear();
-                raisePropertyChanged(nameof(SelectedPaths));
+                OnPropertyChanged(nameof(SelectedPaths));
             }
         }
     }

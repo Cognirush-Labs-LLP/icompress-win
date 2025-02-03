@@ -4,6 +4,7 @@
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>miCompressor</RootNamespace>
+    <DisableImplicitNamespaceInheritance>true</DisableImplicitNamespaceInheritance>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>x64;ARM64</Platforms>
     <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
@@ -38,6 +39,14 @@
     <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="ui\EmptyFilesView.xaml" />
+    <None Remove="ui\FileSelectionView.xaml" />
+    <None Remove="ui\MasterView.xaml" />
+    <None Remove="ui\SettingsView.xaml" />
+    <None Remove="ui\settings\QualitySettings.xaml" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -47,6 +56,16 @@
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="core\**\*.cs">
+      <CustomNamespace>miCompressor.core</CustomNamespace>
+    </Compile>
+
+    <Compile Update="ui\**\*.cs">
+      <CustomNamespace>MyApp.ui</CustomNamespace>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -62,14 +81,37 @@
     <ProjectCapability Include="Msix" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.0.240109" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.250108002" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="ui\" />
+    <ProjectReference Include="..\AutoNotifyGenerator\AutoNotifyGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AutoNotifyGenerator\AutoNotifyGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <Page Update="ui\FileSelectionView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="ui\EmptyFilesView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="ui\MasterView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="ui\settings\QualitySettings.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="ui\SettingsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <!--

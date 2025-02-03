@@ -31,5 +31,33 @@ namespace miCompressor.core
                 throw new InvalidOperationException("UIThreadHelper.Initialize() must be called from the UI thread.");
             }
         }
+
+        /// <summary>
+        /// Runs an action on the UI thread. If already on the UI thread, the action runs immediately.
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// dispatcher.TryEnqueue(() =>
+        /// {
+        ///     // Execute UI-related code here.
+        ///     // Example: Updating UI elements from a background thread.
+        ///     myTextBox.Text = "Updated from UI thread.";
+        /// });
+        /// </code>
+        /// </example>
+        public static void RunOnUIThread(Action action)
+        {           
+            if (UIThreadDispatcherQueue is null)
+#if DEBUG
+                throw new InvalidOperationException("UIThreadDispatcherQueue is not initialized. Call Initialize() on the UI thread first.");
+#else
+        return; // Fail silently in release builds.
+#endif
+
+            if (UIThreadDispatcherQueue.HasThreadAccess)
+                action();
+            else
+                UIThreadDispatcherQueue.TryEnqueue(() => action());
+        }
     }
 }

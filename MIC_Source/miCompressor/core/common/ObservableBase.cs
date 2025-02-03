@@ -7,10 +7,8 @@ using System.Text;
 using System.Threading;
 using System.Linq;
 
-
 namespace miCompressor.core
 {
-
     /// <summary>
     /// This attribute helps generate a public property that auto implements getter and setters for ObservableBase to trigger a change event.
     /// </summary>
@@ -18,7 +16,7 @@ namespace miCompressor.core
     /// Do Not Create variable name with first letter capital or something that cannot be capitalized such as underscore. A good variable name 'width'. Bad variable names '_width', 'Width'.
     /// Additionally, class using `AutoNotifyAttribute` must not be an inner class of any other class.
     /// </remarks>
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
     public class AutoNotifyAttribute : Attribute { }
 
     /// <summary>
@@ -124,7 +122,7 @@ namespace miCompressor.core
                 }
 
                 // Invoke property change notification
-                raisePropertyChanged(propertyName);
+                OnPropertyChanged(propertyName);
 
                 // Invoke change callback if provided
                 if (onChanged != null)
@@ -145,23 +143,12 @@ namespace miCompressor.core
         /// Raises event in UI thread if the UI Thread is available. Ignores raising the event otherwise.  
         /// </summary>
         /// <param name="propertyName">Name of the property that changed</param>
-        protected virtual void raisePropertyChanged(string propertyName)
+        protected virtual void OnPropertyChanged(string propertyName)
         {
-            var dispatcher = UIThreadHelper.UIThreadDispatcherQueue;
-
-            if (dispatcher != null && !dispatcher.HasThreadAccess)
+            UIThreadHelper.RunOnUIThread(() =>
             {
-                dispatcher.TryEnqueue(() =>
-                {
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-                });
-            }
-            else
-            {
-                // ignore if UI cannot listen.
-            }
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            });
         }
-
     }
-
 }
