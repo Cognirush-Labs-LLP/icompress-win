@@ -183,7 +183,7 @@ namespace miCompressor.core
                 }
 
                 using (_lock.ReadLock())
-                    return _store.SelectMany(sp => sp.Files).DistinctBy(media => media.fileToProcess.FullName).ToList().AsReadOnly();
+                    return _store.SelectMany(sp => sp.Files).DistinctBy(media => media.FileToCompress.FullName).ToList().AsReadOnly();
             }
         }
 

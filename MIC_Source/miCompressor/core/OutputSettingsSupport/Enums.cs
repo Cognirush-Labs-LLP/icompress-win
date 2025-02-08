@@ -55,4 +55,79 @@ namespace miCompressor.core
         private static bool IsWebp(string ext) => ext.Equals(".webp", StringComparison.OrdinalIgnoreCase);
     }
     #endregion
+
+    #region Dimension Reduction Strategy
+    /// <summary>
+    /// Common Strategy to reduce the image dimension. We always maintain the aspect ratio of the image.
+    /// </summary>
+    public enum DimensionReductionStrategy
+    {
+        /// <summary>
+        /// No change in dimension
+        /// </summary>
+        KeepSame,
+        /// <summary>
+        /// Reduce dimension by percentage 
+        /// </summary>
+        Percentage,
+        /// <summary>
+        /// Longest Edge of the image will be considered and will be reduced to specified length. If the long edge is already smaller than specified length, no change is performed.
+        /// </summary>
+        LongEdge,
+        /// <summary>
+        /// Resize to specified height. Image may only decrease in dimension with this settings as if the height is already smaller than specified length, no change is performed.  
+        /// </summary>
+        MaxHeight,
+        /// <summary>
+        /// Resize to specified width. Image may only decrease in dimension with this settings as if the width is already smaller than specified length, no change is performed.  
+        /// </summary>
+        MaxWidth,
+        /// <summary>
+        /// Fix the height of each image to specified length. Image size may increase or decrease. 
+        /// </summary>
+        FixedHeight,
+        /// <summary>
+        /// Fix the width of each image to specified length. Image size may increase or decrease. 
+        /// </summary>
+        FixedWidth,
+
+        /// <summary>
+        /// Used for resizing images for print size. 
+        /// Fit the image in a frame of specified size. Image size will not increase as smaller image will be keep as same. Frame is made of two edges, primary and secondary. Primary edge is the one which is fixed and secondary edge is the one which is flexible. Primary edge is always the longest edge of the image.
+        /// </summary>
+        FitInFrame,
+
+        /// <summary>
+        /// Used for resizing images for print size. 
+        /// Fix the image in a frame of specified size. Image size may increase or decrease. Frame is made of two edges, primary and secondary. Primary edge is the one which is fixed and secondary edge is the one which is flexible. Primary edge is always the longest edge of the image.
+        /// </summary>
+        FixedInFrame
+    }
+
+    #endregion
+
+    #region Output File Location Settings
+    /// <summary>
+    /// Strategy to save compressed images to.
+    /// </summary>
+    public enum OutputLocationSettings
+    {
+        /// <summary>
+        /// A 'Compressed' folder is created inside the selected directory or beside the selected file. 
+        /// </summary>
+        InCompressedFolder,
+        /// <summary>
+        /// New file is created beside the original file with a suffix in the name. i.e. if the original file was file.jpg, this strategy make another file in the same directy called file@3x.jpg if suffix specified was '@3x'.
+        /// </summary>
+        SameFolderWithFileNameSuffix,
+        /// <summary>
+        /// Replace original file, results in data loss as orignal files will be replaced with compressed files.
+        /// </summary>
+        ReplaceOriginal,
+        /// <summary>
+        /// All selected items will be compressed and stored in user specified directory while maintaining the folder structure of original files (i.e. relative to the selected path). e.g. if selected path "def" is "C:/abc/def" folder and output folder is "C:/output" then "C:/abc/def/xyz/lmn.jpg" will be stored as C:/output/def/xyz/lmn.jpg".
+        /// </summary>
+        UserSpecificFolder,
+    }
+    #endregion
 }
