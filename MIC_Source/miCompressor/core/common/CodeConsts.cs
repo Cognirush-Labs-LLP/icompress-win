@@ -29,5 +29,7 @@ namespace miCompressor.core
         /// </summary>
         public static IEnumerable<string> SupportedInputExtensionsWithDot
             => SupportedInputExtensions.Select(ext => $".{ext}");
+
+        public static string compressedDirName = "Compressed";
     }
 }

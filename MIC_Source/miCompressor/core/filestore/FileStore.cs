@@ -29,6 +29,12 @@ namespace miCompressor.core
         /// </summary>
         public string Path { get; }
 
+
+        /// <summary>
+        /// Returns the file name if the path is a file, otherwise returns the directory name.
+        /// </summary>
+        public string DisplayName => IsDirectory ? new DirectoryInfo(Path).Name : System.IO.Path.GetFileName(Path);
+
         /// <summary>
         /// Indicates whether the selected path is a directory.
         /// </summary>

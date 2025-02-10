@@ -46,10 +46,11 @@ namespace miCompressor.core
         /// </code>
         /// </example>
         public static void RunOnUIThread(Action action)
-        {           
+        {
             if (UIThreadDispatcherQueue is null)
 #if DEBUG
-                throw new InvalidOperationException("UIThreadDispatcherQueue is not initialized. Call Initialize() on the UI thread first.");
+                //throw new InvalidOperationException("UIThreadDispatcherQueue is not initialized. Call Initialize() on the UI thread first.");
+                return;
 #else
         return; // Fail silently in release builds.
 #endif

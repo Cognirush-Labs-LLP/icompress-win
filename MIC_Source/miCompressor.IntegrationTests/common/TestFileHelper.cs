@@ -70,5 +70,12 @@ namespace miCompressor.IntegrationTests
 
             return testRootDir;
         }
+
+        public static bool IsSamePath(string path1, string path2)
+        {
+            if (path1 == null || path2 == null)
+                return false;
+            return String.Equals(Path.GetFullPath(path1), Path.GetFullPath(path2), StringComparison.OrdinalIgnoreCase);
+        }
     }
 }

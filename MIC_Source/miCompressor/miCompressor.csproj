@@ -41,6 +41,7 @@
 
   <ItemGroup>
     <None Remove="ui\EmptyFilesView.xaml" />
+    <None Remove="ui\ErrorAndWarnings.xaml" />
     <None Remove="ui\FileSelectionView.xaml" />
     <None Remove="ui\MasterView.xaml" />
     <None Remove="ui\SettingsView.xaml" />
@@ -87,6 +88,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AutoNotifyGenerator\AutoNotifyGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="ui\ErrorAndWarnings.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="ui\FileSelectionView.xaml">

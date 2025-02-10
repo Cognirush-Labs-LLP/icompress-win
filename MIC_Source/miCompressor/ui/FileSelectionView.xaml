@@ -21,7 +21,7 @@
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock Text="{Binding Path}" FontSize="16" />
+                            <TextBlock Text="{Binding DisplayName}" FontSize="16" />
                             <!--<ListView ItemsSource="{Binding FileStore.SelectedPaths.}">
                                 <TextBlock>Selected Images</TextBlock>
                                 <ListView.ItemTemplate>

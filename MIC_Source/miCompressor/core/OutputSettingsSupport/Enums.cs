@@ -14,9 +14,25 @@ namespace miCompressor.core
     /// </summary>
     public enum OutputFormat
     {
-        Jpg = 1,    // JPEG format (.jpg, .jpeg, .JPG, .JPEG)
-        Png,        // PNG format (.png, .PNG)
-        Tiff,       // TIFF format (.tiff, .tif, .TIFF, .TIF)
+        /// <summary>
+        /// Keep the original format when possible. If output format is not supported, default format will be used (Advanced Settings).
+        /// </summary>
+        KeepSame = 0,
+        /// <summary>
+        /// JPEG format (.jpg, .jpeg, .JPG, .JPEG)
+        /// </summary>
+        Jpg = 1,
+        /// <summary>
+        /// PNG format (.png, .PNG)
+        /// </summary>
+        Png,
+        /// <summary>
+        /// TIFF format (.tiff, .tif, .TIFF, .TIF)
+        /// </summary>
+        Tiff,
+        /// <summary>
+        /// WebP format (.webp, .WEBP)
+        /// </summary>
         Webp        // WebP format (.webp, .WEBP)
     }
 
@@ -32,7 +48,7 @@ namespace miCompressor.core
         /// <param name="format">The desired output format.</param>
         /// <param name="originalFilePath">The original file's full path.</param>
         /// <returns>The correct file extension preserving case and format.</returns>
-        public static string GetExtension(this OutputFormat format, string originalFilePath)
+        public static string GetOutputExtension(this OutputFormat format, string originalFilePath)
         {
             if (string.IsNullOrWhiteSpace(originalFilePath) || !File.Exists(originalFilePath))
                 throw new ArgumentException("Invalid file path provided.", nameof(originalFilePath));
@@ -45,6 +61,7 @@ namespace miCompressor.core
                 OutputFormat.Png => IsPng(originalExtension) ? originalExtension : ".png",
                 OutputFormat.Tiff => IsTiff(originalExtension) ? originalExtension : ".tiff",
                 OutputFormat.Webp => IsWebp(originalExtension) ? originalExtension : ".webp",
+                OutputFormat.KeepSame => AdvancedSettings.Instance.defaultImageExtension.GetOutputExtension(originalFilePath),
                 _ => throw new ArgumentOutOfRangeException(nameof(format), "Unsupported format.")
             };
         }
