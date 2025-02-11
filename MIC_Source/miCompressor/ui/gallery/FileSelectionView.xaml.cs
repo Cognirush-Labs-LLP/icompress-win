@@ -1,3 +1,4 @@
+using miCompressor.core;
 using miCompressor.viewmodels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -28,6 +29,12 @@ namespace miCompressor.ui
         {
             this.InitializeComponent();
             //this.DataContext = (this.Parent as Page?).DataContent; // Inherit DataContext from Parent (MasterView)
+        }
+
+        private void SelectedItem_SelectedPathDeleted(object sender, SelectedPath e)
+        {
+            // Handle the deletion, such as removing the path from a collection or refreshing the UI
+            App.FileStoreInstance.Remove(e.Path);
         }
     }
 }

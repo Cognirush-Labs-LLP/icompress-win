@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:miCompressor.ui">
+
+
+    <!-- Opacity Variants -->
+    <SolidColorBrush x:Key="Primary_05" Color="{ThemeResource TextFillColorPrimary}" Opacity="0.05" />
+    <SolidColorBrush x:Key="Primary_10" Color="{ThemeResource TextFillColorPrimary}" Opacity="0.10" />
+    <SolidColorBrush x:Key="Primary_20" Color="{ThemeResource TextFillColorPrimary}" Opacity="0.20" />
+    <SolidColorBrush x:Key="Primary_30" Color="{ThemeResource TextFillColorPrimary}" Opacity="0.30" />
+    <SolidColorBrush x:Key="Primary_50" Color="{ThemeResource TextFillColorPrimary}" Opacity="0.50" />
+
+    <SolidColorBrush x:Key="Acccent_100" Color="{ThemeResource SystemAccentColor}" />
+    <SolidColorBrush x:Key="Acccent_50" Color="{ThemeResource SystemAccentColor}" Opacity="0.50"/>
+    <SolidColorBrush x:Key="Acccent_20" Color="{ThemeResource SystemAccentColor}" Opacity="0.20"/>
+
+    <SolidColorBrush x:Key="Red_80" Color="Red" Opacity="0.80"/>
+
+</ResourceDictionary>

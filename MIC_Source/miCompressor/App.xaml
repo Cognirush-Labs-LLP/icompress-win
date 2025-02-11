@@ -3,14 +3,21 @@
     x:Class="miCompressor.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:miCompressor">
+    xmlns:local="using:miCompressor"
+    xmlns:ui="using:miCompressor.ui"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.Converters">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
                 <!-- Other merged dictionaries here -->
+                <ResourceDictionary Source="ui/styles/Fonts.xaml" />
+                <ResourceDictionary Source="ui/styles/Colors.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <!-- Other app resources here -->
+            <SolidColorBrush x:Key="Primary_100" Color="{ThemeResource TextFillColorPrimary}" Opacity="1" />
+            <ui:BlendedBrushes x:Key="BlendedBrushHelper" />
+            <toolkit:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         </ResourceDictionary>
     </Application.Resources>
-</Application>
+ </Application>

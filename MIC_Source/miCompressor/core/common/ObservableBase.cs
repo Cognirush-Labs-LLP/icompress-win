@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace miCompressor.core
 {
@@ -60,7 +61,7 @@ namespace miCompressor.core
         private readonly Dictionary<string, Action<object?, object?>?> _changeCallbacks = new();
 
         // Lock for thread-safe access
-        private readonly ReaderWriterLockSlim _lock = new(LockRecursionPolicy.NoRecursion);
+        private readonly ReaderWriterLockSlim _lock = new(LockRecursionPolicy.SupportsRecursion);
 
         /// <summary>
         /// Event triggered when a property value changes.
@@ -127,7 +128,17 @@ namespace miCompressor.core
                 // Invoke change callback if provided
                 if (onChanged != null)
                 {
-                    _changeCallbacks[propertyName] = (oldValue, newValue) => onChanged((T)oldValue!, (T)newValue!);
+                    _changeCallbacks[propertyName] = (oldValue, newValue) =>
+                    {
+                        if (oldValue is T oldTypedValue && newValue is T newTypedValue)
+                        {
+                            onChanged(oldTypedValue, newTypedValue);
+                        }
+                        else
+                        {
+                            onChanged(default!, (T)newValue!); // Use default(T) if oldValue is null
+                        }
+                    };
                     _changeCallbacks[propertyName]?.Invoke(existingValue, value);
                 }
 

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="miCompressor.ui.FileSelectionView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:miCompressor.ui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <StackPanel Orientation="Vertical">
+            <ListView ItemsSource="{Binding FileStore.SelectedPaths}">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="Margin" Value="1" />
+                        <Setter Property="CornerRadius" Value="10" />
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <TextBlock>Selected Images</TextBlock>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <local:SelectedItem SelectedPath="{Binding}" SelectedPathDeleted="SelectedItem_SelectedPathDeleted" Background="{StaticResource Primary_05}"/>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackPanel>
+    </Grid>
+</Page>

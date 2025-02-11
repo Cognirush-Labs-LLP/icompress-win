@@ -44,6 +44,7 @@
     <None Remove="ui\ErrorAndWarnings.xaml" />
     <None Remove="ui\FileSelectionView.xaml" />
     <None Remove="ui\MasterView.xaml" />
+    <None Remove="ui\SelectedItemHeader.xaml" />
     <None Remove="ui\SettingsView.xaml" />
     <None Remove="ui\settings\QualitySettings.xaml" />
   </ItemGroup>
@@ -116,6 +117,32 @@
   </ItemGroup>
   <ItemGroup>
     <Page Update="ui\SettingsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Assets\Icons\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Update="Assets\Fonts\FontAwesome6Free-Regular-400.otf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\Fonts\FontAwesome6Free-Solid-900.otf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="ui\styles\Fonts.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="ui\styles\Colors.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="ui\SelectedItemHeader.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>

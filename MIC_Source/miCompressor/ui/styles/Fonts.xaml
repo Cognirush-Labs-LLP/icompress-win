@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:miCompressor.ui">
+
+    <FontFamily x:Key="FontAwesomeRegular">ms-appx:///Assets/Fonts/FontAwesome6Free-Regular-400.otf#Font Awesome 6 Free</FontFamily>
+    <FontFamily x:Key="FontAwesomeSolid">ms-appx:///Assets/Fonts/FontAwesome6Free-Solid-900.otf#Font Awesome 6 Free</FontFamily>
+</ResourceDictionary>

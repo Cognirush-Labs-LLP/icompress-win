@@ -51,14 +51,35 @@ namespace miCompressor.core
         /// Determines whether subdirectories should be included in the scan.
         /// Changing this property triggers a new scan.
         /// </summary>
-        [AutoNotify]
-        private bool includeSubDirectories;
-        
+        public bool IncludeSubDirectories
+        {
+            get => GetProperty<bool>();
+            set
+            {
+                SetProperty(value, (_, _) =>
+                {
+                    ChangeToIncludeSubDirectories(value);
+                });
+            }
+        }
+
+        private CancellationTokenSource? _cancellationTokenSource;
+
         /// <summary>
         /// A read-only list of media files found in the selected path.
         /// </summary>
-        public IReadOnlyList<MediaFileInfo> Files => (IReadOnlyList<MediaFileInfo>)_files;
+        public IReadOnlyList<MediaFileInfo> Files
+        {
+            get
+            {
+                using (_lockForFiles.ReadLock())
+                    return _files.ToList().AsReadOnly();
+            }
+        }
+
         private IList<MediaFileInfo> _files = new List<MediaFileInfo>();
+        private readonly ReaderWriterLockSlim _lockForFiles = new ReaderWriterLockSlim();
+        private readonly object _lockForScannerThread = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SelectedPath"/> class.
@@ -74,7 +95,7 @@ namespace miCompressor.core
             IsDirectory = Directory.Exists(path);
             this.IncludeSubDirectories = includeSubDirectories;
 
-            ScanForMediaFiles().ConfigureAwait(false);
+            //ScanForMediaFiles().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -83,10 +104,27 @@ namespace miCompressor.core
         /// <param name="includeSubDirectories"></param>
         public void ChangeToIncludeSubDirectories(bool includeSubDirectories)
         {
-            if (this.IncludeSubDirectories == includeSubDirectories) return; //no change was made to the setting.
-
             this.IncludeSubDirectories = includeSubDirectories;
-            ScanForMediaFiles().ConfigureAwait(false);
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await ScanForMediaFiles().ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error: {ex.Message}");
+                }
+            });
+        }
+
+        /// <summary>
+        /// Cancels the ongoing file scanning operation, it may take some time to cancel the operation.
+        /// Should be called before changing the include subdirectories setting and before removing the path from the store.
+        /// </summary>
+        public void CancelScanning()
+        {
+            _cancellationTokenSource?.Cancel();
         }
 
         /// <summary>
@@ -95,60 +133,98 @@ namespace miCompressor.core
         /// </summary>
         private async Task ScanForMediaFiles()
         {
+            CancelScanning();
+            _cancellationTokenSource = new CancellationTokenSource();
+            CancellationToken cancellationToken = _cancellationTokenSource.Token;
+
             ScanningForFiles = true;
-
-            await Task.Run(() =>
+            try
             {
-                var mediaFileInfos = new List<MediaFileInfo>();
-
                 string basePath = Path;
                 if (File.Exists(basePath) &&
                 CodeConsts.SupportedInputExtensions.Contains(System.IO.Path.GetExtension(basePath).TrimStart('.').ToLower())) // if file, just at it as supported input file. 
                 {
-                    mediaFileInfos.Add(new MediaFileInfo(basePath, new FileInfo(basePath)));
+                    using (_lockForFiles.WriteLock())
+                    {
+                        _files.Clear();
+                        _files.Add(new MediaFileInfo(basePath, new FileInfo(basePath)));
+                    }
+                    OnPropertyChanged(nameof(Files));
                 }
                 else
                 {
-                    var supportedInputFiles = new List<FileInfo>();
-                    PopulateAllFilesForSupportedExtension(CodeConsts.SupportedInputExtensions, basePath, includeSubDirectories, supportedInputFiles);
-
-                    foreach (var supportedFile in supportedInputFiles)
-                        mediaFileInfos.Add(new MediaFileInfo(basePath, supportedFile));
+                    await Task.Run(() =>
+                    {
+                        lock (_lockForScannerThread)
+                        {
+                            using (_lockForFiles.WriteLock())
+                            {
+                                _files.Clear();
+                            }
+                            OnPropertyChanged(nameof(Files));
+                            PopulateAllFilesForSupportedExtension(CodeConsts.SupportedInputExtensions, Path, IncludeSubDirectories, cancellationToken);
+                        }
+                    }, cancellationToken);
                 }
-
-                _files = mediaFileInfos;
-                OnPropertyChanged(nameof(Files));
-
+            }
+            catch (OperationCanceledException)
+            {
+                System.Diagnostics.Debug.WriteLine("File scanning was canceled.");
+            }
+            finally
+            {
                 ScanningForFiles = false;
-            });
+            }
         }
 
         /// <summary>
-        /// Recursively scans given `rootFolderPath` and populates `files`
+        /// Recursively scans the given `rootFolderPath` and populates files in batches.
+        /// Supports cancellation through `CancellationToken`.
         /// </summary>
-        /// <param name="SupportedInputExtensions">Small cased extensions without preceding "." e.g. ["jpg", "jpeg", "png"]</param>
+        /// <param name="SupportedInputExtensions">Small cased extensions without preceding "." e.g., ["jpg", "jpeg", "png"]</param>
         /// <param name="rootFolderPath">Selected Path by user to search the images within</param>
-        /// <param name="inlcudeSubDir">Should search directories within `rootFolderPath' or not.</param>
-        /// <param name="files">Pass an empty list, this will be populated with supported files inside `rootFolderPath`</param>
-        private void PopulateAllFilesForSupportedExtension(string[] SupportedInputExtensions, string rootFolderPath, bool inlcudeSubDir, List<FileInfo> files)
+        /// <param name="includeSubDir">Should search directories within `rootFolderPath` or not</param>
+        /// <param name="cancellationToken">Token to cancel the ongoing operation</param>
+        private void PopulateAllFilesForSupportedExtension(string[] SupportedInputExtensions, string rootFolderPath, bool includeSubDir, CancellationToken cancellationToken)
         {
             DirectoryInfo di = new DirectoryInfo(rootFolderPath);
 
             try
             {
+                cancellationToken.ThrowIfCancellationRequested();  // Check for cancellation
+
                 var fiArr = di.GetFiles("*.*", SearchOption.TopDirectoryOnly)
-                    .Where(file => SupportedInputExtensions.Contains(file.Extension.TrimStart('.').ToLower()));
+                             .Where(file => SupportedInputExtensions.Contains(file.Extension.TrimStart('.').ToLower()));
 
-                files.AddRange(fiArr);
 
-                if (inlcudeSubDir)
-                    foreach (DirectoryInfo info in di.GetDirectories())
-                        PopulateAllFilesForSupportedExtension(SupportedInputExtensions, info.FullName, inlcudeSubDir, files);
+                using (_lockForFiles.WriteLock())
+                {
+                    foreach (var file in fiArr)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();  // Check for cancellation before yielding each file
+                        _files.Add(new MediaFileInfo(file.FullName, file));
+                    }
+                }
+                if (fiArr.Any())
+                    OnPropertyChanged(nameof(Files));
+
+                if (includeSubDir)
+                {
+                    foreach (DirectoryInfo subDir in di.GetDirectories())
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        // Recursively yield results from subdirectories
+                        PopulateAllFilesForSupportedExtension(SupportedInputExtensions, subDir.FullName, includeSubDir, cancellationToken);
+                    }
+                }
             }
-            catch
+            catch (OperationCanceledException)
             {
-                //Most probable error: Unable to read the directory (access right issue). Ignore those directories.
-                return;
+                System.Diagnostics.Debug.WriteLine($"Cancellation requested while scanning directory: {di.FullName}");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error while scanning directory: {di.FullName}. Error: {ex.Message}");
             }
         }
     }
@@ -156,7 +232,7 @@ namespace miCompressor.core
     /// <summary>
     /// Manages a thread-safe collection of selected file paths.
     /// </summary>
-    public class FileStore: ObservableBase
+    public class FileStore : ObservableBase
     {
         private readonly List<SelectedPath> _store = new();
         private readonly ReaderWriterLockSlim _lock = new(LockRecursionPolicy.SupportsRecursion);
@@ -182,7 +258,7 @@ namespace miCompressor.core
             get
             {
                 int totalWaitMs = 0;
-                while( SelectedPaths.Any(selection => selection.ScanningForFiles ) && totalWaitMs < 10*1000) //wait for scanning to finish, max 10 seconds
+                while (SelectedPaths.Any(selection => selection.ScanningForFiles) && totalWaitMs < 10 * 1000) //wait for scanning to finish, max 10 seconds
                 {
                     Thread.Sleep(10);
                     totalWaitMs += 10;
@@ -233,7 +309,7 @@ namespace miCompressor.core
                 var selectedPath = _store.FirstOrDefault(sp => sp.Path.Equals(path, StringComparison.OrdinalIgnoreCase));
 
                 if (selectedPath == null) return false;
-
+                selectedPath.CancelScanning();
                 _store.Remove(selectedPath);
                 OnPropertyChanged(nameof(SelectedPaths));
                 return true;
@@ -267,6 +343,7 @@ namespace miCompressor.core
         {
             using (_lock.WriteLock())
             {
+                _store.ForEach(selectedPath => selectedPath.CancelScanning());
                 _store.Clear();
                 OnPropertyChanged(nameof(SelectedPaths));
             }
