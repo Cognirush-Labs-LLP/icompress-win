@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="miCompressor.ui.SelectionDetailView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:miCompressor.ui"
+    xmlns:vm="using:miCompressor.ui.viewmodel"
+    xmlns:core="using:miCompressor.core"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Border Grid.Row="0" >
+        <ItemsRepeater ItemsSource="{x:Bind ViewModel.ImageGroups}">
+            <ItemsRepeater.Layout>
+                <StackLayout Orientation="Vertical" />
+            </ItemsRepeater.Layout>
+            <ItemsRepeater.ItemTemplate>
+                <DataTemplate x:DataType="vm:ImageGroup">
+                    <StackPanel>
+                        <!-- Folder Path -->
+                        <TextBlock Text="{x:Bind FolderPath}" FontWeight="Bold" />
+
+                        <!-- ItemsRepeater replacing inner ListView -->
+                        <ItemsRepeater ItemsSource="{x:Bind Images, Mode=OneWay}" VerticalCacheLength="500" >
+                            <ItemsRepeater.Layout>
+                                <UniformGridLayout 
+                                Orientation="Horizontal" 
+                                MinItemWidth="100" 
+                                MinItemHeight="100" 
+                                MinRowSpacing="5" 
+                                MinColumnSpacing="5"
+                                 />
+                            </ItemsRepeater.Layout>
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="core:MediaFileInfo">
+                                    <StackPanel Width="100" Height="100"
+                                        Margin="5"
+                                        Background="Transparent">
+                                        <StackPanel VerticalAlignment="Center">
+                                            <!-- Thumbnail Loading Indicator -->
+                                                <ProgressRing IsActive="{x:Bind Thumbnail, Mode=OneWay, Converter={StaticResource NullToBooleanConverter}}" 
+                                                      Width="20" Height="20"  />
+
+                                                <!-- Primary Thumbnail -->
+                                                <Image Source="{x:Bind Thumbnail, Mode=OneWay}" 
+                                                   MaxWidth="80" MaxHeight="80" Stretch="Uniform" />
+
+                                                <!-- File Size Display -->
+                                            <TextBlock Text="{x:Bind FileSizeToShow, Mode=OneWay}" 
+                                                   HorizontalAlignment="Center" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsRepeater.ItemTemplate>
+        </ItemsRepeater>
+        </Border>
+    </Grid>
+</UserControl>

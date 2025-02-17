@@ -113,7 +113,7 @@ namespace miCompressor.core
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error saving settings: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Error saving settings: {ex.Message}");
             }
         }
 
@@ -135,7 +135,7 @@ namespace miCompressor.core
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error restoring settings: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Error restoring settings: {ex.Message}");
             }
         }
 

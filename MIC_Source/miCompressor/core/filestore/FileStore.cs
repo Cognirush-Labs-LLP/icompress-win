@@ -77,7 +77,7 @@ namespace miCompressor.core
             }
         }
 
-        private IList<MediaFileInfo> _files = new List<MediaFileInfo>();
+        private List<MediaFileInfo> _files = new List<MediaFileInfo>();
         private readonly ReaderWriterLockSlim _lockForFiles = new ReaderWriterLockSlim();
         private readonly object _lockForScannerThread = new();
 
@@ -127,6 +127,14 @@ namespace miCompressor.core
             _cancellationTokenSource?.Cancel();
         }
 
+        public void Cleanup()
+        {
+            for (int i = 0; i < 1000 && ScanningForFiles; i++) // wait for 1 second max if still scanning
+                Thread.Sleep(1);
+
+            _cancellationTokenSource?.Dispose();
+        }
+
         /// <summary>
         /// Scans the directory asynchronously and updates the file list.
         /// Only files with supported extensions are included.
@@ -162,7 +170,7 @@ namespace miCompressor.core
                                 _files.Clear();
                             }
                             OnPropertyChanged(nameof(Files));
-                            PopulateAllFilesForSupportedExtension(CodeConsts.SupportedInputExtensions, Path, IncludeSubDirectories, cancellationToken);
+                            PopulateAllFilesForSupportedExtension(CodeConsts.SupportedInputExtensionsWithDot, Path, IncludeSubDirectories, cancellationToken);
                         }
                     }, cancellationToken);
                 }
@@ -174,6 +182,7 @@ namespace miCompressor.core
             finally
             {
                 ScanningForFiles = false;
+                OnPropertyChanged(nameof(Files));
             }
         }
 
@@ -185,37 +194,49 @@ namespace miCompressor.core
         /// <param name="rootFolderPath">Selected Path by user to search the images within</param>
         /// <param name="includeSubDir">Should search directories within `rootFolderPath` or not</param>
         /// <param name="cancellationToken">Token to cancel the ongoing operation</param>
-        private void PopulateAllFilesForSupportedExtension(string[] SupportedInputExtensions, string rootFolderPath, bool includeSubDir, CancellationToken cancellationToken)
+        private void PopulateAllFilesForSupportedExtension(HashSet<string> supportedInputExtensions, string rootFolderPath, bool includeSubDir, CancellationToken cancellationToken)
         {
             DirectoryInfo di = new DirectoryInfo(rootFolderPath);
+
 
             try
             {
                 cancellationToken.ThrowIfCancellationRequested();  // Check for cancellation
 
                 var fiArr = di.GetFiles("*.*", SearchOption.TopDirectoryOnly)
-                             .Where(file => SupportedInputExtensions.Contains(file.Extension.TrimStart('.').ToLower()));
+                             .Where(file => supportedInputExtensions.Contains(file.Extension.ToLower()));
 
-
-                using (_lockForFiles.WriteLock())
+                var newFiles = fiArr.Select(file =>
                 {
-                    foreach (var file in fiArr)
+                    cancellationToken.ThrowIfCancellationRequested();
+                    return new MediaFileInfo(file.FullName, file);
+                }).ToList();
+
+                if (newFiles.Any())
+                {
+                    using (_lockForFiles.WriteLock())
                     {
-                        cancellationToken.ThrowIfCancellationRequested();  // Check for cancellation before yielding each file
-                        _files.Add(new MediaFileInfo(file.FullName, file));
+                        _files.AddRange(newFiles);
                     }
-                }
-                if (fiArr.Any())
                     OnPropertyChanged(nameof(Files));
+                }                
 
                 if (includeSubDir)
                 {
-                    foreach (DirectoryInfo subDir in di.GetDirectories())
+                    /*foreach (DirectoryInfo subDir in di.EnumerateDirectories())
                     {
                         cancellationToken.ThrowIfCancellationRequested();
                         // Recursively yield results from subdirectories
                         PopulateAllFilesForSupportedExtension(SupportedInputExtensions, subDir.FullName, includeSubDir, cancellationToken);
-                    }
+                    }*/
+                    Parallel.ForEach(
+                        di.EnumerateDirectories(),
+                        new ParallelOptions { CancellationToken = cancellationToken },
+                        subDir =>
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+                            PopulateAllFilesForSupportedExtension(supportedInputExtensions, subDir.FullName, includeSubDir, cancellationToken);
+                        });
                 }
             }
             catch (OperationCanceledException)
@@ -310,6 +331,7 @@ namespace miCompressor.core
 
                 if (selectedPath == null) return false;
                 selectedPath.CancelScanning();
+
                 _store.Remove(selectedPath);
                 OnPropertyChanged(nameof(SelectedPaths));
                 return true;

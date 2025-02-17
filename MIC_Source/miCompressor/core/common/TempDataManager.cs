@@ -115,7 +115,7 @@ namespace miCompressor.core
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($" * Error cleaning temp directory: {ex.Message}");
+                        System.Diagnostics.Debug.WriteLine($" * Error cleaning temp directory: {ex.Message}");
                     }
                 }
             });
@@ -139,12 +139,12 @@ namespace miCompressor.core
                     if (fileInfo.LastWriteTime < DateTime.Now.AddHours(-1.0*staleIfOlderThanHours))
                     {
                         fileInfo.Delete();
-                        //Console.WriteLine($"Deleted file: {fileInfo.FullName}");
+                        //System.Diagnostics.Debug.WriteLine($"Deleted file: {fileInfo.FullName}");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($" * Failed to delete file {file}: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($" * Failed to delete file {file}: {ex.Message}");
                 }
             }
 
@@ -161,7 +161,7 @@ namespace miCompressor.core
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($" * Failed to delete directory {subDir}: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($" * Failed to delete directory {subDir}: {ex.Message}");
                 }
             }
         }

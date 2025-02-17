@@ -27,8 +27,8 @@ namespace miCompressor.core
         /// <summary>
         /// Generated from <![CDATA[SupportedInputExtensions]]> but file extensions with dot. i.e. ".jpg", ".jpeg", ".png", ".webp"
         /// </summary>
-        public static IEnumerable<string> SupportedInputExtensionsWithDot
-            => SupportedInputExtensions.Select(ext => $".{ext}");
+        public static HashSet<string> SupportedInputExtensionsWithDot
+            => new HashSet<string>(SupportedInputExtensions.Select(ext => $".{ext}"));
 
         public static string compressedDirName = "Compressed";
     }

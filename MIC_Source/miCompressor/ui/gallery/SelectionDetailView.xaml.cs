@@ -13,6 +13,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using miCompressor.core;
+using miCompressor.ui.viewmodel;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -20,10 +21,12 @@ using miCompressor.core;
 namespace miCompressor.ui
 {
     /// <summary>
-    /// Shows Selected Item (file or folder), i.e. each SelectedPath in FileStore
+    /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class SelectedItem : UserControl
+    public sealed partial class SelectionDetailView : UserControl
     {
+        public GroupedImageGalleryViewModel ViewModel { get; } = new GroupedImageGalleryViewModel();
+
         /// <summary>
         /// Gets or sets the selected path.
         /// </summary>
@@ -33,27 +36,27 @@ namespace miCompressor.ui
             set => SetValue(SelectedPathProperty, value);
         }
 
-        public bool ScannedAllFiles => !(SelectedPath?.ScanningForFiles ?? false);
+        private static void OnSelectedPathChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var control = (SelectionDetailView)d;
+            if (e.NewValue is SelectedPath newPath)
+            {
+                if (newPath == null)
+                    return;
+                control.ViewModel.LoadData(newPath);
+                System.Diagnostics.Debug.WriteLine($"Loaded Data for: {newPath.DisplayName}");
+            }
+        }
 
         /// <summary>
         /// Identifies the <see cref="SelectedPath"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty SelectedPathProperty =
-            DependencyProperty.Register("SelectedPath", typeof(SelectedPath), typeof(SelectedItem), new PropertyMetadata(null));
+            DependencyProperty.Register("SelectedPath", typeof(SelectedPath), typeof(SelectionDetailView), new PropertyMetadata(null, OnSelectedPathChanged));
 
-        public event EventHandler<SelectedPath>? SelectedPathDeleted;
-
-        public SelectedItem()
+        public SelectionDetailView()
         {
             this.InitializeComponent();
-        }
-
-        private void OnDeleteButtonClicked(object sender, RoutedEventArgs e)
-        {
-            // Trigger the event, notifying the parent
-            SelectedPathDeleted?.Invoke(this, SelectedPath);
-
-            // Optionally, clear or reset the `SelectedPath` here if needed
         }
     }
 }

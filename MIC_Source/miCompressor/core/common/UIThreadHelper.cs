@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.UI.Dispatching;
 
 namespace miCompressor.core
@@ -59,6 +60,37 @@ namespace miCompressor.core
                 action();
             else
                 UIThreadDispatcherQueue.TryEnqueue(() => action());
+        }
+
+        /// <summary>
+        /// Runs the provided async action on the UI thread. If already on the UI thread, it executes immediately.
+        /// </summary>
+        public static async Task RunOnUIThreadAsync(Func<Task> asyncAction)
+        {
+            if (UIThreadDispatcherQueue?.HasThreadAccess == true)
+            {
+                // Already on UI thread, execute immediately
+                await asyncAction();
+            }
+            else
+            {
+                var taskCompletionSource = new TaskCompletionSource<bool>();
+
+                UIThreadDispatcherQueue!.TryEnqueue(async () =>
+                {
+                    try
+                    {
+                        await asyncAction();  // This runs on the UI thread
+                        taskCompletionSource.SetResult(true);
+                    }
+                    catch (Exception ex)
+                    {
+                        taskCompletionSource.SetException(ex);  // Propagate exceptions
+                    }
+                });
+
+                await taskCompletionSource.Task;
+            }
         }
     }
 }

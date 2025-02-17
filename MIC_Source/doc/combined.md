@@ -143,6 +143,78 @@ public XmlnsDefinition[] GetXmlnsDefinitions()
 
 XmlnsDefinition[]<br>
  
+# AdvancedSettings
+
+Namespace: miCompressor.core
+
+Provides advanced settings for the application which user can change.
+
+```csharp
+public class AdvancedSettings : System.ComponentModel.INotifyPropertyChanged
+```
+
+Inheritance: Object → AdvancedSettings<br>
+Implements: INotifyPropertyChanged<br>
+Attributes: NullableContextAttribute, NullableAttribute
+
+## Fields
+
+### defaultImageExtension
+
+If the input image has unsupported output format, this format will be used when user wants to keep the original format.
+
+```csharp
+[AutoNotify] public OutputFormat defaultImageExtension;
+```
+
+## Properties
+
+### Instance
+
+```csharp
+public static AdvancedSettings Instance { get; }
+```
+
+### DefaultImageExtension
+
+```csharp
+public OutputFormat DefaultImageExtension { get; set; }
+```
+
+## Constructors
+
+### AdvancedSettings()
+
+```csharp
+private AdvancedSettings()
+```
+
+### AdvancedSettings()
+
+```csharp
+private static AdvancedSettings()
+```
+
+## Methods
+
+### OnPropertyChanged(String)
+
+```csharp
+protected void OnPropertyChanged(string propertyName)
+```
+
+#### Parameters
+
+`propertyName` String<br>
+
+## Events
+
+### PropertyChanged
+
+```csharp
+public event PropertyChangedEventHandler PropertyChanged;
+```
+ 
 # AutoNotifyAttribute
 
 Namespace: miCompressor.core
@@ -214,6 +286,12 @@ Supported lower cased output file extensions without dot. i.e. "jpg", "png", "we
 public static String[] SupportedOutputExtensions = ["jpg", "png", "webp"];
 ```
 
+### compressedDirName
+
+```csharp
+public static string compressedDirName = "Compressed";
+```
+
 ## Properties
 
 ### SupportedInputExtensionsWithDot
@@ -221,7 +299,7 @@ public static String[] SupportedOutputExtensions = ["jpg", "png", "webp"];
 Generated from <![CDATA[SupportedInputExtensions]]> but file extensions with dot. i.e. ".jpg", ".jpeg", ".png", ".webp"
 
 ```csharp
-public static IEnumerable<string> SupportedInputExtensionsWithDot { get; }
+public static HashSet<string> SupportedInputExtensionsWithDot { get; }
 ```
 
 ## Constructors
@@ -230,6 +308,244 @@ public static IEnumerable<string> SupportedInputExtensionsWithDot { get; }
 
 ```csharp
 private static CodeConsts()
+```
+ 
+# CompressionErrorType
+
+Namespace: miCompressor.core.common
+
+Error type for compression operation.
+
+```csharp
+public enum CompressionErrorType
+```
+
+Inheritance: Object → ValueType → Enum → CompressionErrorType<br>
+Implements: IComparable, ISpanFormattable, IFormattable, IConvertible
+
+## Fields
+
+| Name | Value | Description |
+| --- | --: | --- |
+| FailedToCompress | 0 | Failed to compress the file. This is a generic error. Most of the time, this is due to unsupported feature of the format or corrupted file. |
+ 
+# PostCompressionWarningType
+
+Namespace: miCompressor.core.common
+
+Warning to show after compression is done.
+
+```csharp
+public enum PostCompressionWarningType
+```
+
+Inheritance: Object → ValueType → Enum → PostCompressionWarningType<br>
+Implements: IComparable, ISpanFormattable, IFormattable, IConvertible
+
+## Fields
+
+| Name | Value | Description |
+| --- | --: | --- |
+| FileSizeIncreased | 0 | File size increased after compression. Possible reasons: File format changed, dimension changed. |
+| FileFormatChanged | 1 | File format changed as user selected to keep original format but it is not supported as output format. |
+| FileOverwritten | 2 | Some file already existed which is overwritten. If user selected to replace original file, this warning will not be shown as it is expected. |
+ 
+# PreCompressionWarningType
+
+Namespace: miCompressor.core.common
+
+Warning to show before compression starts. User actions can be captured to mitigate the warning - mostly skip the affected file or cancel the operation.
+
+```csharp
+public enum PreCompressionWarningType
+```
+
+Inheritance: Object → ValueType → Enum → PreCompressionWarningType<br>
+Implements: IComparable, ISpanFormattable, IFormattable, IConvertible
+
+## Fields
+
+| Name | Value | Description |
+| --- | --: | --- |
+| FileAlreadyExists | 0 | Destination file already exists. User may overwrite or cancel the operation. If user selected to replace original file, this warning will not be shown as it is expected. |
+| FileFormatChanged | 1 | File format changed as user selected to keep original format but it is not supported as output format. |
+ 
+# WarningHelper
+
+Namespace: miCompressor.core.common
+
+Singleton class to show compression warnings to user.
+
+```csharp
+public class WarningHelper : System.ComponentModel.INotifyPropertyChanged
+```
+
+Inheritance: Object → WarningHelper<br>
+Implements: INotifyPropertyChanged<br>
+Attributes: NullableContextAttribute, NullableAttribute, WinRTRuntimeClassNameAttribute, WinRTExposedTypeAttribute
+
+## Fields
+
+### _lock
+
+```csharp
+private object _lock = System.Object;
+```
+
+### postCompressionWarnings
+
+```csharp
+private Dictionary<PostCompressionWarningType, List<MediaFileInfo>> postCompressionWarnings = System.Collections.Generic.Dictionary`2[miCompressor.core.common.PostCompressionWarningType,System.Collections.Generic.List`1[miCompressor.core.MediaFileInfo]];
+```
+
+### preCompressionWarnings
+
+```csharp
+private Dictionary<PreCompressionWarningType, List<MediaFileInfo>> preCompressionWarnings = System.Collections.Generic.Dictionary`2[miCompressor.core.common.PreCompressionWarningType,System.Collections.Generic.List`1[miCompressor.core.MediaFileInfo]];
+```
+
+### compressionErrors
+
+```csharp
+private Dictionary<CompressionErrorType, List<MediaFileInfo>> compressionErrors = System.Collections.Generic.Dictionary`2[miCompressor.core.common.CompressionErrorType,System.Collections.Generic.List`1[miCompressor.core.MediaFileInfo]];
+```
+
+## Properties
+
+### Instance
+
+```csharp
+public static WarningHelper Instance { get; }
+```
+
+### PostCompressionWarnings
+
+```csharp
+public IReadOnlyDictionary<PostCompressionWarningType, List<MediaFileInfo>> PostCompressionWarnings { get; }
+```
+
+### PreCompressionWarnings
+
+```csharp
+public IReadOnlyDictionary<PreCompressionWarningType, List<MediaFileInfo>> PreCompressionWarnings { get; }
+```
+
+### CompressionErrors
+
+```csharp
+public IReadOnlyDictionary<CompressionErrorType, List<MediaFileInfo>> CompressionErrors { get; }
+```
+
+## Constructors
+
+### WarningHelper()
+
+```csharp
+public WarningHelper()
+```
+
+### WarningHelper()
+
+```csharp
+private static WarningHelper()
+```
+
+## Methods
+
+### OnPropertyChanged(String)
+
+```csharp
+protected void OnPropertyChanged(string propertyName)
+```
+
+#### Parameters
+
+`propertyName` String<br>
+
+### AddToDictionary&lt;T&gt;(Dictionary&lt;T, List&lt;MediaFileInfo&gt;&gt;, T, MediaFileInfo)
+
+```csharp
+private void AddToDictionary<T>(Dictionary<T, List<MediaFileInfo>> dict, T type, MediaFileInfo info)
+```
+
+#### Type Parameters
+
+`T`<br>
+
+#### Parameters
+
+`dict` Dictionary&lt;T, List&lt;MediaFileInfo&gt;&gt;<br>
+
+`type` T<br>
+
+`info` MediaFileInfo<br>
+
+### CopyOf&lt;T&gt;(Dictionary&lt;T, List&lt;MediaFileInfo&gt;&gt;)
+
+```csharp
+private IReadOnlyDictionary<T, List<MediaFileInfo>> CopyOf<T>(Dictionary<T, List<MediaFileInfo>> dict)
+```
+
+#### Type Parameters
+
+`T`<br>
+
+#### Parameters
+
+`dict` Dictionary&lt;T, List&lt;MediaFileInfo&gt;&gt;<br>
+
+#### Returns
+
+IReadOnlyDictionary&lt;T, List&lt;MediaFileInfo&gt;&gt;<br>
+
+### AddPostWarning(PostCompressionWarningType, MediaFileInfo)
+
+```csharp
+public void AddPostWarning(PostCompressionWarningType type, MediaFileInfo info)
+```
+
+#### Parameters
+
+`type` PostCompressionWarningType<br>
+
+`info` MediaFileInfo<br>
+
+### AddPreWarning(PreCompressionWarningType, MediaFileInfo)
+
+```csharp
+public void AddPreWarning(PreCompressionWarningType type, MediaFileInfo info)
+```
+
+#### Parameters
+
+`type` PreCompressionWarningType<br>
+
+`info` MediaFileInfo<br>
+
+### AddCompressionError(CompressionErrorType, MediaFileInfo)
+
+```csharp
+public void AddCompressionError(CompressionErrorType type, MediaFileInfo info)
+```
+
+#### Parameters
+
+`type` CompressionErrorType<br>
+
+`info` MediaFileInfo<br>
+
+### ClearAll()
+
+```csharp
+public void ClearAll()
+```
+
+## Events
+
+### PropertyChanged
+
+```csharp
+public event PropertyChangedEventHandler PropertyChanged;
 ```
  
 # DimensionHelper
@@ -486,17 +802,23 @@ Attributes: NullableContextAttribute, NullableAttribute
 
 ### width
 
+The width of the input image in pixels.
+
 ```csharp
 [AutoNotify] private int width;
 ```
 
 ### height
 
+The height of the input image in pixels.
+
 ```csharp
 [AutoNotify] private int height;
 ```
 
 ### fileSize
+
+The size of the input image file in bytes.
 
 ```csharp
 [AutoNotify] private ulong fileSize;
@@ -536,6 +858,30 @@ Exclude the media from processing but do not hide the file in gallery, may be sh
 [AutoNotify] private bool excludeAndShow;
 ```
 
+### _thumbnail
+
+```csharp
+private BitmapImage _thumbnail;
+```
+
+### s_thumbnailTasks
+
+```csharp
+private static ConcurrentDictionary<string, Task<BitmapImage>> s_thumbnailTasks = System.Collections.Concurrent.ConcurrentDictionary`2[System.String,System.Threading.Tasks.Task`1[Microsoft.UI.Xaml.Media.Imaging.BitmapImage]];
+```
+
+### s_globalLoadSemaphore
+
+```csharp
+private static SemaphoreSlim s_globalLoadSemaphore = System.Threading.SemaphoreSlim;
+```
+
+### MaxParallelThumbnailLoads
+
+```csharp
+private static int MaxParallelThumbnailLoads = 8;
+```
+
 ## Properties
 
 ### SelectedRootPath
@@ -562,13 +908,27 @@ The relative path of the image within the selected directory.
 public string RelativePath { get; }
 ```
 
+### RelativeImageDirPath
+
+The relative path of directory containing the image within the selected directory.
+
+```csharp
+public string RelativeImageDirPath { get; }
+```
+
+### IsMetadataLoaded
+
+```csharp
+public bool IsMetadataLoaded { get; }
+```
+
 ### IsReplaceOperation
 
 Determines whether this operation is replacing the original file.
  Used when OutputLocationSettings is set to ReplaceOriginal.
 
 ```csharp
-private bool IsReplaceOperation { get; set; }
+public bool IsReplaceOperation { get; private set; }
 ```
 
 ### ShouldProcess
@@ -583,6 +943,32 @@ public bool ShouldProcess { get; }
 
 ```csharp
 public string FileSizeToShow { get; }
+```
+
+### FilePath
+
+```csharp
+public string FilePath { get; }
+```
+
+### ThumbnailSize
+
+```csharp
+public uint ThumbnailSize { get; set; }
+```
+
+### s_thumbnailTasksKey
+
+```csharp
+private string s_thumbnailTasksKey { get; }
+```
+
+### Thumbnail
+
+Exposes the thumbnail as a bindable property. Loads it on first access.
+
+```csharp
+public BitmapImage Thumbnail { get; private set; }
 ```
 
 ### Width
@@ -656,15 +1042,25 @@ FileInfo of the image/video
 FileNotFoundException<br>
 Throws exception if file doesn't exist.
 
+### MediaFileInfo()
+
+```csharp
+private static MediaFileInfo()
+```
+
 ## Methods
 
-### LoadImageMetadataAsync()
+### LoadImageMetadataAsync(Boolean)
 
 Loads image metadata asynchronously without blocking the UI.
 
 ```csharp
-private Task LoadImageMetadataAsync()
+private Task LoadImageMetadataAsync(bool force)
 ```
+
+#### Parameters
+
+`force` Boolean<br>
 
 #### Returns
 
@@ -713,7 +1109,7 @@ If true, the output will be stored in a temporary directory.
 #### Returns
 
 String<br>
-The full path of the output file.
+The full path of the output file. Doesn't actually create file or directory.
 
 **Remarks:**
 
@@ -839,6 +1235,79 @@ Height of the file to compare.
 Boolean<br>
 True if the dimensions match the original.
 
+### LoadThumbnailAsync()
+
+```csharp
+private Task LoadThumbnailAsync()
+```
+
+#### Returns
+
+Task<br>
+
+### LoadThumbnailCoreAsync()
+
+Loads the thumbnail with a global concurrency limit of 8.
+
+```csharp
+private Task<BitmapImage> LoadThumbnailCoreAsync()
+```
+
+#### Returns
+
+Task&lt;BitmapImage&gt;<br>
+
+### LoadThumbnailWithFallbackAsync()
+
+Attempts to load the thumbnail using Windows.Storage API first.
+ Falls back to ImageMagick if Windows.Storage fails.
+
+```csharp
+private Task<BitmapImage> LoadThumbnailWithFallbackAsync()
+```
+
+#### Returns
+
+Task&lt;BitmapImage&gt;<br>
+
+### TryGetThumbnailFromStorageApiAsync()
+
+```csharp
+private Task<BitmapImage> TryGetThumbnailFromStorageApiAsync()
+```
+
+#### Returns
+
+Task&lt;BitmapImage&gt;<br>
+
+### GenerateThumbnailWithImageMagickAsync()
+
+```csharp
+private Task<BitmapImage> GenerateThumbnailWithImageMagickAsync()
+```
+
+#### Returns
+
+Task&lt;BitmapImage&gt;<br>
+
+### GeneratePlaceholderThumbnail()
+
+Generates a placeholder thumbnail in case all attempts fail.
+
+```csharp
+private BitmapImage GeneratePlaceholderThumbnail()
+```
+
+#### Returns
+
+BitmapImage<br>
+
+### Finalize()
+
+```csharp
+protected void Finalize()
+```
+
 ### OnPropertyChanged(String)
 
 ```csharp
@@ -848,6 +1317,20 @@ protected void OnPropertyChanged(string propertyName)
 #### Parameters
 
 `propertyName` String<br>
+
+### &lt;LoadThumbnailAsync&gt;b__53_0(String)
+
+```csharp
+private Task<BitmapImage> <LoadThumbnailAsync>b__53_0(string _)
+```
+
+#### Parameters
+
+`_` String<br>
+
+#### Returns
+
+Task&lt;BitmapImage&gt;<br>
 
 ## Events
 
@@ -1028,10 +1511,11 @@ Implements: IComparable, ISpanFormattable, IFormattable, IConvertible
 
 | Name | Value | Description |
 | --- | --: | --- |
-| Jpg | 1 |  |
-| Png | 2 |  |
-| Tiff | 3 |  |
-| Webp | 4 |  |
+| KeepSame | 0 | Keep the original format when possible. If output format is not supported, default format will be used (Advanced Settings). |
+| Jpg | 1 | JPEG format (.jpg, .jpeg, .JPG, .JPEG) |
+| Png | 2 | PNG format (.png, .PNG) |
+| Tiff | 3 | TIFF format (.tiff, .tif, .TIFF, .TIF) |
+| Webp | 4 | WebP format (.webp, .WEBP) |
  
 # OutputFormatExtensions
 
@@ -1048,13 +1532,13 @@ Attributes: NullableContextAttribute, NullableAttribute, ExtensionAttribute
 
 ## Methods
 
-### GetExtension(OutputFormat, String)
+### GetOutputExtension(OutputFormat, String)
 
 Retrieves the corresponding file extension for a given output format,
  preserving the original file's extension case if it matches.
 
 ```csharp
-public static string GetExtension(OutputFormat format, string originalFilePath)
+public static string GetOutputExtension(OutputFormat format, string originalFilePath)
 ```
 
 #### Parameters
@@ -1204,14 +1688,6 @@ When reducing image by specifying long edge, height or width, this server as its
 [AutoNotify] public int primaryEdgeLength = 1920;
 ```
 
-### secondaryEdgeLength
-
-This is used only for FitInFrame and FixedInFrame dimension strategy.
-
-```csharp
-[AutoNotify] public int secondaryEdgeLength = 1080;
-```
-
 ### copyMetadata
 
 Copy EXIF data to output image or not.
@@ -1315,12 +1791,6 @@ public decimal PercentageOfLongEdge { get; set; }
 
 ```csharp
 public int PrimaryEdgeLength { get; set; }
-```
-
-### SecondaryEdgeLength
-
-```csharp
-public int SecondaryEdgeLength { get; set; }
 ```
 
 ### CopyMetadata
@@ -1718,19 +2188,28 @@ Indicates whether the directory is currently being scanned.
 [AutoNotify] private bool scanningForFiles;
 ```
 
-### includeSubDirectories
-
-Determines whether subdirectories should be included in the scan.
- Changing this property triggers a new scan.
+### _cancellationTokenSource
 
 ```csharp
-[AutoNotify] private bool includeSubDirectories;
+private CancellationTokenSource _cancellationTokenSource;
 ```
 
 ### _files
 
 ```csharp
-private IList<MediaFileInfo> _files;
+private List<MediaFileInfo> _files;
+```
+
+### _lockForFiles
+
+```csharp
+private ReaderWriterLockSlim _lockForFiles;
+```
+
+### _lockForScannerThread
+
+```csharp
+private object _lockForScannerThread;
 ```
 
 ## Properties
@@ -1743,12 +2222,29 @@ The absolute path of the selected file or directory.
 public string Path { get; }
 ```
 
+### DisplayName
+
+Returns the file name if the path is a file, otherwise returns the directory name.
+
+```csharp
+public string DisplayName { get; }
+```
+
 ### IsDirectory
 
 Indicates whether the selected path is a directory.
 
 ```csharp
 public bool IsDirectory { get; }
+```
+
+### IncludeSubDirectories
+
+Determines whether subdirectories should be included in the scan.
+ Changing this property triggers a new scan.
+
+```csharp
+public bool IncludeSubDirectories { get; set; }
 ```
 
 ### Files
@@ -1763,12 +2259,6 @@ public IReadOnlyList<MediaFileInfo> Files { get; }
 
 ```csharp
 public bool ScanningForFiles { get; set; }
-```
-
-### IncludeSubDirectories
-
-```csharp
-public bool IncludeSubDirectories { get; set; }
 ```
 
 ## Constructors
@@ -1803,6 +2293,21 @@ public void ChangeToIncludeSubDirectories(bool includeSubDirectories)
 
 `includeSubDirectories` Boolean<br>
 
+### CancelScanning()
+
+Cancels the ongoing file scanning operation, it may take some time to cancel the operation.
+ Should be called before changing the include subdirectories setting and before removing the path from the store.
+
+```csharp
+public void CancelScanning()
+```
+
+### Cleanup()
+
+```csharp
+public void Cleanup()
+```
+
 ### ScanForMediaFiles()
 
 Scans the directory asynchronously and updates the file list.
@@ -1816,27 +2321,27 @@ private Task ScanForMediaFiles()
 
 Task<br>
 
-### PopulateAllFilesForSupportedExtension(String[], String, Boolean, List&lt;FileInfo&gt;)
+### PopulateAllFilesForSupportedExtension(HashSet&lt;String&gt;, String, Boolean, CancellationToken)
 
-Recursively scans given `rootFolderPath` and populates `files`
+Recursively scans the given `rootFolderPath` and populates files in batches.
+ Supports cancellation through `CancellationToken`.
 
 ```csharp
-private void PopulateAllFilesForSupportedExtension(String[] SupportedInputExtensions, string rootFolderPath, bool inlcudeSubDir, List<FileInfo> files)
+private void PopulateAllFilesForSupportedExtension(HashSet<string> supportedInputExtensions, string rootFolderPath, bool includeSubDir, CancellationToken cancellationToken)
 ```
 
 #### Parameters
 
-`SupportedInputExtensions` String[]<br>
-Small cased extensions without preceding "." e.g. ["jpg", "jpeg", "png"]
+`supportedInputExtensions` HashSet&lt;String&gt;<br>
 
 `rootFolderPath` String<br>
 Selected Path by user to search the images within
 
-`inlcudeSubDir` Boolean<br>
-Should search directories within `rootFolderPath' or not.
+`includeSubDir` Boolean<br>
+Should search directories within `rootFolderPath` or not
 
-`files` List&lt;FileInfo&gt;<br>
-Pass an empty list, this will be populated with supported files inside `rootFolderPath`
+`cancellationToken` CancellationToken<br>
+Token to cancel the ongoing operation
 
 ### OnPropertyChanged(String)
 
@@ -1848,11 +2353,15 @@ protected void OnPropertyChanged(string propertyName)
 
 `propertyName` String<br>
 
-### &lt;ScanForMediaFiles&gt;b__13_0()
+### &lt;ChangeToIncludeSubDirectories&gt;b__19_0()
 
 ```csharp
-private void <ScanForMediaFiles>b__13_0()
+private Task <ChangeToIncludeSubDirectories>b__19_0()
 ```
+
+#### Returns
+
+Task<br>
 
 ## Events
 
@@ -1861,6 +2370,163 @@ private void <ScanForMediaFiles>b__13_0()
 ```csharp
 public event PropertyChangedEventHandler PropertyChanged;
 ```
+ 
+# TempDataManager
+
+Namespace: miCompressor.core
+
+Helper class for managing temporary data.
+
+```csharp
+public static class TempDataManager
+```
+
+Inheritance: Object → TempDataManager<br>
+Attributes: NullableContextAttribute, NullableAttribute
+
+## Fields
+
+### _tempDirOpLock
+
+Lock object for operations on temp directory.
+
+```csharp
+private static object _tempDirOpLock = System.Object;
+```
+
+### staleIfOlderThanHours
+
+Files older than this time are considered stale and are deleted when cleaning up temp directory.
+
+```csharp
+private static double staleIfOlderThanHours = 2d;
+```
+
+### preivewDirName
+
+Name of the directory where preview files are stored.
+
+```csharp
+private static string preivewDirName = "preview";
+```
+
+### cacheDirName
+
+Name of the directory where compressed files are stored temporarily to be moved to designated location later if needed.
+
+```csharp
+private static string cacheDirName = "cache";
+```
+
+## Properties
+
+### tempAppDir
+
+Temporary directory of the application. All temporary files are stored here.
+ This only returns the path, does not guarantee the directory exists.
+
+```csharp
+public static string tempAppDir { get; }
+```
+
+## Constructors
+
+### TempDataManager()
+
+```csharp
+private static TempDataManager()
+```
+
+## Methods
+
+### getTempPreviewFilePath(String)
+
+Get the path of the compressed preview file. Caller is responsible for creating the directory if it doesn't exist.
+
+```csharp
+public static string getTempPreviewFilePath(string fileName)
+```
+
+#### Parameters
+
+`fileName` String<br>
+
+#### Returns
+
+String<br>
+
+### getTempPreviewDirPath()
+
+Get the path of the compressed preview directory. Caller is responsible for creating the directory if it doesn't exist.
+
+```csharp
+public static string getTempPreviewDirPath()
+```
+
+#### Returns
+
+String<br>
+Preview directory path
+
+### GetTempStorageFilePath(String, String)
+
+Get the temp storage file path for storing compressed files temporarily to be moved to designated location later if applicable.
+ Caller is responsible for creating the directory if it doesn't exist.
+
+```csharp
+public static string GetTempStorageFilePath(string dirPath, string fileName)
+```
+
+#### Parameters
+
+`dirPath` String<br>
+Relative directory from selected directory
+
+`fileName` String<br>
+Name of the output file
+
+#### Returns
+
+String<br>
+
+### GetTempStorageDirPath(String)
+
+Get the temp storage directory path for storing compressed files temporarily to be moved to designated location later if applicable.
+
+```csharp
+public static string GetTempStorageDirPath(string dirPath)
+```
+
+#### Parameters
+
+`dirPath` String<br>
+May provide dir or file path. If file path is provided, we still return dir, not file.
+
+#### Returns
+
+String<br>
+
+### CleanUpTempDir()
+
+Clean up temp directory, should be called when compression is done, or when application starts.
+ Non-blocking operation.
+ Ensure there is no other operation using temp directory before calling this.
+
+```csharp
+public static void CleanUpTempDir()
+```
+
+### CleanDirectory(String)
+
+Clean up the directory by deleting stale files in the given directory and its subdirectories.
+
+```csharp
+private static void CleanDirectory(string dirPath)
+```
+
+#### Parameters
+
+`dirPath` String<br>
  
 # UIThreadHelper
 
@@ -1920,6 +2586,22 @@ dispatcher.TryEnqueue(() =>
     myTextBox.Text = "Updated from UI thread.";
 });
 ```
+
+### RunOnUIThreadAsync(Func&lt;Task&gt;)
+
+Runs the provided async action on the UI thread. If already on the UI thread, it executes immediately.
+
+```csharp
+public static Task RunOnUIThreadAsync(Func<Task> asyncAction)
+```
+
+#### Parameters
+
+`asyncAction` Func&lt;Task&gt;<br>
+
+#### Returns
+
+Task<br>
  
 # MainWindow
 
@@ -2101,6 +2783,73 @@ private static void Main(String[] args)
 
 `args` String[]<br>
  
+# BlendedBrushes
+
+Namespace: miCompressor.ui
+
+```csharp
+public class BlendedBrushes
+```
+
+Inheritance: Object → BlendedBrushes<br>
+Attributes: NullableContextAttribute, NullableAttribute
+
+## Properties
+
+### ThemedRed
+
+```csharp
+public SolidColorBrush ThemedRed { get; }
+```
+
+## Constructors
+
+### BlendedBrushes()
+
+```csharp
+public BlendedBrushes()
+```
+
+## Methods
+
+### CreateBlendedBrush(Color, Color, Double)
+
+```csharp
+private static SolidColorBrush CreateBlendedBrush(Color baseColor, Color overlayColor, double overlayOpacity)
+```
+
+#### Parameters
+
+`baseColor` Color<br>
+
+`overlayColor` Color<br>
+
+`overlayOpacity` Double<br>
+
+#### Returns
+
+SolidColorBrush<br>
+
+### GetSystemAccentColor()
+
+```csharp
+private static Color GetSystemAccentColor()
+```
+
+#### Returns
+
+Color<br>
+
+### GetSystemPrimaryColor()
+
+```csharp
+private static Color GetSystemPrimaryColor()
+```
+
+#### Returns
+
+Color<br>
+ 
 # EmptyFilesView
 
 Namespace: miCompressor.ui
@@ -2108,12 +2857,12 @@ Namespace: miCompressor.ui
 An empty page that can be used on its own or navigated to within a Frame.
 
 ```csharp
-public sealed class EmptyFilesView : Microsoft.UI.Xaml.Controls.Page, System.Runtime.InteropServices.ICustomQueryInterface, WinRT.IWinRTObject, System.Runtime.InteropServices.IDynamicInterfaceCastable, System.Runtime.InteropServices.Marshalling.IUnmanagedVirtualMethodTableProvider, System.IEquatable`1[[Microsoft.UI.Xaml.DependencyObject, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.IUIElementOverrides, Microsoft.UI.Composition.IAnimationObject, Microsoft.UI.Composition.IVisualElement, Microsoft.UI.Composition.IVisualElement2, System.IEquatable`1[[Microsoft.UI.Xaml.UIElement, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.IFrameworkElementOverrides, System.IEquatable`1[[Microsoft.UI.Xaml.FrameworkElement, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.Controls.IControlOverrides, System.IEquatable`1[[Microsoft.UI.Xaml.Controls.Control, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], System.IEquatable`1[[Microsoft.UI.Xaml.Controls.UserControl, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.Controls.IPageOverrides, System.IEquatable`1[[Microsoft.UI.Xaml.Controls.Page, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.Markup.IComponentConnector
+public sealed class EmptyFilesView : Microsoft.UI.Xaml.Controls.UserControl, System.Runtime.InteropServices.ICustomQueryInterface, WinRT.IWinRTObject, System.Runtime.InteropServices.IDynamicInterfaceCastable, System.Runtime.InteropServices.Marshalling.IUnmanagedVirtualMethodTableProvider, System.IEquatable`1[[Microsoft.UI.Xaml.DependencyObject, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.IUIElementOverrides, Microsoft.UI.Composition.IAnimationObject, Microsoft.UI.Composition.IVisualElement, Microsoft.UI.Composition.IVisualElement2, System.IEquatable`1[[Microsoft.UI.Xaml.UIElement, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.IFrameworkElementOverrides, System.IEquatable`1[[Microsoft.UI.Xaml.FrameworkElement, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.Controls.IControlOverrides, System.IEquatable`1[[Microsoft.UI.Xaml.Controls.Control, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], System.IEquatable`1[[Microsoft.UI.Xaml.Controls.UserControl, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.Markup.IComponentConnector
 ```
 
-Inheritance: Object → DependencyObject → UIElement → FrameworkElement → Control → UserControl → Page → EmptyFilesView<br>
-Implements: ICustomQueryInterface, IWinRTObject, IDynamicInterfaceCastable, IUnmanagedVirtualMethodTableProvider, IEquatable&lt;DependencyObject&gt;, IUIElementOverrides, IAnimationObject, IVisualElement, IVisualElement2, IEquatable&lt;UIElement&gt;, IFrameworkElementOverrides, IEquatable&lt;FrameworkElement&gt;, IControlOverrides, IEquatable&lt;Control&gt;, IEquatable&lt;UserControl&gt;, IPageOverrides, IEquatable&lt;Page&gt;, IComponentConnector<br>
-Attributes: WinRTRuntimeClassNameAttribute, WinRTExposedTypeAttribute, PageRcwFactoryAttribute, ContractVersionAttribute, UserControlRcwFactoryAttribute, ContentPropertyAttribute, ContractVersionAttribute, ControlRcwFactoryAttribute, ContractVersionAttribute, FrameworkElementRcwFactoryAttribute, ContractVersionAttribute, UIElementRcwFactoryAttribute, ContractVersionAttribute, DependencyObjectRcwFactoryAttribute, ContractVersionAttribute
+Inheritance: Object → DependencyObject → UIElement → FrameworkElement → Control → UserControl → EmptyFilesView<br>
+Implements: ICustomQueryInterface, IWinRTObject, IDynamicInterfaceCastable, IUnmanagedVirtualMethodTableProvider, IEquatable&lt;DependencyObject&gt;, IUIElementOverrides, IAnimationObject, IVisualElement, IVisualElement2, IEquatable&lt;UIElement&gt;, IFrameworkElementOverrides, IEquatable&lt;FrameworkElement&gt;, IControlOverrides, IEquatable&lt;Control&gt;, IEquatable&lt;UserControl&gt;, IComponentConnector<br>
+Attributes: WinRTRuntimeClassNameAttribute, WinRTExposedTypeAttribute, UserControlRcwFactoryAttribute, ContentPropertyAttribute, ContractVersionAttribute, ControlRcwFactoryAttribute, ContractVersionAttribute, FrameworkElementRcwFactoryAttribute, ContractVersionAttribute, UIElementRcwFactoryAttribute, ContractVersionAttribute, DependencyObjectRcwFactoryAttribute, ContractVersionAttribute
 
 ## Fields
 
@@ -2189,6 +2938,78 @@ public IComponentConnector GetBindingConnector(int connectionId, object target)
 
 IComponentConnector<br>
  
+# ErrorAndWarnings
+
+Namespace: miCompressor.ui
+
+An empty page that can be used on its own or navigated to within a Frame.
+
+```csharp
+public sealed class ErrorAndWarnings : Microsoft.UI.Xaml.Controls.Page, System.Runtime.InteropServices.ICustomQueryInterface, WinRT.IWinRTObject, System.Runtime.InteropServices.IDynamicInterfaceCastable, System.Runtime.InteropServices.Marshalling.IUnmanagedVirtualMethodTableProvider, System.IEquatable`1[[Microsoft.UI.Xaml.DependencyObject, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.IUIElementOverrides, Microsoft.UI.Composition.IAnimationObject, Microsoft.UI.Composition.IVisualElement, Microsoft.UI.Composition.IVisualElement2, System.IEquatable`1[[Microsoft.UI.Xaml.UIElement, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.IFrameworkElementOverrides, System.IEquatable`1[[Microsoft.UI.Xaml.FrameworkElement, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.Controls.IControlOverrides, System.IEquatable`1[[Microsoft.UI.Xaml.Controls.Control, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], System.IEquatable`1[[Microsoft.UI.Xaml.Controls.UserControl, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.Controls.IPageOverrides, System.IEquatable`1[[Microsoft.UI.Xaml.Controls.Page, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.Markup.IComponentConnector
+```
+
+Inheritance: Object → DependencyObject → UIElement → FrameworkElement → Control → UserControl → Page → ErrorAndWarnings<br>
+Implements: ICustomQueryInterface, IWinRTObject, IDynamicInterfaceCastable, IUnmanagedVirtualMethodTableProvider, IEquatable&lt;DependencyObject&gt;, IUIElementOverrides, IAnimationObject, IVisualElement, IVisualElement2, IEquatable&lt;UIElement&gt;, IFrameworkElementOverrides, IEquatable&lt;FrameworkElement&gt;, IControlOverrides, IEquatable&lt;Control&gt;, IEquatable&lt;UserControl&gt;, IPageOverrides, IEquatable&lt;Page&gt;, IComponentConnector<br>
+Attributes: WinRTRuntimeClassNameAttribute, WinRTExposedTypeAttribute, PageRcwFactoryAttribute, ContractVersionAttribute, UserControlRcwFactoryAttribute, ContentPropertyAttribute, ContractVersionAttribute, ControlRcwFactoryAttribute, ContractVersionAttribute, FrameworkElementRcwFactoryAttribute, ContractVersionAttribute, UIElementRcwFactoryAttribute, ContractVersionAttribute, DependencyObjectRcwFactoryAttribute, ContractVersionAttribute
+
+## Fields
+
+### _contentLoaded
+
+```csharp
+private bool _contentLoaded;
+```
+
+## Constructors
+
+### ErrorAndWarnings()
+
+```csharp
+public ErrorAndWarnings()
+```
+
+## Methods
+
+### InitializeComponent()
+
+InitializeComponent()
+
+```csharp
+public void InitializeComponent()
+```
+
+### Connect(Int32, Object)
+
+Connect()
+
+```csharp
+public void Connect(int connectionId, object target)
+```
+
+#### Parameters
+
+`connectionId` Int32<br>
+
+`target` Object<br>
+
+### GetBindingConnector(Int32, Object)
+
+GetBindingConnector(int connectionId, object target)
+
+```csharp
+public IComponentConnector GetBindingConnector(int connectionId, object target)
+```
+
+#### Parameters
+
+`connectionId` Int32<br>
+
+`target` Object<br>
+
+#### Returns
+
+IComponentConnector<br>
+ 
 # FileSelectionView
 
 Namespace: miCompressor.ui
@@ -2196,12 +3017,12 @@ Namespace: miCompressor.ui
 An empty page that can be used on its own or navigated to within a Frame.
 
 ```csharp
-public sealed class FileSelectionView : Microsoft.UI.Xaml.Controls.Page, System.Runtime.InteropServices.ICustomQueryInterface, WinRT.IWinRTObject, System.Runtime.InteropServices.IDynamicInterfaceCastable, System.Runtime.InteropServices.Marshalling.IUnmanagedVirtualMethodTableProvider, System.IEquatable`1[[Microsoft.UI.Xaml.DependencyObject, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.IUIElementOverrides, Microsoft.UI.Composition.IAnimationObject, Microsoft.UI.Composition.IVisualElement, Microsoft.UI.Composition.IVisualElement2, System.IEquatable`1[[Microsoft.UI.Xaml.UIElement, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.IFrameworkElementOverrides, System.IEquatable`1[[Microsoft.UI.Xaml.FrameworkElement, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.Controls.IControlOverrides, System.IEquatable`1[[Microsoft.UI.Xaml.Controls.Control, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], System.IEquatable`1[[Microsoft.UI.Xaml.Controls.UserControl, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.Controls.IPageOverrides, System.IEquatable`1[[Microsoft.UI.Xaml.Controls.Page, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.Markup.IComponentConnector
+public sealed class FileSelectionView : Microsoft.UI.Xaml.Controls.UserControl, System.Runtime.InteropServices.ICustomQueryInterface, WinRT.IWinRTObject, System.Runtime.InteropServices.IDynamicInterfaceCastable, System.Runtime.InteropServices.Marshalling.IUnmanagedVirtualMethodTableProvider, System.IEquatable`1[[Microsoft.UI.Xaml.DependencyObject, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.IUIElementOverrides, Microsoft.UI.Composition.IAnimationObject, Microsoft.UI.Composition.IVisualElement, Microsoft.UI.Composition.IVisualElement2, System.IEquatable`1[[Microsoft.UI.Xaml.UIElement, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.IFrameworkElementOverrides, System.IEquatable`1[[Microsoft.UI.Xaml.FrameworkElement, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.Controls.IControlOverrides, System.IEquatable`1[[Microsoft.UI.Xaml.Controls.Control, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], System.IEquatable`1[[Microsoft.UI.Xaml.Controls.UserControl, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.Markup.IComponentConnector
 ```
 
-Inheritance: Object → DependencyObject → UIElement → FrameworkElement → Control → UserControl → Page → FileSelectionView<br>
-Implements: ICustomQueryInterface, IWinRTObject, IDynamicInterfaceCastable, IUnmanagedVirtualMethodTableProvider, IEquatable&lt;DependencyObject&gt;, IUIElementOverrides, IAnimationObject, IVisualElement, IVisualElement2, IEquatable&lt;UIElement&gt;, IFrameworkElementOverrides, IEquatable&lt;FrameworkElement&gt;, IControlOverrides, IEquatable&lt;Control&gt;, IEquatable&lt;UserControl&gt;, IPageOverrides, IEquatable&lt;Page&gt;, IComponentConnector<br>
-Attributes: WinRTRuntimeClassNameAttribute, WinRTExposedTypeAttribute, PageRcwFactoryAttribute, ContractVersionAttribute, UserControlRcwFactoryAttribute, ContentPropertyAttribute, ContractVersionAttribute, ControlRcwFactoryAttribute, ContractVersionAttribute, FrameworkElementRcwFactoryAttribute, ContractVersionAttribute, UIElementRcwFactoryAttribute, ContractVersionAttribute, DependencyObjectRcwFactoryAttribute, ContractVersionAttribute
+Inheritance: Object → DependencyObject → UIElement → FrameworkElement → Control → UserControl → FileSelectionView<br>
+Implements: ICustomQueryInterface, IWinRTObject, IDynamicInterfaceCastable, IUnmanagedVirtualMethodTableProvider, IEquatable&lt;DependencyObject&gt;, IUIElementOverrides, IAnimationObject, IVisualElement, IVisualElement2, IEquatable&lt;UIElement&gt;, IFrameworkElementOverrides, IEquatable&lt;FrameworkElement&gt;, IControlOverrides, IEquatable&lt;Control&gt;, IEquatable&lt;UserControl&gt;, IComponentConnector<br>
+Attributes: WinRTRuntimeClassNameAttribute, WinRTExposedTypeAttribute, UserControlRcwFactoryAttribute, ContentPropertyAttribute, ContractVersionAttribute, ControlRcwFactoryAttribute, ContractVersionAttribute, FrameworkElementRcwFactoryAttribute, ContractVersionAttribute, UIElementRcwFactoryAttribute, ContractVersionAttribute, DependencyObjectRcwFactoryAttribute, ContractVersionAttribute
 
 ## Fields
 
@@ -2220,6 +3041,18 @@ public FileSelectionView()
 ```
 
 ## Methods
+
+### SelectedItem_SelectedPathDeleted(Object, SelectedPath)
+
+```csharp
+private void SelectedItem_SelectedPathDeleted(object sender, SelectedPath e)
+```
+
+#### Parameters
+
+`sender` Object<br>
+
+`e` SelectedPath<br>
 
 ### InitializeComponent()
 
@@ -2471,6 +3304,67 @@ private void <ShowWarning>b__11_1()
 public event PropertyChangedEventHandler PropertyChanged;
 ```
  
+# NullToBooleanConverter
+
+Namespace: miCompressor.ui
+
+```csharp
+public class NullToBooleanConverter : Microsoft.UI.Xaml.Data.IValueConverter
+```
+
+Inheritance: Object → NullToBooleanConverter<br>
+Implements: IValueConverter
+
+## Constructors
+
+### NullToBooleanConverter()
+
+```csharp
+public NullToBooleanConverter()
+```
+
+## Methods
+
+### Convert(Object, Type, Object, String)
+
+```csharp
+public object Convert(object value, Type targetType, object parameter, string language)
+```
+
+#### Parameters
+
+`value` Object<br>
+
+`targetType` Type<br>
+
+`parameter` Object<br>
+
+`language` String<br>
+
+#### Returns
+
+Object<br>
+
+### ConvertBack(Object, Type, Object, String)
+
+```csharp
+public object ConvertBack(object value, Type targetType, object parameter, string language)
+```
+
+#### Parameters
+
+`value` Object<br>
+
+`targetType` Type<br>
+
+`parameter` Object<br>
+
+`language` String<br>
+
+#### Returns
+
+Object<br>
+ 
 # QualitySettings
 
 Namespace: miCompressor.ui
@@ -2514,6 +3408,260 @@ private void TextBlock_BringIntoViewRequested(UIElement sender, BringIntoViewReq
 `sender` UIElement<br>
 
 `args` BringIntoViewRequestedEventArgs<br>
+
+### InitializeComponent()
+
+InitializeComponent()
+
+```csharp
+public void InitializeComponent()
+```
+
+### Connect(Int32, Object)
+
+Connect()
+
+```csharp
+public void Connect(int connectionId, object target)
+```
+
+#### Parameters
+
+`connectionId` Int32<br>
+
+`target` Object<br>
+
+### GetBindingConnector(Int32, Object)
+
+GetBindingConnector(int connectionId, object target)
+
+```csharp
+public IComponentConnector GetBindingConnector(int connectionId, object target)
+```
+
+#### Parameters
+
+`connectionId` Int32<br>
+
+`target` Object<br>
+
+#### Returns
+
+IComponentConnector<br>
+ 
+# SelectedItem
+
+Namespace: miCompressor.ui
+
+Shows Selected Item (file or folder), i.e. each SelectedPath in FileStore
+
+```csharp
+public sealed class SelectedItem : Microsoft.UI.Xaml.Controls.UserControl, System.Runtime.InteropServices.ICustomQueryInterface, WinRT.IWinRTObject, System.Runtime.InteropServices.IDynamicInterfaceCastable, System.Runtime.InteropServices.Marshalling.IUnmanagedVirtualMethodTableProvider, System.IEquatable`1[[Microsoft.UI.Xaml.DependencyObject, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.IUIElementOverrides, Microsoft.UI.Composition.IAnimationObject, Microsoft.UI.Composition.IVisualElement, Microsoft.UI.Composition.IVisualElement2, System.IEquatable`1[[Microsoft.UI.Xaml.UIElement, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.IFrameworkElementOverrides, System.IEquatable`1[[Microsoft.UI.Xaml.FrameworkElement, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.Controls.IControlOverrides, System.IEquatable`1[[Microsoft.UI.Xaml.Controls.Control, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], System.IEquatable`1[[Microsoft.UI.Xaml.Controls.UserControl, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.Markup.IComponentConnector
+```
+
+Inheritance: Object → DependencyObject → UIElement → FrameworkElement → Control → UserControl → SelectedItem<br>
+Implements: ICustomQueryInterface, IWinRTObject, IDynamicInterfaceCastable, IUnmanagedVirtualMethodTableProvider, IEquatable&lt;DependencyObject&gt;, IUIElementOverrides, IAnimationObject, IVisualElement, IVisualElement2, IEquatable&lt;UIElement&gt;, IFrameworkElementOverrides, IEquatable&lt;FrameworkElement&gt;, IControlOverrides, IEquatable&lt;Control&gt;, IEquatable&lt;UserControl&gt;, IComponentConnector<br>
+Attributes: WinRTRuntimeClassNameAttribute, WinRTExposedTypeAttribute, UserControlRcwFactoryAttribute, ContentPropertyAttribute, ContractVersionAttribute, ControlRcwFactoryAttribute, ContractVersionAttribute, FrameworkElementRcwFactoryAttribute, ContractVersionAttribute, UIElementRcwFactoryAttribute, ContractVersionAttribute, DependencyObjectRcwFactoryAttribute, ContractVersionAttribute
+
+## Fields
+
+### DetailViewInstance
+
+```csharp
+private SelectionDetailView DetailViewInstance;
+```
+
+### _contentLoaded
+
+```csharp
+private bool _contentLoaded;
+```
+
+### Bindings
+
+```csharp
+private ISelectedItem_Bindings Bindings;
+```
+
+### SelectedPathProperty
+
+Identifies the SelectedItem.SelectedPath dependency property.
+
+```csharp
+public static DependencyProperty SelectedPathProperty;
+```
+
+## Properties
+
+### SelectedPath
+
+Gets or sets the selected path.
+
+```csharp
+public SelectedPath SelectedPath { get; set; }
+```
+
+### ScannedAllFiles
+
+```csharp
+public bool ScannedAllFiles { get; }
+```
+
+## Constructors
+
+### SelectedItem()
+
+```csharp
+public SelectedItem()
+```
+
+### SelectedItem()
+
+```csharp
+private static SelectedItem()
+```
+
+## Methods
+
+### OnDeleteButtonClicked(Object, RoutedEventArgs)
+
+```csharp
+private void OnDeleteButtonClicked(object sender, RoutedEventArgs e)
+```
+
+#### Parameters
+
+`sender` Object<br>
+
+`e` RoutedEventArgs<br>
+
+### InitializeComponent()
+
+InitializeComponent()
+
+```csharp
+public void InitializeComponent()
+```
+
+### Connect(Int32, Object)
+
+Connect()
+
+```csharp
+public void Connect(int connectionId, object target)
+```
+
+#### Parameters
+
+`connectionId` Int32<br>
+
+`target` Object<br>
+
+### GetBindingConnector(Int32, Object)
+
+GetBindingConnector(int connectionId, object target)
+
+```csharp
+public IComponentConnector GetBindingConnector(int connectionId, object target)
+```
+
+#### Parameters
+
+`connectionId` Int32<br>
+
+`target` Object<br>
+
+#### Returns
+
+IComponentConnector<br>
+
+## Events
+
+### SelectedPathDeleted
+
+```csharp
+public event EventHandler<SelectedPath> SelectedPathDeleted;
+```
+ 
+# SelectionDetailView
+
+Namespace: miCompressor.ui
+
+An empty page that can be used on its own or navigated to within a Frame.
+
+```csharp
+public sealed class SelectionDetailView : Microsoft.UI.Xaml.Controls.UserControl, System.Runtime.InteropServices.ICustomQueryInterface, WinRT.IWinRTObject, System.Runtime.InteropServices.IDynamicInterfaceCastable, System.Runtime.InteropServices.Marshalling.IUnmanagedVirtualMethodTableProvider, System.IEquatable`1[[Microsoft.UI.Xaml.DependencyObject, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.IUIElementOverrides, Microsoft.UI.Composition.IAnimationObject, Microsoft.UI.Composition.IVisualElement, Microsoft.UI.Composition.IVisualElement2, System.IEquatable`1[[Microsoft.UI.Xaml.UIElement, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.IFrameworkElementOverrides, System.IEquatable`1[[Microsoft.UI.Xaml.FrameworkElement, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.Controls.IControlOverrides, System.IEquatable`1[[Microsoft.UI.Xaml.Controls.Control, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], System.IEquatable`1[[Microsoft.UI.Xaml.Controls.UserControl, Microsoft.WinUI, Version=3.0.0.0, Culture=neutral, PublicKeyToken=de31ebe4ad15742b]], Microsoft.UI.Xaml.Markup.IComponentConnector
+```
+
+Inheritance: Object → DependencyObject → UIElement → FrameworkElement → Control → UserControl → SelectionDetailView<br>
+Implements: ICustomQueryInterface, IWinRTObject, IDynamicInterfaceCastable, IUnmanagedVirtualMethodTableProvider, IEquatable&lt;DependencyObject&gt;, IUIElementOverrides, IAnimationObject, IVisualElement, IVisualElement2, IEquatable&lt;UIElement&gt;, IFrameworkElementOverrides, IEquatable&lt;FrameworkElement&gt;, IControlOverrides, IEquatable&lt;Control&gt;, IEquatable&lt;UserControl&gt;, IComponentConnector<br>
+Attributes: WinRTRuntimeClassNameAttribute, WinRTExposedTypeAttribute, UserControlRcwFactoryAttribute, ContentPropertyAttribute, ContractVersionAttribute, ControlRcwFactoryAttribute, ContractVersionAttribute, FrameworkElementRcwFactoryAttribute, ContractVersionAttribute, UIElementRcwFactoryAttribute, ContractVersionAttribute, DependencyObjectRcwFactoryAttribute, ContractVersionAttribute
+
+## Fields
+
+### _contentLoaded
+
+```csharp
+private bool _contentLoaded;
+```
+
+### Bindings
+
+```csharp
+private ISelectionDetailView_Bindings Bindings;
+```
+
+### SelectedPathProperty
+
+Identifies the SelectionDetailView.SelectedPath dependency property.
+
+```csharp
+public static DependencyProperty SelectedPathProperty;
+```
+
+## Properties
+
+### ViewModel
+
+```csharp
+public GroupedImageGalleryViewModel ViewModel { get; }
+```
+
+### SelectedPath
+
+Gets or sets the selected path.
+
+```csharp
+public SelectedPath SelectedPath { get; set; }
+```
+
+## Constructors
+
+### SelectionDetailView()
+
+```csharp
+public SelectionDetailView()
+```
+
+### SelectionDetailView()
+
+```csharp
+private static SelectionDetailView()
+```
+
+## Methods
+
+### OnSelectedPathChanged(DependencyObject, DependencyPropertyChangedEventArgs)
+
+```csharp
+private static void OnSelectedPathChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+```
+
+#### Parameters
+
+`d` DependencyObject<br>
+
+`e` DependencyPropertyChangedEventArgs<br>
 
 ### InitializeComponent()
 
@@ -2626,6 +3774,337 @@ public IComponentConnector GetBindingConnector(int connectionId, object target)
 #### Returns
 
 IComponentConnector<br>
+ 
+# GroupedImageGalleryViewModel
+
+Namespace: miCompressor.ui.viewmodel
+
+```csharp
+public class GroupedImageGalleryViewModel
+```
+
+Inheritance: Object → GroupedImageGalleryViewModel<br>
+Attributes: NullableContextAttribute, NullableAttribute
+
+## Fields
+
+### _itemgroupLock
+
+```csharp
+private object _itemgroupLock = System.Object;
+```
+
+### _currentSelectedPath
+
+```csharp
+private SelectedPath _currentSelectedPath;
+```
+
+### _throttleTimer
+
+```csharp
+private Timer _throttleTimer;
+```
+
+### _throttleLock
+
+```csharp
+private object _throttleLock = System.Object;
+```
+
+### _isThrottlingActive
+
+```csharp
+private bool _isThrottlingActive;
+```
+
+## Properties
+
+### ImageGroups
+
+```csharp
+public ObservableCollection<ImageGroup> ImageGroups { get; }
+```
+
+## Constructors
+
+### GroupedImageGalleryViewModel()
+
+```csharp
+public GroupedImageGalleryViewModel()
+```
+
+## Methods
+
+### LoadData(SelectedPath)
+
+```csharp
+public void LoadData(SelectedPath selectedPath)
+```
+
+#### Parameters
+
+`selectedPath` SelectedPath<br>
+
+### RefreshImageGroupsThrottled(Int32)
+
+```csharp
+private void RefreshImageGroupsThrottled(int throttleTimeInMs)
+```
+
+#### Parameters
+
+`throttleTimeInMs` Int32<br>
+
+### RefreshImageGroups()
+
+```csharp
+private void RefreshImageGroups()
+```
+
+### UpdateImageGroups(IEnumerable&lt;ImageGroup&gt;)
+
+```csharp
+private void UpdateImageGroups(IEnumerable<ImageGroup> newGroups)
+```
+
+#### Parameters
+
+`newGroups` IEnumerable&lt;ImageGroup&gt;<br>
+
+### GetParentDirectory(String, String)
+
+```csharp
+private string GetParentDirectory(string rootPath, string subDirPath)
+```
+
+#### Parameters
+
+`rootPath` String<br>
+
+`subDirPath` String<br>
+
+#### Returns
+
+String<br>
+
+### SelectedPath_PropertyChanged(Object, PropertyChangedEventArgs)
+
+```csharp
+private void SelectedPath_PropertyChanged(object sender, PropertyChangedEventArgs e)
+```
+
+#### Parameters
+
+`sender` Object<br>
+
+`e` PropertyChangedEventArgs<br>
+
+### &lt;RefreshImageGroupsThrottled&gt;b__9_0(Object)
+
+```csharp
+private void <RefreshImageGroupsThrottled>b__9_0(object _)
+```
+
+#### Parameters
+
+`_` Object<br>
+
+### &lt;RefreshImageGroupsThrottled&gt;b__9_1()
+
+```csharp
+private void <RefreshImageGroupsThrottled>b__9_1()
+```
+
+### &lt;RefreshImageGroups&gt;b__10_0(MediaFileInfo)
+
+```csharp
+private string <RefreshImageGroups>b__10_0(MediaFileInfo file)
+```
+
+#### Parameters
+
+`file` MediaFileInfo<br>
+
+#### Returns
+
+String<br>
+ 
+# ImageGroup
+
+Namespace: miCompressor.ui.viewmodel
+
+```csharp
+public class ImageGroup
+```
+
+Inheritance: Object → ImageGroup<br>
+Attributes: NullableContextAttribute, NullableAttribute
+
+## Properties
+
+### FolderPath
+
+```csharp
+public string FolderPath { get; }
+```
+
+### Images
+
+```csharp
+public ObservableCollection<MediaFileInfo> Images { get; }
+```
+
+## Constructors
+
+### ImageGroup(String, List&lt;MediaFileInfo&gt;)
+
+```csharp
+public ImageGroup(string folderPath, List<MediaFileInfo> images)
+```
+
+#### Parameters
+
+`folderPath` String<br>
+
+`images` List&lt;MediaFileInfo&gt;<br>
+
+## Methods
+
+### UpdateImages(IList&lt;MediaFileInfo&gt;)
+
+```csharp
+public void UpdateImages(IList<MediaFileInfo> newImages)
+```
+
+#### Parameters
+
+`newImages` IList&lt;MediaFileInfo&gt;<br>
+ 
+# WarningGroup
+
+Namespace: miCompressor.ui.viewmodel
+
+```csharp
+public class WarningGroup
+```
+
+Inheritance: Object → WarningGroup<br>
+Attributes: NullableContextAttribute, NullableAttribute
+
+## Properties
+
+### GroupName
+
+```csharp
+public string GroupName { get; }
+```
+
+### Items
+
+```csharp
+public List<MediaFileInfo> Items { get; }
+```
+
+## Constructors
+
+### WarningGroup(String, List&lt;MediaFileInfo&gt;)
+
+```csharp
+public WarningGroup(string groupName, List<MediaFileInfo> items)
+```
+
+#### Parameters
+
+`groupName` String<br>
+
+`items` List&lt;MediaFileInfo&gt;<br>
+ 
+# WarningViewModel
+
+Namespace: miCompressor.ui.viewmodel
+
+```csharp
+public class WarningViewModel : System.ComponentModel.INotifyPropertyChanged
+```
+
+Inheritance: Object → WarningViewModel<br>
+Implements: INotifyPropertyChanged<br>
+Attributes: NullableContextAttribute, NullableAttribute
+
+## Fields
+
+### warningHelper
+
+```csharp
+private WarningHelper warningHelper = miCompressor.core.common.WarningHelper;
+```
+
+### _currentWarningType
+
+```csharp
+private string _currentWarningType = "Post Compression Warnings";
+```
+
+## Properties
+
+### Warnings
+
+```csharp
+public ObservableCollection<WarningGroup> Warnings { get; private set; }
+```
+
+### CurrentWarningType
+
+```csharp
+public string CurrentWarningType { get; set; }
+```
+
+## Constructors
+
+### WarningViewModel()
+
+```csharp
+public WarningViewModel()
+```
+
+## Methods
+
+### WarningHelper_PropertyChanged(Object, PropertyChangedEventArgs)
+
+```csharp
+private void WarningHelper_PropertyChanged(object sender, PropertyChangedEventArgs e)
+```
+
+#### Parameters
+
+`sender` Object<br>
+
+`e` PropertyChangedEventArgs<br>
+
+### RefreshWarnings()
+
+```csharp
+private void RefreshWarnings()
+```
+
+### OnPropertyChanged(String)
+
+```csharp
+protected void OnPropertyChanged(string propertyName)
+```
+
+#### Parameters
+
+`propertyName` String<br>
+
+## Events
+
+### PropertyChanged
+
+```csharp
+public event PropertyChangedEventHandler PropertyChanged;
+```
  
 # MasterState
 

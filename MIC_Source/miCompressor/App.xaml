@@ -18,6 +18,7 @@
             <SolidColorBrush x:Key="Primary_100" Color="{ThemeResource TextFillColorPrimary}" Opacity="1" />
             <ui:BlendedBrushes x:Key="BlendedBrushHelper" />
             <toolkit:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <ui:NullToBooleanConverter x:Key="NullToBooleanConverter" />
         </ResourceDictionary>
     </Application.Resources>
  </Application>

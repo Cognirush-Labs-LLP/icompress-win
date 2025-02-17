@@ -76,6 +76,8 @@ namespace miCompressor.core
         [AutoNotify]
         private bool excludeAndShow = false;
 
+        public bool IsMetadataLoaded => Width != 0 && Height != 0 && FileSize != 0;
+
         /// <summary>
         /// Determines whether this operation is replacing the original file.
         /// Used when OutputLocationSettings is set to ReplaceOriginal.
@@ -116,8 +118,11 @@ namespace miCompressor.core
         /// <summary>
         /// Loads image metadata asynchronously without blocking the UI.
         /// </summary>
-        private async Task LoadImageMetadataAsync()
+        private async Task LoadImageMetadataAsync(bool force = false)
         {
+            if(!force && IsMetadataLoaded)
+                return;
+            
             ImageMetadata? outputMeta = await LoadImageMetadataAsync(FileToCompress.FullName);
             Width = outputMeta?.Width ?? 0;
             Height = outputMeta?.Height ?? 0;
@@ -150,7 +155,7 @@ namespace miCompressor.core
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading metadata for {filePath}: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Error loading metadata for {filePath}: {ex.Message}");
                 return null; // Return null if metadata loading fails
             }
         }
