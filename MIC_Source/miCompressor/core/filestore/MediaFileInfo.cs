@@ -61,8 +61,6 @@ namespace miCompressor.core
         [AutoNotify]
         private DateTimeOffset? dateTaken;
 
-        [AutoNotify]
-        private bool scanningForFiles = false;
 
         /// <summary>
         /// Exclude the media from processing and hide the file in gallery, used for files are not eligible due to filter settings.
@@ -110,6 +108,7 @@ namespace miCompressor.core
 
             SelectedRootPath = selectedPath;
             FileToCompress = mediaFile;
+            FileSize = (ulong) mediaFile.Length;
 
             // Load metadata asynchronously
             _ = LoadImageMetadataAsync();
@@ -123,12 +122,11 @@ namespace miCompressor.core
             if(!force && IsMetadataLoaded)
                 return;
             
-            ImageMetadata? outputMeta = await LoadImageMetadataAsync(FileToCompress.FullName);
+            ImageMetadata? outputMeta = await LoadImageMetadataAsync(FileToCompress.FullName, loadFileSize: false);
             Width = outputMeta?.Width ?? 0;
             Height = outputMeta?.Height ?? 0;
-            FileSize = outputMeta?.FileSize ?? 0;
-            CameraModel = outputMeta?.CameraModel;
-            DateTaken = outputMeta?.DateTaken;
+            //CameraModel = outputMeta?.CameraModel;
+            //DateTaken = outputMeta?.DateTaken;
         }
 
         /// <summary>
@@ -136,8 +134,9 @@ namespace miCompressor.core
         /// If no file path is provided, it loads metadata for the original file.
         /// </summary>
         /// <param name="filePath">The full path of the file to load metadata from.</param>
+        /// <param name="loadFileSize">True if file size is required. This is to save time</param>
         /// <returns>Returns an ImageMetadata object containing the extracted details.</returns>
-        private async Task<ImageMetadata?> LoadImageMetadataAsync(string filePath)
+        private async Task<ImageMetadata?> LoadImageMetadataAsync(string filePath, bool loadFileSize = true)
         {
             try
             {
@@ -148,9 +147,9 @@ namespace miCompressor.core
                 {
                     Width = (int)properties.Width,
                     Height = (int)properties.Height,
-                    FileSize = (ulong)new FileInfo(filePath).Length,
-                    CameraModel = properties.CameraModel,
-                    DateTaken = properties.DateTaken
+                    FileSize = loadFileSize? (ulong)new FileInfo(filePath).Length : 0,
+                    //CameraModel = properties.CameraModel,
+                    //DateTaken = properties.DateTaken
                 };
             }
             catch (Exception ex)

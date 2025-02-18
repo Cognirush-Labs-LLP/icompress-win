@@ -50,7 +50,7 @@ namespace miCompressor
             _ = Task.Run(async () =>
             {
                 await Task.Delay(1000);
-                FileStoreInstance.AddAsync(@"F:\OpenSource\MassImageCompressor_4\MIC_Source\miCompressor.IntegrationTests\test_imgs\1.jpg");
+                FileStoreInstance.AddAsync(@"F:\OpenSource\MassImageCompressor_4\MIC_Source\miCompressor.IntegrationTests\test_imgs\");
                 //FileStoreInstance.AddAsync(@"C:\Users\yogee\Pictures\Camera Roll");
             });
 #endif

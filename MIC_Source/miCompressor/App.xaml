@@ -13,6 +13,8 @@
                 <!-- Other merged dictionaries here -->
                 <ResourceDictionary Source="ui/styles/Fonts.xaml" />
                 <ResourceDictionary Source="ui/styles/Colors.xaml" />
+                <ResourceDictionary Source="ui/styles/Typography.xaml" />
+                <ResourceDictionary Source="ui/styles/ControlStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <!-- Other app resources here -->
             <SolidColorBrush x:Key="Primary_100" Color="{ThemeResource TextFillColorPrimary}" Opacity="1" />

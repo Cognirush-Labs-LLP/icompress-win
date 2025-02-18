@@ -43,11 +43,19 @@
     <None Remove="ui\EmptyFilesView.xaml" />
     <None Remove="ui\ErrorAndWarnings.xaml" />
     <None Remove="ui\FileSelectionView.xaml" />
+    <None Remove="ui\gallery\FileTreeSelectionView.xaml" />
     <None Remove="ui\MasterView.xaml" />
     <None Remove="ui\SelectedItemHeader.xaml" />
     <None Remove="ui\SelectionDetailView.xaml" />
     <None Remove="ui\SettingsView.xaml" />
     <None Remove="ui\settings\QualitySettings.xaml" />
+    <None Remove="ui\styles\ControlStyles.xaml" />
+    <None Remove="ui\styles\ResourceDictionary1.xaml" />
+    <None Remove="ui\styles\Typography.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Remove="ui\styles\ResourceDictionary1.xaml" />
   </ItemGroup>
 
 
@@ -140,6 +148,21 @@
     <Content Update="Assets\Fonts\FontAwesome6Free-Solid-900.otf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="ui\styles\ControlStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="ui\styles\Typography.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="ui\gallery\FileTreeSelectionView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="ui\SelectionDetailView.xaml">

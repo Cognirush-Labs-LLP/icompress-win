@@ -13,6 +13,7 @@
     <SolidColorBrush x:Key="Primary_50" Color="{ThemeResource TextFillColorPrimary}" Opacity="0.50" />
 
     <SolidColorBrush x:Key="Acccent_100" Color="{ThemeResource SystemAccentColor}" />
+    <SolidColorBrush x:Key="Acccent_70" Color="{ThemeResource SystemAccentColor}" Opacity="0.70"/>
     <SolidColorBrush x:Key="Acccent_50" Color="{ThemeResource SystemAccentColor}" Opacity="0.50"/>
     <SolidColorBrush x:Key="Acccent_20" Color="{ThemeResource SystemAccentColor}" Opacity="0.20"/>
 

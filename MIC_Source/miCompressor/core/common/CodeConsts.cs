@@ -16,7 +16,7 @@ namespace miCompressor.core
         /// <summary>
         /// Supported lower cased input file extensions without dot. i.e. "jpg", "jpeg", "png", "webp".
         /// </summary>
-        public static string[] SupportedInputExtensions = ["jpg", "jpeg", "png", "webp"];
+        public static string[] SupportedInputExtensions = ["jpg", "jpeg", "png", "webp", "arw", "dng", "nef", "cr2", "cr3"];
 
 
         /// <summary>

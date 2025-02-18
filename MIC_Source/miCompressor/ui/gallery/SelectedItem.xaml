@@ -30,6 +30,7 @@
                 </Button>
             </StackPanel>
         </Grid>
-        <local:SelectionDetailView x:Name="DetailViewInstance" SelectedPath="{x:Bind SelectedPath, Mode=OneWay}" />
+        <!--<local:SelectionDetailView x:Name="DetailViewInstance" SelectedPath="{x:Bind SelectedPath, Mode=OneWay}" />-->
+        <local:FileTreeSelectionView x:Name="FileTreeSelectionViewInstance" SelectedPath="{x:Bind SelectedPath, Mode=OneWay}" />
     </StackPanel>
 </UserControl>

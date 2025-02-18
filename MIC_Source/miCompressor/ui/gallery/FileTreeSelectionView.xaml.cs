@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using miCompressor.core;
+using miCompressor.ui.viewmodel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -12,18 +7,20 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
-using miCompressor.core;
-using miCompressor.ui.viewmodel;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.Foundation;
+using Windows.Foundation.Collections;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace miCompressor.ui
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
-    public sealed partial class SelectionDetailView : UserControl
+    public sealed partial class FileTreeSelectionView : UserControl
     {
         public GroupedImageGalleryViewModel ViewModel { get; } = new GroupedImageGalleryViewModel();
 
@@ -38,7 +35,7 @@ namespace miCompressor.ui
 
         private static void OnSelectedPathChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var control = (SelectionDetailView)d;
+            var control = (FileTreeSelectionView)d;
             if (e.NewValue is SelectedPath newPath)
             {
                 if (newPath == null)
@@ -52,12 +49,20 @@ namespace miCompressor.ui
         /// Identifies the <see cref="SelectedPath"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty SelectedPathProperty =
-            DependencyProperty.Register("SelectedPath", typeof(SelectedPath), typeof(SelectionDetailView), new PropertyMetadata(null, OnSelectedPathChanged));
+            DependencyProperty.Register("SelectedPath", typeof(SelectedPath), typeof(FileTreeSelectionView), new PropertyMetadata(null, OnSelectedPathChanged));
 
-        public SelectionDetailView()
+        public FileTreeSelectionView()
         {
-            ViewModel.IsTreeView = false;
+            ViewModel.IsTreeView = true;
             this.InitializeComponent();
+        }
+
+        private void OnCheckBoxClicked(object sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox checkBox && checkBox.DataContext is ImageTreeNode node)
+            {
+                node.IsIncluded = !node.IsIncluded; // Toggle selection without using SelectionState
+            }
         }
     }
 }
