@@ -340,9 +340,18 @@ namespace miCompressor.ui.viewmodel
 
         public string Dimensions => FileInfo != null ? $"{FileInfo.Width}×{FileInfo.Height}" : string.Empty;
 
-        public ulong FileSizeInBytes = 0;
-        public string FileSize => FileInfo != null ? FileInfo.FileSizeToShow : HumanReadable.FileSize(fileSize: FileSizeInBytes);
+        private ulong FileSizeInBytes = 0;
+        private ulong SelectedFileSizeInBytes = 0;
 
+        public string FileSize
+        {
+            get
+            {
+                if (FileInfo != null) 
+                    return FileInfo.FileSizeToShow;
+                return $"{HumanReadable.FileSize(fileSize: SelectedFileSizeInBytes)} of {HumanReadable.FileSize(fileSize: FileSizeInBytes)}";
+            }
+        }
         public string DisplayText
         {
             get
@@ -378,6 +387,9 @@ namespace miCompressor.ui.viewmodel
 
                 OnPropertyChanged(nameof(IsIncluded));
                 OnPropertyChanged(nameof(SelectionState)); // Ensure UI updates
+                CalculateSelectedImageFileCount();
+                CalculateSelectedImageSize();
+                OnPropertyChanged(nameof(SelectedFileCountString));
                 SubscribeToChangeInChildStatusImageTreeNode();
 
             }
@@ -406,6 +418,8 @@ namespace miCompressor.ui.viewmodel
         }
 
         public int ImageFileCount;
+        public int SelectedFileCount;
+        public string SelectedFileCountString => $"{SelectedFileCount} of {ImageFileCount}";
 
         public ImageTreeNode(string name, bool isFolder)
         {
@@ -421,7 +435,9 @@ namespace miCompressor.ui.viewmodel
             IsIncluded = true;
             //SubscribeToChangeInChildStatusImageTreeNode();
             CalculateImageFileCount();
+            CalculateSelectedImageFileCount();
             CalculateImageSize();
+            CalculateSelectedImageSize();
         }
 
         /// <summary>
@@ -459,7 +475,9 @@ namespace miCompressor.ui.viewmodel
                 OnPropertyChanged(nameof(SelectionState));
                 //System.Diagnostics.Debug.WriteLine($"{Name} was updated");
                 OnPropertyChanged(nameof(IsIncluded));
-
+                CalculateSelectedImageFileCount();
+                OnPropertyChanged(nameof(SelectedFileCountString));
+                CalculateSelectedImageSize();
             }
             if (e.PropertyName == nameof(FileSize))
             {
@@ -467,6 +485,7 @@ namespace miCompressor.ui.viewmodel
                 {
                     // Your image refresh logic here.
                     CalculateImageSize();
+                    CalculateSelectedImageSize();
                 }, shouldRunInUI: true);
                 
             }
@@ -495,6 +514,25 @@ namespace miCompressor.ui.viewmodel
             return count;
         }
 
+        private void CalculateSelectedImageFileCount()
+        {
+            SelectedFileCount = GetImageSelectedFileCount(this);
+        }
+
+        private int GetImageSelectedFileCount(ImageTreeNode node)
+        {
+            if (node.IsImage)
+                return node.FileInfo == null ? 0 : ((node.FileInfo.ExcludeAndShow || node.FileInfo.ExcludeAndHide) ? 0 : 1);
+
+            int count = 0;
+            foreach (var child in node.Children)
+            {
+                count += GetImageSelectedFileCount(child);
+            }
+            node.SelectedFileCount = count;
+            return count;
+        }
+
         private void CalculateImageSize()
         {
             var oldFileSize = FileSizeInBytes;
@@ -517,6 +555,29 @@ namespace miCompressor.ui.viewmodel
                 count += GetImageFileSizeOfAllChild(child);
             }
             node.FileSizeInBytes = count;
+            return count;
+        }
+
+        private void CalculateSelectedImageSize()
+        {
+            SelectedFileSizeInBytes = GetSelectedImageFileSizeOfAllChild(this);
+            OnPropertyChanged(nameof(FileSize));
+        }
+
+        /// <summary>
+        /// Recursively counts image files (non-folder nodes).
+        /// </summary>
+        private ulong GetSelectedImageFileSizeOfAllChild(ImageTreeNode node)
+        {
+            if (node.IsImage)
+                return node.FileInfo == null ? 0 : ((node.FileInfo.ExcludeAndShow || node.FileInfo.ExcludeAndHide) ? 0 : node.FileInfo.FileSize);
+
+            ulong count = 0;
+            foreach (var child in node.Children)
+            {
+                count += GetSelectedImageFileSizeOfAllChild(child);
+            }
+            node.SelectedFileSizeInBytes = count;
             return count;
         }
 

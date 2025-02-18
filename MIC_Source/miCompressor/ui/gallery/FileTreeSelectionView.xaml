@@ -36,7 +36,7 @@
                                 </Border.RenderTransform>
                                 <CheckBox IsThreeState="True" IsChecked="{x:Bind SelectionState, Mode=OneWay}" Click="OnCheckBoxClicked" VerticalAlignment="Center">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" Margin="0,2,0,0">
-                                        <Grid Visibility="{x:Bind IsFolder, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <Grid Visibility="{x:Bind IsFolder, Converter={StaticResource BoolToVisibilityConverter}}" Opacity="0.8">
                                             <FontIcon Glyph="&#xED44;" Visibility="{x:Bind IsFolder, Converter={StaticResource BoolToVisibilityConverter}}" Foreground="#FFDE48" Margin="0,0,6,0" />
                                             <FontIcon Glyph="&#xED43;"  Foreground="Black" Opacity="0.3" Margin="0,0,6,0" />
                                         </Grid>
@@ -46,10 +46,14 @@
                                 </CheckBox>
                             </Border>
 
-                            <TextBlock Text="{x:Bind ImageFileCount}" VerticalAlignment="Center" Style="{StaticResource TextBlockSmall}" Margin="10,0,10,0" Foreground="{StaticResource Acccent_70}" Visibility="{x:Bind IsFolder, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                            <!-- Folder or File Name -->
+                            <TextBlock Text="{x:Bind SelectedFileCountString, Mode=OneWay}" VerticalAlignment="Center" Style="{StaticResource TextBlockSmall}" Margin="10,0,10,0" Opacity="0.2" Visibility="{x:Bind IsFolder, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                            <TextBlock Text="{x:Bind FileSize, Mode=OneWay}" VerticalAlignment="Center" Style="{StaticResource TextBlockSmall}" Opacity="0.4" Visibility="{x:Bind IsFolder, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            
                             <TextBlock Text="{x:Bind Dimensions, Mode=OneWay}" VerticalAlignment="Center" Style="{StaticResource TextBlockSmall}" Margin="10,0,10,0" Foreground="{StaticResource Acccent_70}" />
-                            <TextBlock Text="{x:Bind FileSize, Mode=OneWay}" VerticalAlignment="Center" Style="{StaticResource TextBlockSmall}" Foreground="{StaticResource Acccent_70}"/>
+
+                            <TextBlock Text="{x:Bind FileSize, Mode=OneWay}" VerticalAlignment="Center" Style="{StaticResource TextBlockSmall}" Foreground="{StaticResource Acccent_70}" Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            
 
                             <!-- "Preview" Link (Only for Files) -->
                             <HyperlinkButton Content="Preview" NavigateUri="{x:Bind FileInfo.FileToCompress.FullName}" FontSize="12" Padding="4"
