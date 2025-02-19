@@ -21,6 +21,7 @@
             <ui:BlendedBrushes x:Key="BlendedBrushHelper" />
             <toolkit:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
             <ui:NullToBooleanConverter x:Key="NullToBooleanConverter" />
+            <ui:ReverseBoolToVisibilityConverter x:Key="ReverseBoolToVisibilityConverter" />
         </ResourceDictionary>
     </Application.Resources>
  </Application>

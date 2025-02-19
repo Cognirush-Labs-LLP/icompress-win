@@ -11,16 +11,16 @@
     mc:Ignorable="d">
 
     <Grid>
-        <TreeView ItemsSource="{x:Bind ViewModel.ImageTree, Mode=OneWay}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+        <TreeView x:Name="SelectedPathTreeView" ItemsSource="{x:Bind ViewModel.ImageTree, Mode=OneWay}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AllowDrop="False"
                   ScrollViewer.HorizontalScrollMode="Auto"
                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
                   ScrollViewer.VerticalScrollMode="Disabled"
-                  >
+                  RightTapped="FolderTreeView_RightTapped">
             <TreeView.ItemContainerStyle>
                 <Style TargetType="TreeViewItem">
                     <Setter Property="Padding" Value="0,0,0,0"/>
                     <!-- Reduce spacing -->
-                    <Setter Property="Margin" Value="-4"/>
+                    <Setter Property="Margin" Value="-10"/>
                     <!-- No extra margin -->
                     <!--<Setter Property="Height" Value="34"/>-->
                 </Style>
@@ -40,24 +40,34 @@
                                             <FontIcon Glyph="&#xED44;" Visibility="{x:Bind IsFolder, Converter={StaticResource BoolToVisibilityConverter}}" Foreground="#FFDE48" Margin="0,0,6,0" />
                                             <FontIcon Glyph="&#xED43;"  Foreground="Black" Opacity="0.3" Margin="0,0,6,0" />
                                         </Grid>
-                                        <TextBlock Text="{x:Bind ShortName}" VerticalAlignment="Center" Opacity="0.5" TextWrapping="Wrap" Visibility="{x:Bind IsFolder, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                        <TextBlock Text="{x:Bind ShortName}" VerticalAlignment="Center" Opacity="0.6" TextWrapping="Wrap" Visibility="{x:Bind IsFolder, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                         <TextBlock Text="{x:Bind ShortName}" VerticalAlignment="Center" Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     </StackPanel>
                                 </CheckBox>
                             </Border>
 
-                            <TextBlock Text="{x:Bind SelectedFileCountString, Mode=OneWay}" VerticalAlignment="Center" Style="{StaticResource TextBlockSmall}" Margin="10,0,10,0" Opacity="0.2" Visibility="{x:Bind IsFolder, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            <TextBlock Text="{x:Bind SelectedFileCountString, Mode=OneWay}" VerticalAlignment="Center" Style="{StaticResource TextBlockSmall}" Margin="10,0,10,0" Opacity="0.4" Visibility="{x:Bind IsFolder, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-                            <TextBlock Text="{x:Bind FileSize, Mode=OneWay}" VerticalAlignment="Center" Style="{StaticResource TextBlockSmall}" Opacity="0.4" Visibility="{x:Bind IsFolder, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                            
+                            <TextBlock Text="{x:Bind FileSize, Mode=OneWay}" VerticalAlignment="Center" Style="{StaticResource TextBlockSmall}" Opacity="0.6" Visibility="{x:Bind IsFolder, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
                             <TextBlock Text="{x:Bind Dimensions, Mode=OneWay}" VerticalAlignment="Center" Style="{StaticResource TextBlockSmall}" Margin="10,0,10,0" Foreground="{StaticResource Acccent_70}" />
 
                             <TextBlock Text="{x:Bind FileSize, Mode=OneWay}" VerticalAlignment="Center" Style="{StaticResource TextBlockSmall}" Foreground="{StaticResource Acccent_70}" Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                            
 
                             <!-- "Preview" Link (Only for Files) -->
                             <HyperlinkButton Content="Preview" NavigateUri="{x:Bind FileInfo.FileToCompress.FullName}" FontSize="12" Padding="4"
                                      Margin="20,0,0,0" Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                            <StackPanel.ContextFlyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem Text="Open"
+                                        Click="OpenFile_Click"
+                                        Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    <MenuFlyoutItem Text="Open in Explorer"
+                                        Click="OpenFolderInExplorer_Click"
+                                        Visibility="{x:Bind IsFolder, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                </MenuFlyout>
+                            </StackPanel.ContextFlyout>
                         </StackPanel>
                     </TreeViewItem>
                 </DataTemplate>

@@ -8,29 +8,40 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <StackPanel Orientation="Vertical">
-        <Grid ColumnDefinitions="Auto, *, Auto" VerticalAlignment="Center" Padding="10,4,4,4">
-            <TextBlock Text="{x:Bind SelectedPath.DisplayName, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}"
+    <Border BorderThickness="2" CornerRadius="14" BorderBrush="{StaticResource Acccent_10}" Margin="0,0,16,8" Padding="0,0,0,10">
+        <StackPanel Orientation="Vertical">
+            <Grid ColumnDefinitions="Auto, *, Auto" VerticalAlignment="Center" Padding="6" Background="{StaticResource Acccent_05}" Margin="0,0,0,6">
+                <TextBlock Text="{x:Bind SelectedPath.DisplayName, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}"
                VerticalAlignment="Center" Grid.Column="0" />
-            <Grid Grid.Column="1" />
-            <StackPanel Grid.Column="2"  Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                <StackPanel Orientation="Horizontal" Visibility="{x:Bind SelectedPath.IsDirectory, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                    <CheckBox Grid.Column="2" Content="Sub-Folders" IsChecked="{x:Bind SelectedPath.IncludeSubDirectories, Mode=TwoWay}" VerticalAlignment="Center" VerticalContentAlignment="Center" Padding="5" />
-                    <!-- Icon before file count -->
-                    <TextBlock FontFamily="{StaticResource FontAwesomeRegular}" Text="&#xf302;" Margin="0,0,6,0" VerticalAlignment="Center" />
-                    <!-- File count -->
-                    <TextBlock Text="{x:Bind SelectedPath.Files.Count, Mode=OneWay}" VerticalAlignment="Center" MinWidth="25" />
-                </StackPanel>
-                <ProgressRing IsActive="{x:Bind SelectedPath.ScanningForFiles, Mode=OneWay}" Height="16" Width="16"/>
+                <Grid Grid.Column="1" />
 
-                <Button Margin="10,0,6,0" Padding="6" IsEnabled="{x:Bind ScannedAllFiles}" Click="OnDeleteButtonClicked">
-                    <!--<TextBlock FontFamily="{StaticResource FontAwesomeSolid}" 
+                <StackPanel Grid.Column="2"  Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" >
+
+                    <StackPanel Orientation="Horizontal" Visibility="{x:Bind SelectedPath.IsDirectory, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                        <CheckBox Grid.Column="2" Content="Sub-Folders" IsChecked="{x:Bind SelectedPath.IncludeSubDirectories, Mode=TwoWay}" VerticalAlignment="Center" VerticalContentAlignment="Center" Padding="5" />
+                        <!-- Icon before file count -->
+                        <TextBlock FontFamily="{StaticResource FontAwesomeRegular}" Text="&#xf302;" Margin="0,0,6,0" VerticalAlignment="Center" />
+                        <!-- File count -->
+                        <TextBlock Text="{x:Bind SelectedPath.Files.Count, Mode=OneWay}" VerticalAlignment="Center" MinWidth="25" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Visibility="{x:Bind SelectedPath.IsDirectory, Converter={StaticResource ReverseBoolToVisibilityConverter}, Mode=OneWay}" Opacity="0.6">
+                        <TextBlock Text="{x:Bind SelectedPath.FirstFile.DimensionsToShow, Mode=OneWay, FallbackValue='N/A'}" Margin="0,0,6,0" VerticalAlignment="Center" MinWidth="25" />
+                        <TextBlock Text="{x:Bind SelectedPath.FirstFile.FileSizeToShow, Mode=OneWay, FallbackValue='N/A'}" Margin="0,0,6,0" VerticalAlignment="Center" MinWidth="25" />
+                    </StackPanel>
+
+                    <ProgressRing IsActive="{x:Bind SelectedPath.ScanningForFiles, Mode=OneWay}" Height="16" Width="16"/>
+
+                    <Button Margin="10,0,2,0" Padding="6" CornerRadius="16" IsEnabled="{x:Bind ScannedAllFiles}" Click="OnDeleteButtonClicked">
+                        <!--<TextBlock FontFamily="{StaticResource FontAwesomeSolid}" 
                Text="&#xf068;" FontSize="16" />-->
-                    <FontIcon Glyph="&#xECC9;" Foreground="{Binding ThemedRed, Source={StaticResource BlendedBrushHelper}}"/>
-                </Button>
-            </StackPanel>
-        </Grid>
-        <!--<local:SelectionDetailView x:Name="DetailViewInstance" SelectedPath="{x:Bind SelectedPath, Mode=OneWay}" />-->
-        <local:FileTreeSelectionView x:Name="FileTreeSelectionViewInstance" SelectedPath="{x:Bind SelectedPath, Mode=OneWay}" />
-    </StackPanel>
+                        <FontIcon Glyph="&#xECC9;" Foreground="{Binding ThemedRed, Source={StaticResource BlendedBrushHelper}}"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+            <TextBlock  Text="{x:Bind SelectedPath.Path, Mode=OneWay}" Style="{StaticResource TextBlockSmall}" Opacity="0.5" VerticalAlignment="Center" TextWrapping="Wrap" Margin="10,4,4,4" />
+            <!--<local:SelectionDetailView x:Name="DetailViewInstance" SelectedPath="{x:Bind SelectedPath, Mode=OneWay}" />-->
+            <local:FileTreeSelectionView x:Name="FileTreeSelectionViewInstance" SelectedPath="{x:Bind SelectedPath, Mode=OneWay}" Visibility="{x:Bind SelectedPath.IsDirectory, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
+        </StackPanel>
+    </Border>
 </UserControl>

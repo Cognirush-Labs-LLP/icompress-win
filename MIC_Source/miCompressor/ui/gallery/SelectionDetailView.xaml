@@ -39,17 +39,16 @@
                             </ItemsRepeater.Layout>
                             <ItemsRepeater.ItemTemplate>
                                 <DataTemplate x:DataType="core:MediaFileInfo">
-                                    <StackPanel Width="100" Height="100"
+                                    <StackPanel Width="100" Height="120"
                                         Margin="5"
-                                        Background="Transparent">
+                                        Background="DarkGreen">
                                         <StackPanel VerticalAlignment="Center">
                                             <!-- Thumbnail Loading Indicator -->
-                                                <ProgressRing IsActive="{x:Bind Thumbnail, Mode=OneWay, Converter={StaticResource NullToBooleanConverter}}" 
-                                                      Width="20" Height="20"  />
+                                                <!--<ProgressRing IsActive="{x:Bind Thumbnail, Mode=OneWay, Converter={StaticResource NullToBooleanConverter}}" 
+                                                      Width="20" Height="20"  />-->
 
                                                 <!-- Primary Thumbnail -->
-                                                <Image Source="{x:Bind Thumbnail, Mode=OneWay}" 
-                                                   MaxWidth="80" MaxHeight="80" Stretch="Uniform" />
+                                                <Image Source="{x:Bind Thumbnail, Mode=OneWay}" MaxWidth="80" MaxHeight="80" Stretch="Uniform" />
 
                                                 <!-- File Size Display -->
                                             <TextBlock Text="{x:Bind FileSizeToShow, Mode=OneWay}" 

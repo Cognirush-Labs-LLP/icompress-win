@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -76,6 +77,11 @@ namespace miCompressor.core
                     return _files.ToList().AsReadOnly();
             }
         }
+
+        /// <summary>
+        /// Useful in UI when selected path is a file and not a directory.
+        /// </summary>
+        public MediaFileInfo? FirstFile => Files.FirstOrDefault();
 
         private List<MediaFileInfo> _files = new List<MediaFileInfo>();
         private readonly ReaderWriterLockSlim _lockForFiles = new ReaderWriterLockSlim();
@@ -158,6 +164,7 @@ namespace miCompressor.core
                         _files.Add(new MediaFileInfo(basePath, new FileInfo(basePath)));
                     }
                     OnPropertyChanged(nameof(Files));
+                    OnPropertyChanged(nameof(FirstFile));
                 }
                 else
                 {
@@ -219,7 +226,7 @@ namespace miCompressor.core
                         _files.AddRange(newFiles);
                     }
                     OnPropertyChanged(nameof(Files));
-                }                
+                }
 
                 if (includeSubDir)
                 {
@@ -256,19 +263,24 @@ namespace miCompressor.core
     public class FileStore : ObservableBase
     {
         private readonly List<SelectedPath> _store = new();
+        private readonly ObservableCollection<SelectedPath> _uiStore = new(); // UI-friendly ObservableCollection
+
         private readonly ReaderWriterLockSlim _lock = new(LockRecursionPolicy.SupportsRecursion);
+        private readonly object _uiStoreLock = new(); //plain simle lock for observable collection for UI. Optimizaiton not required.
+
 
         /// <summary>
         /// Retrieves a thread-safe read-only collection of selected paths.
         /// </summary>
-        public IReadOnlyCollection<SelectedPath> SelectedPaths
+        /*public IReadOnlyCollection<SelectedPath> SelectedPaths
         {
             get
             {
                 using (_lock.ReadLock())
                     return _store.AsReadOnly();
             }
-        }
+        }*/
+        public ObservableCollection<SelectedPath> SelectedPaths => _uiStore;
 
         /// <summary>
         /// Retrieves all unique media files across selected paths.
@@ -279,7 +291,12 @@ namespace miCompressor.core
             get
             {
                 int totalWaitMs = 0;
-                while (SelectedPaths.Any(selection => selection.ScanningForFiles) && totalWaitMs < 10 * 1000) //wait for scanning to finish, max 10 seconds
+
+                IReadOnlyCollection<SelectedPath> tempSelectedPathList;
+                using (_lock.ReadLock())
+                    tempSelectedPathList = _store.AsReadOnly();
+
+                while (tempSelectedPathList.Any(selection => selection.ScanningForFiles) && totalWaitMs < 10 * 1000) //wait for scanning to finish, max 10 seconds
                 {
                     Thread.Sleep(10);
                     totalWaitMs += 10;
@@ -308,7 +325,13 @@ namespace miCompressor.core
                 {
                     var selectedPath = new SelectedPath(path, scanSubDirectories);
                     _store.Add(selectedPath);
-                    OnPropertyChanged(nameof(SelectedPaths));
+                    UIThreadHelper.RunOnUIThread(() =>
+                    {
+                        lock (_uiStoreLock)
+                            if (!_uiStore.Contains(selectedPath)) _uiStore.Add(selectedPath);
+                        OnPropertyChanged(nameof(SelectedPaths));
+                    });
+
                     return PathAddedResult.Success;
                 }
                 catch (ArgumentException)
@@ -333,6 +356,12 @@ namespace miCompressor.core
                 selectedPath.CancelScanning();
 
                 _store.Remove(selectedPath);
+                UIThreadHelper.RunOnUIThread(() =>
+                {
+                    lock (_uiStoreLock)
+                        _uiStore.Remove(selectedPath);
+                    OnPropertyChanged(nameof(SelectedPaths));
+                });
                 OnPropertyChanged(nameof(SelectedPaths));
                 return true;
             }
@@ -367,6 +396,12 @@ namespace miCompressor.core
             {
                 _store.ForEach(selectedPath => selectedPath.CancelScanning());
                 _store.Clear();
+                UIThreadHelper.RunOnUIThread(() =>
+                {
+                    lock (_uiStoreLock)
+                        _uiStore.Clear();
+                    OnPropertyChanged(nameof(SelectedPaths));
+                });
                 OnPropertyChanged(nameof(SelectedPaths));
             }
         }

@@ -17,7 +17,7 @@ public partial class MediaFileInfo
 {
     public string FilePath => FileToCompress.FullName;
     public uint ThumbnailSize { get; set; } = 80;
-    private const int MaxParallelThumbnailLoads = 8;
+    private const int MaxParallelThumbnailLoads = 50;
 
     private static readonly ConcurrentDictionary<string, Task<BitmapImage?>> s_thumbnailTasks = new ConcurrentDictionary<string, Task<BitmapImage?>>();
     string s_thumbnailTasksKey => $"{FilePath}-{ThumbnailSize}";
@@ -56,13 +56,14 @@ public partial class MediaFileInfo
     {
         if (_thumbnail != null) return;  // Lock-free read for already-loaded thumbnail.
 
+        /*
         await LoadImageMetadataAsync();
         // set original image as thumbnail if it's smaller than the thumbnail size
         if (width <= ThumbnailSize && height <= ThumbnailSize)
         {
             Thumbnail = new BitmapImage(new Uri(FilePath));
             return;
-        }
+        }*/
 
         string cacheKey = s_thumbnailTasksKey;
 
@@ -110,7 +111,6 @@ public partial class MediaFileInfo
     /// </summary>
     private async Task<BitmapImage> LoadThumbnailWithFallbackAsync()
     {
-        /*
         try
         {
             var thumbnail = await TryGetThumbnailFromStorageApiAsync();
@@ -128,7 +128,7 @@ public partial class MediaFileInfo
             {
                 System.Diagnostics.Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
             }
-        }*/
+        }
 
         // Fall back to ImageMagick for thumbnail generation
         try
@@ -153,6 +153,7 @@ public partial class MediaFileInfo
             }
         }
 
+        /*
         try
         {
             var thumbnail = await TryGetThumbnailFromStorageApiAsync();
@@ -170,7 +171,7 @@ public partial class MediaFileInfo
             {
                 System.Diagnostics.Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
             }
-        }
+        }*/
 
         // Return a placeholder thumbnail in case of complete failure
         return GeneratePlaceholderThumbnail();
@@ -180,13 +181,23 @@ public partial class MediaFileInfo
     {
         try
         {
-            StorageFile file = await StorageFile.GetFileFromPathAsync(FilePath);
-            var thumbnail = await file.GetThumbnailAsync(ThumbnailMode.PicturesView, (uint)ThumbnailSize, ThumbnailOptions.UseCurrentScale);
+            // Run file access in a background thread
+            StorageFile file = await Task.Run(async () =>
+                await StorageFile.GetFileFromPathAsync(FilePath));
+
+            var thumbnail = await Task.Run(async () =>
+                await file.GetThumbnailAsync(ThumbnailMode.PicturesView, (uint)ThumbnailSize, ThumbnailOptions.UseCurrentScale));
 
             if (thumbnail != null)
             {
                 BitmapImage image = new BitmapImage();
-                image.SetSource(thumbnail);
+
+                // Ensure UI thread execution for SetSource
+                await UIThreadHelper.RunOnUIThreadAsync(async () =>
+                {
+                    image.SetSource(thumbnail);
+                });
+
                 return image;
             }
         }

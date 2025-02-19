@@ -36,5 +36,10 @@ namespace miCompressor.ui
             // Handle the deletion, such as removing the path from a collection or refreshing the UI
             App.FileStoreInstance.Remove(e.Path);
         }
+
+        private void Remove_All_Click(object sender, RoutedEventArgs e)
+        {
+            App.FileStoreInstance.RemoveAll();
+        }
     }
 }

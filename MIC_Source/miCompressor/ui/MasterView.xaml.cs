@@ -16,6 +16,7 @@ using miCompressor.viewmodels;
 using miCompressor.core;
 using System.ComponentModel;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -57,9 +58,8 @@ namespace miCompressor.ui
         private void MasterView_DragOver(object sender, DragEventArgs e)
         {
             e.AcceptedOperation = Windows.ApplicationModel.DataTransfer.DataPackageOperation.Copy;
+            e.DragUIOverride.Caption = "Add to Selection";
         }
-
-
 
         private async void MasterView_Drop(object sender, DragEventArgs e)
         {

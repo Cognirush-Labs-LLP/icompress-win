@@ -41,7 +41,7 @@ namespace miCompressor.ui.viewmodel
         private readonly object _throttleLock = new object();
         private bool _isThrottlingActive = false;
 
-        private void RefreshImagesWithThrottled(int throttleTimeInMs = 1000)
+        private void RefreshImagesWithThrottled(int throttleTimeInMs = 100)
         {
             lock (_throttleLock)
             {
@@ -118,7 +118,10 @@ namespace miCompressor.ui.viewmodel
         private void RefreshTreeView()
         {
             if (_currentSelectedPath?.Files == null || !_currentSelectedPath.Files.Any())
+            {
+                ImageTree.Clear();
                 return;
+            }
 
             var rootNode = new ImageTreeNode(_currentSelectedPath.Path, true);
             Dictionary<string, ImageTreeNode> nodeLookup = new()
@@ -154,7 +157,7 @@ namespace miCompressor.ui.viewmodel
                 parentNode = CreateFolderNodes(root, directoryPath, nodeLookup);
             }
 
-            var fileNode = new ImageTreeNode(file.FileToCompress.Name, false)
+            var fileNode = new ImageTreeNode(file.FileToCompress.FullName, false)
             {
                 FileInfo = file
             };
@@ -292,7 +295,7 @@ namespace miCompressor.ui.viewmodel
         }
     }
 
-    public class ImageTreeNode: ObservableBase
+    public class ImageTreeNode : ObservableBase
     {
         private string _name;
         public string Name
@@ -347,9 +350,12 @@ namespace miCompressor.ui.viewmodel
         {
             get
             {
-                if (FileInfo != null) 
+                if (FileInfo != null)
                     return FileInfo.FileSizeToShow;
-                return $"{HumanReadable.FileSize(fileSize: SelectedFileSizeInBytes)} of {HumanReadable.FileSize(fileSize: FileSizeInBytes)}";
+                if (FileSizeInBytes != SelectedFileSizeInBytes)
+                    return $"{HumanReadable.FileSize(fileSize: SelectedFileSizeInBytes)} of {HumanReadable.FileSize(fileSize: FileSizeInBytes)}";
+                else
+                    return $"{HumanReadable.FileSize(fileSize: FileSizeInBytes)}";
             }
         }
         public string DisplayText
@@ -419,7 +425,15 @@ namespace miCompressor.ui.viewmodel
 
         public int ImageFileCount;
         public int SelectedFileCount;
-        public string SelectedFileCountString => $"{SelectedFileCount} of {ImageFileCount}";
+        public string SelectedFileCountString
+        {
+            get
+            {
+                if (ImageFileCount != SelectedFileCount)
+                    return $"{SelectedFileCount} of {ImageFileCount}";
+                return $"{ImageFileCount}";
+            }
+        }
 
         public ImageTreeNode(string name, bool isFolder)
         {
@@ -487,7 +501,7 @@ namespace miCompressor.ui.viewmodel
                     CalculateImageSize();
                     CalculateSelectedImageSize();
                 }, shouldRunInUI: true);
-                
+
             }
         }
 

@@ -11,7 +11,19 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-        <ListView ItemsSource="{Binding FileStore.SelectedPaths}"
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <CommandBar Grid.Row="0" IsOpen="False" DefaultLabelPosition="Right">
+            <AppBarButton Label="Remove All" Click="Remove_All_Click">
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xECC9;"/>
+                </AppBarButton.Icon>
+
+            </AppBarButton>
+        </CommandBar>
+        <ListView Grid.Row="1" ItemsSource="{Binding FileStore.SelectedPaths}"
                       VerticalAlignment="Stretch"
                       HorizontalAlignment="Stretch"
                       ScrollViewer.VerticalScrollMode="Auto"
@@ -27,7 +39,9 @@
             </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
                 <DataTemplate>
+                    <StackPanel Margin="0,0,4,0">
                     <local:SelectedItem SelectedPath="{Binding}" SelectedPathDeleted="SelectedItem_SelectedPathDeleted" Background="{StaticResource Primary_05}"/>
+                    </StackPanel>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

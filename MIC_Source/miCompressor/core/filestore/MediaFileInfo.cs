@@ -95,6 +95,16 @@ namespace miCompressor.core
             get { return HumanReadable.FileSize(fileSize: fileSize); }
         }
 
+        public string DimensionsToShow
+        {
+            get 
+            {
+                if(!IsMetadataLoaded)
+                    LoadImageMetadataAsync().ConfigureAwait(false);
+                return $"{width}x{height}"; 
+            }
+        }
+
         /// <summary>
         /// Initializes a new instance of <see cref="MediaFileInfo"/>.
         /// </summary>
@@ -111,6 +121,7 @@ namespace miCompressor.core
             FileSize = (ulong) mediaFile.Length;
 
             // Load metadata asynchronously
+            //UIThreadHelper.RunOnUIThreadAsync(async () => LoadImageMetadataAsync());
             _ = LoadImageMetadataAsync();
         }
 
@@ -125,6 +136,8 @@ namespace miCompressor.core
             ImageMetadata? outputMeta = await LoadImageMetadataAsync(FileToCompress.FullName, loadFileSize: false);
             Width = outputMeta?.Width ?? 0;
             Height = outputMeta?.Height ?? 0;
+            
+            OnPropertyChanged(nameof(DimensionsToShow));
             //CameraModel = outputMeta?.CameraModel;
             //DateTaken = outputMeta?.DateTaken;
         }
