@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Windows.Input;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
@@ -21,16 +22,17 @@ namespace miCompressor.ui
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class QualitySettings : Page
+    public sealed partial class QualitySettings : UserControl
     {
         public QualitySettings()
         {
             this.InitializeComponent();
         }
 
-        private void TextBlock_BringIntoViewRequested(UIElement sender, BringIntoViewRequestedEventArgs args)
+        protected ICommand SetQualityCommand => new RelayCommand<object>(param =>
         {
-
-        }
+            if (param is string qualityValue && int.TryParse(qualityValue, out int quality))
+                App.OutputSettingsInstance.Quality = quality;
+        });
     }
 }

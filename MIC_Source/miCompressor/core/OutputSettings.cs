@@ -17,7 +17,7 @@ namespace miCompressor.core
         /// Output Quality between 0 to 100.
         /// </summary>
         [AutoNotify]
-        public int quality = 70;
+        public int quality = 80;
 
         /// <summary>
         /// Output Image Format. Defaults to JPEG if the output image format is not supported.
@@ -36,7 +36,7 @@ namespace miCompressor.core
         /// Percentage of original image width (or heigh, doesn't matter). If this is set as 50, then image height and width both are reduced by 50%, hence making image four time smaller than original when total number of pixels are considered.
         /// </summary>
         [AutoNotify]
-        public decimal percentageOfLongEdge = 100;
+        public double percentageOfLongEdge = 100;
 
         /// <summary>
         /// When reducing image by specifying long edge, height or width, this server as its value.

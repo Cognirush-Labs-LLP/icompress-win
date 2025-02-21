@@ -121,6 +121,34 @@ namespace miCompressor.core
         FixedInFrame
     }
 
+    /// <summary>
+    /// Extension methods for DimensionReductionStrategy to provide user-friendly names.
+    /// </summary>
+    public static class DimensionReductionStrategyExtensions
+    {
+        /// <summary>
+        /// Retrieves a user-friendly description for a given DimensionReductionStrategy.
+        /// </summary>
+        /// <param name="strategy">The strategy whose name needs to be retrieved.</param>
+        /// <returns>Formatted user-friendly name.</returns>
+        public static string GetDescription(this DimensionReductionStrategy strategy)
+        {
+            return strategy switch
+            {
+                DimensionReductionStrategy.KeepSame => "Keep Same",
+                DimensionReductionStrategy.Percentage => "Reduce by Percentage",
+                DimensionReductionStrategy.LongEdge => "Max Longest Edge",
+                DimensionReductionStrategy.MaxHeight => "Max Height",
+                DimensionReductionStrategy.MaxWidth => "Max Width",
+                DimensionReductionStrategy.FixedHeight => "Fixed Height",
+                DimensionReductionStrategy.FixedWidth => "Fixed Width",
+                DimensionReductionStrategy.FitInFrame => "Fit in Frame (Print)",
+                DimensionReductionStrategy.FixedInFrame => "Fixed in Frame (Print)",
+                _ => strategy.ToString() // Fallback (should never happen)
+            };
+        }
+    }
+
     #endregion
 
     #region Output File Location Settings

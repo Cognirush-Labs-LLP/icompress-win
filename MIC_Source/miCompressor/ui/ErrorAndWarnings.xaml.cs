@@ -21,7 +21,7 @@ namespace miCompressor.ui
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class ErrorAndWarnings : Page
+    public sealed partial class ErrorAndWarnings : UserControl
     {
         public ErrorAndWarnings()
         {

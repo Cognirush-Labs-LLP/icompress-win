@@ -400,3 +400,4 @@ FodyWeavers.xsd
 *.sln.iml
 MIC_Source/doc/*.md
 MIC_Source/doc2/
+MIC_Source/miCompressor/Assets/Icons/source/output/

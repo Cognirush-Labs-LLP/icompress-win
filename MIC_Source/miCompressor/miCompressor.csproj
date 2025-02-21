@@ -39,7 +39,26 @@
     <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <ApplicationIcon>Assets\mic_win_4.ico</ApplicationIcon>
+  </PropertyGroup>
+
   <ItemGroup>
+    <Compile Remove="Assets\Icons\source\output\**" />
+    <Content Remove="Assets\Icons\source\output\**" />
+    <EmbeddedResource Remove="Assets\Icons\source\output\**" />
+    <None Remove="Assets\Icons\source\output\**" />
+    <Page Remove="Assets\Icons\source\output\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Assets\Icons\source\createFrom256Png.bat" />
+    <Content Remove="Assets\Icons\source\mic_256.png" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Remove="Assets\Icons\source\createFrom256Png.bat" />
+    <None Remove="Assets\Icons\source\mic_256.png" />
     <None Remove="ui\EmptyFilesView.xaml" />
     <None Remove="ui\ErrorAndWarnings.xaml" />
     <None Remove="ui\FileSelectionView.xaml" />
@@ -48,6 +67,7 @@
     <None Remove="ui\SelectedItemHeader.xaml" />
     <None Remove="ui\SelectionDetailView.xaml" />
     <None Remove="ui\SettingsView.xaml" />
+    <None Remove="ui\settings\DimensionSettingsView.xaml" />
     <None Remove="ui\settings\QualitySettings.xaml" />
     <None Remove="ui\styles\ControlStyles.xaml" />
     <None Remove="ui\styles\ResourceDictionary1.xaml" />
@@ -139,13 +159,13 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Assets\Icons\" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Update="Assets\Fonts\FontAwesome6Free-Regular-400.otf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Update="Assets\Fonts\FontAwesome6Free-Solid-900.otf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\mic_win_4.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -204,4 +224,15 @@
     <Authors>Cognirush Labs LLP</Authors>
     <Copyright>(C) 2025, Cognirush Labs LLP</Copyright>
   </PropertyGroup>
+  <ItemGroup>
+    <PRIResource Remove="Assets\Icons\source\output\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Assets\Icons\source\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="ui\settings\DimensionSettingsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
 </Project>

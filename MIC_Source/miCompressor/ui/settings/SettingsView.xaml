@@ -10,10 +10,16 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-            <StackPanel Margin="10" VerticalAlignment="Stretch" Orientation="Horizontal">
-                <!--Quality Settings -->
-                <local:QualitySettings />
-                <local:QualitySettings />
-            </StackPanel>
+        <ScrollView>
+            <Border BorderThickness="2" CornerRadius="16" HorizontalAlignment="Stretch" BorderBrush="{StaticResource Primary_10}" Margin="4" Padding="0" >
+
+                <StackPanel VerticalAlignment="Stretch" Orientation="Vertical" Margin="10,30,10,10" Width="250">
+                    <local:QualitySettings />
+                    <Border Style="{StaticResource LineSeparatorStyle}" />
+                    <local:DimensionSettingsView />
+                    <Border Style="{StaticResource LineSeparatorStyle}" />
+                </StackPanel>
+            </Border>
+        </ScrollView>
     </Grid>
 </Page>

@@ -6,6 +6,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using miCompressor.core;
 using miCompressor.ui;
 using Microsoft.UI;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -15,6 +16,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using WinRT.Interop;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -29,6 +31,10 @@ namespace miCompressor
         public MainWindow()
         {
             this.InitializeComponent();
+
+            this.Title = "Mass Image Compressor 4.0";
+            this.AppWindow.SetIcon("Assets/mic_win_4.ico");
+
             this.Content = new MasterView();
 
 #if DEBUG
