@@ -16,6 +16,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
 
@@ -53,8 +54,8 @@
                 </StackPanel>
             </Grid>
         </StackPanel>
-        
-        
+
+
         <!-- Reduce by height/wdith -->
         <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Visibility="{x:Bind SetLength, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" HorizontalAlignment="Right">
             <StackPanel Orientation="Horizontal">
@@ -72,6 +73,33 @@
                 <HyperlinkButton Content="QHD" Command="{x:Bind SetPrimaryLength}" CommandParameter="2560,1440" FontSize="{StaticResource TextXSmall}"/>
                 <HyperlinkButton Content="4K" Command="{x:Bind SetPrimaryLength}" CommandParameter="3840,2160" FontSize="{StaticResource TextXSmall}"/>
                 <HyperlinkButton Content="8K" Command="{x:Bind SetPrimaryLength}" CommandParameter="7680,4320" FontSize="{StaticResource TextXSmall}"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Reduce by print size -->
+
+        <TextBlock Grid.Column="0" Grid.Row="1" Text="Print Size" VerticalAlignment="Center" Visibility="{x:Bind SetPrintSize, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"/>
+        <ComboBox Grid.Column="1" Grid.Row="1" x:Name="PrintDimensionComboBox"
+                  SelectedItem="{x:Bind SelectedPrintDim, Mode=TwoWay}"
+                  ItemsSource="{x:Bind CommonPrintDimensions}"
+                  DisplayMemberPath="CommonName"
+                  HorizontalAlignment="Stretch"
+                  Margin="10,10,0,10"
+                          Visibility="{x:Bind SetPrintSize, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
+                  />
+
+        <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Visibility="{x:Bind SetPrintSize, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" HorizontalAlignment="Right">
+            <StackPanel Orientation="Horizontal">
+                <NumberBox Name="numboxShortEdge" PlaceholderText="0.000" Minimum="0.10" Value="{Binding OutputSettings.PrintDimension.ShortEdgeInInch, Mode=TwoWay}"/>
+                <TextBlock Text="&quot;" VerticalAlignment="Top" Margin="2" FontSize="20" />
+                <TextBlock Text="x" VerticalAlignment="Center" Margin="6" />
+                <NumberBox Name="numboxLongEdge" PlaceholderText="0.000" Minimum="0.10" Value="{Binding OutputSettings.PrintDimension.LongEdgeInInch, Mode=TwoWay}"/>
+                <TextBlock Text="&quot;" VerticalAlignment="Top" Margin="2" FontSize="20" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,6" HorizontalAlignment="Right">
+                <TextBlock Text="Margin" VerticalAlignment="Center" Padding="10,0"/>
+                <NumberBox PlaceholderText="0.000" Value="{Binding OutputSettings.PrintDimension.Margin, Mode=TwoWay}"/>
+                <TextBlock Text="&quot;" VerticalAlignment="Top" Margin="2" FontSize="20" />
             </StackPanel>
         </StackPanel>
 

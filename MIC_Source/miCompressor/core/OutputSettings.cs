@@ -47,7 +47,7 @@ namespace miCompressor.core
         /// Print dimension for printing. This is used when dimension strategy is set to FitInFrame or FixedInFrame.
         /// This value is only considered for display purpose and converted and setting primaryEdgeLength.
         /// </summary>
-        public PrintDimension PrintDimension { get; set; } = new(8, 6, 0.15m); // Defaulted to Desk Photo 8x6 with 0.15 inch margin
+        public PrintDimension PrintDimension { get; set; } = new(8, 6, 0.15); // Defaulted to Desk Photo 8x6 with 0.15 inch margin
         #endregion
 
         /// <summary>

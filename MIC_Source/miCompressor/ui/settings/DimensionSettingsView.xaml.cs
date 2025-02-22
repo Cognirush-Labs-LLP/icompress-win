@@ -46,6 +46,28 @@ namespace miCompressor.ui
 
         public OutputSettings OutputSettings { get; set; }
 
+        public PrintDimension[] CommonPrintDimensions = PrintDimension.GetCommonPrintDimensions();
+        public PrintDimension _selectedPrintDim;
+        public PrintDimension SelectedPrintDim
+        {
+            get
+            {
+                return _selectedPrintDim;
+            }
+            set
+            {
+                if (_selectedPrintDim == value)
+                    return; //So events update doesn't go in infinite loop.
+
+                _selectedPrintDim = value;
+                if (_selectedPrintDim.shortEdgeInInch != (double)0) //i.e. if not custom values, custom values are taken from number box.
+                {
+                    OutputSettings.PrintDimension.CopyValues(_selectedPrintDim); //All events of property change related to long and short edge are raised only after setting all the property. 
+                }
+                OnPropertyChanged(nameof(SelectedPrintDim)); //HACK: this is somehow required :( WinUI 3 is somewhat unpredictable. 
+            }
+        }
+
         private DimensionReductionStrategyItem _selectedStrategy;
 
         public DimensionReductionStrategyItem SelectedStrategy
@@ -67,6 +89,7 @@ namespace miCompressor.ui
                 OnPropertyChanged(nameof(SetFitInFrame));
                 OnPropertyChanged(nameof(SetFixedInFrame));
                 OnPropertyChanged(nameof(SetLength));
+                OnPropertyChanged(nameof(SetPrintSize));
             }
         }
 
@@ -75,7 +98,7 @@ namespace miCompressor.ui
         /// </summary>
         public List<DimensionReductionStrategyItem> DimensionStrategies { get; }
 
-        public bool SetPercentage => SelectedStrategy.Value is Strategy.Percentage;
+        public bool SetPercentage => OutputSettings.DimensionStrategy is Strategy.Percentage;
         public bool SetLongEdge => OutputSettings.DimensionStrategy is Strategy.LongEdge;
         public bool SetMaxHeight => OutputSettings.DimensionStrategy is Strategy.MaxHeight;
         public bool SetMaxWidth => OutputSettings.DimensionStrategy is Strategy.MaxWidth;
@@ -85,8 +108,9 @@ namespace miCompressor.ui
         public bool SetFixedInFrame => OutputSettings.DimensionStrategy is Strategy.FixedInFrame;
         public bool SetLength => OutputSettings.DimensionStrategy is
                     Strategy.LongEdge or Strategy.MaxHeight or Strategy.MaxWidth or Strategy.FixedHeight or Strategy.FixedWidth;
+        public bool SetPrintSize => OutputSettings.DimensionStrategy is Strategy.FitInFrame or Strategy.FixedInFrame;
 
-    public DimensionSettingsView()
+        public DimensionSettingsView()
         {
             this.InitializeComponent();
 
@@ -99,6 +123,27 @@ namespace miCompressor.ui
 
             SelectedStrategy = DimensionStrategies.Find(strategy => strategy.Value == OutputSettings.DimensionStrategy) ?? DimensionStrategies.FirstOrDefault();
 
+            OutputSettings.PrintDimension.PropertyChanged += PrintDimension_PropertyChanged;
+
+            _selectedPrintDim = CommonPrintDimensions.FirstOrDefault(pd => pd.CommonName == PrintDimension.GetNameFromDimensions(OutputSettings.PrintDimension.longEdgeInInch, OutputSettings.PrintDimension.ShortEdgeInInch)) ?? CommonPrintDimensions[0];
+        }
+
+        private void PrintDimension_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+                if (e.PropertyName == nameof(PrintDimension.Margin)) // Don't want anything to be change if user changed margin.
+                    return;
+
+                var commonPrintSizeName = PrintDimension.GetNameFromDimensions(OutputSettings.PrintDimension.longEdgeInInch, OutputSettings.PrintDimension.ShortEdgeInInch);
+                if (SelectedPrintDim.commonName == commonPrintSizeName)
+                {
+                    return; // already same is selected in combo box.
+                }
+
+                var printDimToSelect = CommonPrintDimensions.FirstOrDefault(pd => pd.CommonName == commonPrintSizeName);
+                if (printDimToSelect != null && printDimToSelect.ShortEdgeInInch == (double) 0) //we don't change back from custom to common name even if we find a match as WinUI 3 has a it wil trigger this even back again when combobox value change. We can gracefull handle everything but WinUI 3 cannot handle two way binding well on combobox and numberbox. 
+                {
+                    SelectedPrintDim = printDimToSelect;
+                }
         }
 
         protected ICommand SetPercentageCommand => new RelayCommand<object>(param =>

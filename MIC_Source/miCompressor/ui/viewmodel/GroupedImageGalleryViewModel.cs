@@ -497,7 +497,6 @@ namespace miCompressor.ui.viewmodel
             {
                 ThrottleTask.Add(100, this.GetHashCode().ToString() + "CalculateImageSize", () =>
                 {
-                    // Your image refresh logic here.
                     CalculateImageSize();
                     CalculateSelectedImageSize();
                 }, shouldRunInUI: true);
