@@ -314,7 +314,7 @@ namespace miCompressor.core
         /// <param name="path">The file or directory path.</param>
         /// <param name="scanSubDirectories">Indicates whether subdirectories should be scanned.</param>
         /// <returns>The result of the add operation.</returns>
-        public PathAddedResult AddAsync(string path, bool scanSubDirectories = false)
+        public PathAddedResult Enqueue(string path, bool scanSubDirectories = false)
         {
             using (_lock.WriteLock())
             {

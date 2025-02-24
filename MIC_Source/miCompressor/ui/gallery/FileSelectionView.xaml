@@ -23,8 +23,8 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <TextBox Grid.Column="0" PlaceholderText="File/Folder Path" Name="InputPathTextBox"  TextWrapping="Wrap" VerticalAlignment="Center" KeyDown="InputPathTextBox_KeyDown" />
-            <Button Grid.Column="1" x:Name="AddInputPathButton" Click="AddInputPathButton_Click" Margin="2,5,0,5" Padding="8">
+            <TextBox Grid.Column="0" PlaceholderText="Enter File/Folder Path" Name="InputPathTextBox"  TextWrapping="Wrap" VerticalAlignment="Center" KeyDown="InputPathTextBox_KeyDown" CornerRadius="5,0,0,5" />
+            <Button Grid.Column="1" x:Name="AddInputPathButton" Click="AddInputPathButton_Click" Margin="-1,0,20,0" Background="{StaticResource Acccent_100}" CornerRadius="0,5,5,0" Padding="15,9">
                 <FontIcon Glyph="&#xE710;" FontSize="{StaticResource TextMedium}"/>
             </Button>
         </Grid>

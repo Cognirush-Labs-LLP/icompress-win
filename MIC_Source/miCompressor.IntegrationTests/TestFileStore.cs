@@ -31,7 +31,7 @@ public class TestFileStore
         FileStore store = new FileStore();
 
         //Add
-        store.AddAsync(testDir);
+        store.Enqueue(testDir);
         while(store.SelectedPaths.Any(path => path.ScanningForFiles))
             Thread.Sleep(10);
         
@@ -43,7 +43,7 @@ public class TestFileStore
         Assert.True(store.SelectedPaths.Count == 0, "Failed: Not removing all selected path after RemoveAll");
         Assert.True(store.GetAllFiles.Count == 0, "Failed: Not removing all selected path after RemoveAll");
 
-        store.AddAsync(testDir, true);
+        store.Enqueue(testDir, true);
         while (store.SelectedPaths.Any(path => path.ScanningForFiles))
             Thread.Sleep(10);
         //await TestFileHelper.WaitUntil(() => store.GetAllFiles.Count > 0, TimeSpan.FromSeconds(5));

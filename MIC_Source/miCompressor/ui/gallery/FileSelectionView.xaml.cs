@@ -78,7 +78,7 @@ namespace miCompressor.ui
             {
                 foreach (var file in files)
                 {
-                    App.FileStoreInstance.AddAsync(file.Path, false);
+                    App.FileStoreInstance.Enqueue(file.Path, false);
                 }
             }
 
@@ -101,7 +101,7 @@ namespace miCompressor.ui
             if (folder != null)
             {
                 //StorageApplicationPermissions.FutureAccessList.AddOrReplace("PickedFolderToken", folder);
-                App.FileStoreInstance.AddAsync(folder.Path);
+                App.FileStoreInstance.Enqueue(folder.Path);
             }
             AddFolderButton.IsEnabled = true;
         }
@@ -129,7 +129,7 @@ namespace miCompressor.ui
 
                 if (Directory.Exists(inputPathTxt) || File.Exists(inputPathTxt))
                 {
-                    App.FileStoreInstance.AddAsync(inputPathTxt);
+                    App.FileStoreInstance.Enqueue(inputPathTxt);
                     InputPathTextBox.Text = "";
                 }
             }

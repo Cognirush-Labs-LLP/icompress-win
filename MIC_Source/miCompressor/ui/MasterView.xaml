@@ -52,7 +52,7 @@
                    Text="Unsupported files were ignored." />
             </Border>
 
-            <Grid Margin="10,10,10,10" Grid.Row="1">
+            <Grid Margin="10,10,0,10" Grid.Row="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <!-- Ensure full height usage -->

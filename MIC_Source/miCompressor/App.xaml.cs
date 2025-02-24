@@ -68,8 +68,8 @@ namespace miCompressor
             _ = Task.Run(async () =>
             {
                 await Task.Delay(1000);
-                FileStoreInstance.AddAsync(@"F:\OpenSource\MassImageCompressor_4\MIC_Source\miCompressor.IntegrationTests\test_imgs\");
-                //FileStoreInstance.AddAsync(@"C:\Users\yogee\Pictures\Camera Roll");
+                FileStoreInstance.Enqueue(@"F:\OpenSource\MassImageCompressor_4\MIC_Source\miCompressor.IntegrationTests\test_imgs\");
+                //FileStoreInstance.Enqueue(@"C:\Users\yogee\Pictures\Camera Roll");
             });
 #endif
         }
@@ -97,7 +97,7 @@ namespace miCompressor
             MainWindow = new MainWindow();           
             MainWindow.Activate();
 
-            OpenedFiles.ForEach(file =>  FileStoreInstance.AddAsync(file));
+            OpenedFiles.ForEach(file =>  FileStoreInstance.Enqueue(file));
         }
     }
 }

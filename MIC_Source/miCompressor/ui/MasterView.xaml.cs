@@ -74,14 +74,14 @@ namespace miCompressor.ui
                 if (Directory.Exists(path))
                 {
                     // Add Folders
-                    FileStore.AddAsync(path);
+                    FileStore.Enqueue(path);
                 }
                 else if (File.Exists(path))
                 {
                     // Check if file is supported
                     string extension = Path.GetExtension(path).ToLower();
                     if (CodeConsts.SupportedInputExtensionsWithDot.Contains(extension))
-                        FileStore.AddAsync(path);
+                        FileStore.Enqueue(path);
                     else
                         unsupportedFiles.Add(path);
                 }
