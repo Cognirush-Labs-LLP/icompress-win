@@ -61,6 +61,7 @@ namespace miCompressor
         public App()
         {
             this.InitializeComponent();
+            OutputSettingsInstance.restoreFromLastSaved();
             HandleCommandLineArgs();
 
 #if DEBUG

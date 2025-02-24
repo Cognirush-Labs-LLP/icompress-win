@@ -97,7 +97,7 @@ namespace miCompressor.ui
             WinRT.Interop.InitializeWithWindow.Initialize(openPicker, hWnd);
 
             // Set options for your folder picker
-            openPicker.SuggestedStartLocation = PickerLocationId.Desktop;
+            //openPicker.SuggestedStartLocation = PickerLocationId.Desktop;
             openPicker.FileTypeFilter.Add("*");
 
             // Open the picker for the user to pick a folder

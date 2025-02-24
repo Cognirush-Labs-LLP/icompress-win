@@ -53,6 +53,13 @@ namespace miCompressor.core
         }
 
         /// <summary>
+        /// Only for Deserialization purpose. 
+        /// </summary>
+        public PrintDimension() : this("Wallet - Mini Photo", 3.5, 2.5, 0.08)
+        {           
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="PrintDimension"/> class without specifying a name.
         /// The common name is automatically determined based on dimensions.
         /// </summary>

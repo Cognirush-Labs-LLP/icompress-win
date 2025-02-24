@@ -13,23 +13,53 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <CommandBar Grid.Row="0" IsOpen="False" DefaultLabelPosition="Right">
-            <AppBarButton Label="Remove All" Click="Remove_All_Click">
+
+        <Grid  Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBox Grid.Column="0" PlaceholderText="File/Folder Path" Name="InputPathTextBox"  TextWrapping="Wrap" VerticalAlignment="Center" KeyDown="InputPathTextBox_KeyDown" />
+            <Button Grid.Column="1" x:Name="AddInputPathButton" Click="AddInputPathButton_Click" Margin="2,5,0,5" Padding="8">
+                <FontIcon Glyph="&#xE710;" FontSize="{StaticResource TextMedium}"/>
+            </Button>
+        </Grid>
+        
+        <CommandBar Grid.Row="1" IsOpen="False" DefaultLabelPosition="Right" Margin="10">
+            <AppBarButton Name="AddFilesButton" Label="Add Image(s)" Click="AddFilesButton_Click">
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xEB9F;" />
+                </AppBarButton.Icon>
+                <AppBarButton.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="O" Modifiers="Control,Shift" Invoked="AddFileKeyboardAccelerator_Invoked"/>
+                </AppBarButton.KeyboardAccelerators>
+            </AppBarButton>
+            <AppBarButton Name="AddFolderButton" Label="Add Folder" Click="AddFolderButton_Click">
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xED43;"/>
+                </AppBarButton.Icon>
+                <AppBarButton.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="O" Modifiers="Control" Invoked="AddFolderKeyboardAccelerator_Invoked"/>
+                </AppBarButton.KeyboardAccelerators>
+            </AppBarButton>
+            <AppBarButton Label="Remove All" Click="Remove_All_Click" Visibility="{x:Bind IsEmptyViewVisible, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" >
                 <AppBarButton.Icon>
                     <FontIcon Glyph="&#xECC9;"/>
                 </AppBarButton.Icon>
-
             </AppBarButton>
         </CommandBar>
-        <ListView Grid.Row="1" ItemsSource="{Binding FileStore.SelectedPaths}"
-                      VerticalAlignment="Stretch"
+        <ListView Grid.Row="2" ItemsSource="{Binding FileStore.SelectedPaths}"
+                      VerticalAlignment="Stretch" SelectionMode="None"
                       HorizontalAlignment="Stretch"
                       ScrollViewer.HorizontalScrollMode="Auto"
                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
                       ScrollViewer.VerticalScrollMode="Auto"
-                      ScrollViewer.VerticalScrollBarVisibility="Auto">
+                      ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  Visibility="{x:Bind IsEmptyViewVisible, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" >
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="Padding" Value="0" />
@@ -47,5 +77,8 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+        <local:EmptyFilesView Grid.Row="2"
+              x:Name="FileSelectionPage"
+              Visibility="{x:Bind IsEmptyViewVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
     </Grid>
 </UserControl>

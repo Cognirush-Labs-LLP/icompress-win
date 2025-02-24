@@ -11,7 +11,7 @@
     mc:Ignorable="d">
 
     <Grid>
-        <TreeView x:Name="SelectedPathTreeView" ItemsSource="{x:Bind ViewModel.ImageTree, Mode=OneWay}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AllowDrop="False"
+        <TreeView x:Name="SelectedPathTreeView" ItemsSource="{x:Bind ViewModel.ImageTree, Mode=OneWay}"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AllowDrop="False"
                   ScrollViewer.HorizontalScrollMode="Auto"
                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
                   ScrollViewer.VerticalScrollMode="Disabled"
@@ -20,7 +20,8 @@
                 <Style TargetType="TreeViewItem">
                     <Setter Property="Padding" Value="0,0,0,0"/>
                     <!-- Reduce spacing -->
-                    <Setter Property="Margin" Value="-10"/>
+                    <Setter Property="Margin" Value="-4"/>
+                    <Setter Property="MinHeight" Value="0"/>
                     <!-- No extra margin -->
                     <!--<Setter Property="Height" Value="34"/>-->
                 </Style>
@@ -34,7 +35,7 @@
                                 <Border.RenderTransform>
                                     <ScaleTransform ScaleX="1" ScaleY="1"/>
                                 </Border.RenderTransform>
-                                <CheckBox IsThreeState="True" IsChecked="{x:Bind SelectionState, Mode=OneWay}" Click="OnCheckBoxClicked" VerticalAlignment="Center">
+                                <CheckBox IsThreeState="True" IsChecked="{x:Bind SelectionState, Mode=OneWay}" Click="OnCheckBoxClicked" MinHeight="0" Padding="6,0,8,0" VerticalAlignment="Center">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" Margin="0,2,0,0">
                                         <Grid Visibility="{x:Bind IsFolder, Converter={StaticResource BoolToVisibilityConverter}}" Opacity="0.8">
                                             <FontIcon Glyph="&#xED44;" Visibility="{x:Bind IsFolder, Converter={StaticResource BoolToVisibilityConverter}}" Foreground="#FFDE48" Margin="0,0,6,0" />
@@ -56,7 +57,7 @@
 
                             <!-- "Preview" Link (Only for Files) -->
                             <HyperlinkButton Content="Preview" NavigateUri="{x:Bind FileInfo.FileToCompress.FullName}" FontSize="12" Padding="4"
-                                     Margin="20,0,0,0" Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                     Margin="20,-4,0,-4" Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                             <StackPanel.ContextFlyout>
                                 <MenuFlyout>

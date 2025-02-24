@@ -15,22 +15,25 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Border BorderThickness="2" BorderBrush="Gray" CornerRadius="10" Padding="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="0" >
+        <Border BorderThickness="2" BorderBrush="Gray" CornerRadius="10" Padding="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="0"  Opacity="0.3">
             <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Spacing="10">
                 <TextBlock Text="Compress, Convert &amp; Resize Images/Photos in Bulk"
-                    FontSize="14"
-                    Foreground="DarkGray"
+                    FontSize="{StaticResource TextMedium}"
+                    TextWrapping="WrapWholeWords"
+                    Foreground="{StaticResource Primary_50}"
                     TextAlignment="Center"/>
                 <TextBlock Text="Drag &amp; Drop Images or Folders"
-                    FontSize="34"
+                    FontSize="{StaticResource TextXLarge}"
                     FontWeight="Thin"
+                           HorizontalAlignment="Center"
+                           TextWrapping="Wrap"
                     TextAlignment="Center"/>
 
             </StackPanel>
         </Border>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="1" Spacing="5">
-            <TextBlock FontSize="12" FontWeight="SemiBold" Opacity="0.5">Supported Extensions</TextBlock>
-            <TextBlock Text="{x:Bind SupportedExtensionsInCaps}" FontSize="12" FontWeight="Normal" Opacity="0.8"/>
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Grid.Row="1" Margin="10" Spacing="5">
+            <TextBlock HorizontalAlignment="Center" FontWeight="SemiBold" Opacity="0.5">Supported Extensions</TextBlock>
+            <TextBlock Text="{x:Bind SupportedExtensionsInCaps}" HorizontalAlignment="Center" FontWeight="Normal" Opacity="0.8" TextWrapping="Wrap" />
         </StackPanel>
 
     </Grid>

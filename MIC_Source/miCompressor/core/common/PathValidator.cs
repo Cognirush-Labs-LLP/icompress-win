@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace miCompressor.core.common
+namespace miCompressor.core
 {
     /// <summary>
     /// Provides methods to validate file paths.

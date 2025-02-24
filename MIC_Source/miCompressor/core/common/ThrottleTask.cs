@@ -23,11 +23,15 @@ namespace miCompressor.core
             private bool _scheduled = false;
             private Action _action;
             private bool _runOnUI;
+            private bool _disposed;
 
             public void Invoke(int throttleTime, Action action, bool runOnUI)
             {
                 lock (_lock)
                 {
+                    if (_disposed)
+                        return; //gracefully exit. 
+
                     if (_scheduled)
                     {
                         // Already scheduled – ignore additional calls
@@ -53,23 +57,42 @@ namespace miCompressor.core
 
             private void TimerCallback(object state)
             {
-                // Execute the action. If _runOnUI is true, use your UI helper.
-                if (_runOnUI)
+                try
                 {
-                    // For example, if using WPF:
-                    // Application.Current.Dispatcher.Invoke(_action);
-                    UIThreadHelper.RunOnUIThread(_action);
-                }
-                else
-                {
-                    _action();
-                }
+                    if (_disposed)
+                        return; //gracefully exist. 
 
+                    // Execute the action. If _runOnUI is true, use your UI helper.
+                    if (_runOnUI)
+                    {
+                        // For example, if using WPF:
+                        // Application.Current.Dispatcher.Invoke(_action);
+                        UIThreadHelper.RunOnUIThread(_action);
+                    }
+                    else
+                    {
+                        _action();
+                    }
+                }
+                finally
+                {
+                    lock (_lock)
+                    {
+                        // Allow a new schedule after the current execution.
+                        _scheduled = false;
+                    }
+                }
+            }
+
+            public void Dispose()
+            {
                 lock (_lock)
                 {
-                    // Allow a new schedule after the current execution.
-                    _scheduled = false;
+                    if (_disposed)
+                        return;
+                    _disposed = true;
                 }
+                _timer?.Dispose();
             }
         }
 
@@ -91,6 +114,42 @@ namespace miCompressor.core
             // Get or create a throttle invoker for this key.
             var invoker = _invokers.GetOrAdd(key, _ => new ThrottleInvoker());
             invoker.Invoke(throttleTimeInMs, action, shouldRunInUI);
+        }
+
+        /// <summary>
+        /// Removes the throttle invoker associated with the specified key.
+        /// </summary>
+        public static bool Remove(string key)
+        {
+            try
+            {
+                if (_invokers.TryRemove(key, out ThrottleInvoker invoker))
+                {
+                    // If necessary, dispose the timer within the invoker.
+                    invoker.Dispose();
+                    return true;
+                }
+            }
+            catch { } //ignore exceptin, we will return false. That too doesn't matter!
+            return false;
+        }
+
+        /// <summary>
+        /// Clears all throttle invokers.
+        /// </summary>
+        public static void Clear()
+        {
+            foreach (var key in _invokers.Keys)
+            {
+                try
+                {
+                    if (_invokers.TryRemove(key, out ThrottleInvoker invoker))
+                    {
+                        invoker.Dispose();
+                    }
+                }
+                catch { } // Clear is called on application exit. May the exit be peaceful. 
+            }
         }
     }
 
