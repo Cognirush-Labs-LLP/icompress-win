@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="miCompressor.ui.OutputFolderSettingsMiniView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:miCompressor.ui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock VerticalAlignment="Center" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Text="OUTPUT FOLDER SETTINGS" Margin="10, 10, 10, 0" Style="{StaticResource SettingsHeading}"/>
+
+        <ComboBox Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" SelectedItem="{x:Bind SelectedOutputLocationSettingsItem, Mode=TwoWay}"
+          ItemsSource="{x:Bind OutputLocationSettings}" 
+          DisplayMemberPath="Name"
+          HorizontalAlignment="Stretch" 
+          Margin="0,5,0,5"/>
+
+        <Grid Name="OutputFolderUI" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            
+            <TextBox Grid.Column="0" Grid.Row="0" Margin="0" x:Name="FoderPathTextBox" PlaceholderText="Output Folder Here..."  FontSize="{StaticResource TextSmall}" TextChanged="FoderPathTextBox_TextChanged" TextWrapping="Wrap" VerticalAlignment="Center" />
+
+            <Button Grid.Column="1" Grid.Row="0" x:Name="PickFolderButton"
+                    Click="PickFolderButton_Click" Margin="2,5,0,5">
+                <FontIcon Glyph="&#xE838;" />
+            </Button>
+            <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Text="{x:Bind FolderPathError,  Mode=OneWay}" Visibility="{x:Bind FolderPathError,  Mode=OneWay, Converter={StaticResource StringEmptyToVisibilityConverter}}" FontSize="{StaticResource TextSmall}" TextWrapping="WrapWholeWords" Foreground="{StaticResource SystemErrorTextColor}" />
+        </Grid>
+    </Grid>
+</UserControl>

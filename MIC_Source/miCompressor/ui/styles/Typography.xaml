@@ -8,6 +8,8 @@
     <x:Double x:Key="TextXSmall">10</x:Double>
     <x:Double x:Key="TextSmall">12</x:Double>
 
+    <x:Double x:Key="TextRegular">13</x:Double>
+
     <!-- Medium Sizes -->
     <x:Double x:Key="TextMedium">14</x:Double>
 
@@ -66,6 +68,7 @@
     <Style x:Key="SettingsHeading" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextMedium}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource Acccent_70}" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Margin" Value="10" />
     </Style>
@@ -76,5 +79,4 @@
         <Setter Property="BorderBrush" Value="{StaticResource Primary_10}"/>
         <Setter Property="Margin" Value="4"/>
     </Style>
-    
 </ResourceDictionary>

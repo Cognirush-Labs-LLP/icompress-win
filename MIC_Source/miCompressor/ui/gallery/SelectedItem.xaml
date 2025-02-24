@@ -8,9 +8,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Border BorderThickness="2" CornerRadius="14" BorderBrush="{StaticResource Acccent_10}" Margin="0,0,16,8" Padding="0,0,0,10">
+    <Border BorderThickness="2" CornerRadius="14" BorderBrush="{StaticResource Acccent_20}" Margin="0,0,16,8" Padding="0,0,0,10">
         <StackPanel Orientation="Vertical">
-            <Grid ColumnDefinitions="Auto, *, Auto" VerticalAlignment="Center" Padding="6" Background="{StaticResource Acccent_05}" Margin="0,0,0,6">
+            <Grid ColumnDefinitions="Auto, *, Auto" VerticalAlignment="Center" Padding="6" Background="{StaticResource Acccent_10}" Margin="0,0,0,6">
                 <TextBlock Text="{x:Bind SelectedPath.DisplayName, Mode=OneWay}" Style="{StaticResource BodyStrongTextBlockStyle}"
                VerticalAlignment="Center" Grid.Column="0" />
                 <Grid Grid.Column="1" />

@@ -22,6 +22,7 @@
             <toolkit:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
             <ui:NullToBooleanConverter x:Key="NullToBooleanConverter" />
             <ui:ReverseBoolToVisibilityConverter x:Key="ReverseBoolToVisibilityConverter" />
+            <ui:ReverseBoolToVisibilityConverter x:Key="StringEmptyToVisibilityConverter" />            
         </ResourceDictionary>
     </Application.Resources>
  </Application>

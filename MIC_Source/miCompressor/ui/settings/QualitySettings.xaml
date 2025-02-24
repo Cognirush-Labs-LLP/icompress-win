@@ -19,9 +19,8 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-
-        <TextBlock Grid.Column="0" Grid.Row="0" Text="QUALITY" Style="{StaticResource SettingsHeading}"/>
-        <Slider Grid.Column="1" Grid.Row="0"  Minimum="5" Maximum="100" StepFrequency="5" HorizontalAlignment="Stretch"
+            <TextBlock Grid.Column="0" Grid.Row="0" Text="QUALITY" Style="{StaticResource SettingsHeading}"/>
+        <Slider Grid.Column="1" Grid.Row="0"  Minimum="5" Maximum="100" StepFrequency="5" HorizontalAlignment="Stretch" Margin="5,0,0,0"
                 SmallChange="1" Value="{Binding OutputSettings.Quality, Mode=TwoWay}" />
         <TextBlock Grid.Column="3" Grid.Row="0" Text="{Binding OutputSettings.Quality, Mode=TwoWay}" VerticalAlignment="Center" Margin="10,0,5,0" HorizontalAlignment="Stretch" Foreground="{StaticResource Primary_50}" />
         

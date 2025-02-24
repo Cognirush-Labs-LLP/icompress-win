@@ -26,8 +26,10 @@
         <ListView Grid.Row="1" ItemsSource="{Binding FileStore.SelectedPaths}"
                       VerticalAlignment="Stretch"
                       HorizontalAlignment="Stretch"
+                      ScrollViewer.HorizontalScrollMode="Auto"
+                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
                       ScrollViewer.VerticalScrollMode="Auto"
-                      ScrollViewer.VerticalScrollBarVisibility="Visible">
+                      ScrollViewer.VerticalScrollBarVisibility="Auto">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="Padding" Value="0" />

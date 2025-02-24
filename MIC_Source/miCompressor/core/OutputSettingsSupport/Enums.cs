@@ -70,6 +70,30 @@ namespace miCompressor.core
         private static bool IsPng(string ext) => ext.Equals(".png", StringComparison.OrdinalIgnoreCase);
         private static bool IsTiff(string ext) => ext.Equals(".tiff", StringComparison.OrdinalIgnoreCase) || ext.Equals(".tif", StringComparison.OrdinalIgnoreCase);
         private static bool IsWebp(string ext) => ext.Equals(".webp", StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="format"></param>
+        /// <returns></returns>
+        public static string GetDescription(this OutputFormat format)
+        {
+            switch (format)
+            {
+                case OutputFormat.KeepSame:
+                    return "Keep Same";
+                case OutputFormat.Jpg:
+                    return "JPEG";
+                case OutputFormat.Png:
+                    return "PNG";
+                case OutputFormat.Tiff:
+                    return "TIFF";
+                case OutputFormat.Webp:
+                    return "WebP";
+                default:
+                    return format.ToString();
+            }
+        }
     }
     #endregion
 
@@ -155,7 +179,7 @@ namespace miCompressor.core
     /// <summary>
     /// Strategy to save compressed images to.
     /// </summary>
-    public enum OutputLocationSettings
+    public enum OutputLocationSetting
     {
         /// <summary>
         /// A 'Compressed' folder is created inside the selected directory or beside the selected file. 
@@ -173,6 +197,21 @@ namespace miCompressor.core
         /// All selected items will be compressed and stored in user specified directory while maintaining the folder structure of original files (i.e. relative to the selected path). e.g. if selected path "def" is "C:/abc/def" folder and output folder is "C:/output" then "C:/abc/def/xyz/lmn.jpg" will be stored as C:/output/def/xyz/lmn.jpg".
         /// </summary>
         UserSpecificFolder,
+    }
+
+    public static class OutputLocationSettingsExtensions
+    {
+        //Get Description (User Friendly name) of OutputLocationSetting
+        public static string GetDescription(this OutputLocationSetting outputLocationSettings)
+        {
+            return outputLocationSettings switch
+            {
+                OutputLocationSetting.InCompressedFolder => "'Compressed' Folder In Selected Folder",
+                OutputLocationSetting.SameFolderWithFileNameSuffix => "Create Next To Original (with Suffix/Prefix)",
+                OutputLocationSetting.ReplaceOriginal => "Replace Original (Lose Original)",
+                OutputLocationSetting.UserSpecificFolder => "Specify Output Folder"
+            };
+        }
     }
     #endregion
 }

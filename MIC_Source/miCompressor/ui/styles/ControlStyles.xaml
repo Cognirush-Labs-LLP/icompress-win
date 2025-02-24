@@ -10,4 +10,13 @@
         <Setter Property="Padding" Value="0"/>
         <Setter Property="Margin" Value="0"/>
     </Style>
+
+    <Style TargetType="TextBox">
+        <Setter Property="FontSize" Value="{StaticResource TextRegular}" />
+        <Setter Property="TextBox.PlaceholderForeground" Value="{StaticResource Primary_20}" />
+        <Setter Property="CornerRadius" Value="5" />
+    </Style>
+    <Style TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource TextMedium}" />
+    </Style>
 </ResourceDictionary>

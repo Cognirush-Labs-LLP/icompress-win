@@ -68,6 +68,8 @@
     <None Remove="ui\SelectionDetailView.xaml" />
     <None Remove="ui\SettingsView.xaml" />
     <None Remove="ui\settings\DimensionSettingsView.xaml" />
+    <None Remove="ui\settings\OutputFileSettingsView.xaml" />
+    <None Remove="ui\settings\OutputFolderSettingsMiniView.xaml" />
     <None Remove="ui\settings\QualitySettings.xaml" />
     <None Remove="ui\styles\ControlStyles.xaml" />
     <None Remove="ui\styles\ResourceDictionary1.xaml" />
@@ -229,6 +231,16 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets\Icons\source\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="ui\settings\OutputFolderSettingsMiniView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="ui\settings\OutputFileSettingsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="ui\settings\DimensionSettingsView.xaml">

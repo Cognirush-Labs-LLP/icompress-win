@@ -30,7 +30,7 @@ namespace miCompressor.Tests.MediaFileInfoTests
         public void PreviewModeWithReplaceOriginal_ReturnsTempPath()
         {
             // Arrange
-            var outputSettings = CreateOutputSettings(OutputLocationSettings.ReplaceOriginal);
+            var outputSettings = CreateOutputSettings(OutputLocationSetting.ReplaceOriginal);
             bool onlyPreview = true;
             var mediaFile1 = CreateMediaFileInfo("abc\\def\\test.jpg");
             var mediaFile2 = CreateMediaFileInfoAsSelectedPath("abc\\def\\test.jpg");
@@ -52,11 +52,11 @@ namespace miCompressor.Tests.MediaFileInfoTests
         public void OutputInCompressedFolder_ReturnsCorrectPath()
         {
             // Arrange
-            var outputSettings = CreateOutputSettings(OutputLocationSettings.InCompressedFolder);
+            var outputSettings = CreateOutputSettings(OutputLocationSetting.InCompressedFolder);
             var mediaFile1 = CreateMediaFileInfo("def\\ghq\\image.png");
             var mediaFile2 = CreateMediaFileInfoAsSelectedPath("def\\ghq\\image.png");
 
-            var outputSettingsConvertToJPEG = CreateOutputSettings(OutputLocationSettings.InCompressedFolder);
+            var outputSettingsConvertToJPEG = CreateOutputSettings(OutputLocationSetting.InCompressedFolder);
 
             // Act
             string result1 = mediaFile1.GetOutputPath(outputSettings, false);
@@ -84,7 +84,7 @@ namespace miCompressor.Tests.MediaFileInfoTests
         public void UserSpecificFolderWithFolderSet_ReturnsCorrectPath()
         {
             // Arrange
-            var outputSettings = CreateOutputSettings(OutputLocationSettings.UserSpecificFolder);
+            var outputSettings = CreateOutputSettings(OutputLocationSetting.UserSpecificFolder);
             outputSettings.outputFolder = "C:\\output folder\\";
             var mediaFile1 = CreateMediaFileInfo("c  d\\ghi\\fil e.bmp");
             var mediaFile2 = CreateMediaFileInfoAsSelectedPath("c  d\\ghi\\fil e.bmp");
@@ -106,7 +106,7 @@ namespace miCompressor.Tests.MediaFileInfoTests
         public void ReplaceFromAndReplaceToTransformation_AppliedCorrectly()
         {
             // Arrange
-            var outputSettings = CreateOutputSettings(OutputLocationSettings.SameFolderWithFileNameSuffix);
+            var outputSettings = CreateOutputSettings(OutputLocationSetting.SameFolderWithFileNameSuffix);
             outputSettings.replaceFrom = "IMG_";
             outputSettings.replaceTo = "PHOTO_";
             var mediaFile1 = CreateMediaFileInfo("ReplaceFromAndReplaceToTransformation_AppliedCorrectlyIMG_OK/IMG_sample.jpg");
@@ -133,7 +133,7 @@ namespace miCompressor.Tests.MediaFileInfoTests
         public void PrefixAndSuffixAppliedToFileName_ReturnsCorrectPath()
         {
             // Arrange
-            var outputSettings = CreateOutputSettings(OutputLocationSettings.SameFolderWithFileNameSuffix);
+            var outputSettings = CreateOutputSettings(OutputLocationSetting.SameFolderWithFileNameSuffix);
             outputSettings.prefix = "PRE_";
             outputSettings.suffix = "_SUF";
             var mediaFile = CreateMediaFileInfo("test123.jpg");
@@ -150,7 +150,7 @@ namespace miCompressor.Tests.MediaFileInfoTests
         public void UserSpecificFolderWithoutFolderSetThrowsInvalidOperationException()
         {
             // Arrange
-            var outputSettings = CreateOutputSettings(OutputLocationSettings.UserSpecificFolder);
+            var outputSettings = CreateOutputSettings(OutputLocationSetting.UserSpecificFolder);
             outputSettings.outputFolder = string.Empty;
             var mediaFile = CreateMediaFileInfo("ghi\\file.bmp");
 
@@ -162,14 +162,14 @@ namespace miCompressor.Tests.MediaFileInfoTests
         public void UnsupportedOutputLocationSettings_ThrowsNotSupportedException()
         {
             // Arrange
-            var outputSettings = CreateOutputSettings((OutputLocationSettings)99); // Unsupported setting
+            var outputSettings = CreateOutputSettings((OutputLocationSetting)99); // Unsupported setting
             var mediaFile = CreateMediaFileInfo("random.jpg");
 
             // Act & Assert
             Assert.Throws<NotSupportedException>(() => mediaFile.GetOutputPath(outputSettings, false));
         }
 
-        private OutputSettings CreateOutputSettings(OutputLocationSettings locationSettings)
+        private OutputSettings CreateOutputSettings(OutputLocationSetting locationSettings)
         {
             return new OutputSettings
             {

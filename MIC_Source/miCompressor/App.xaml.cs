@@ -5,6 +5,8 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using miCompressor.core;
+using Microsoft.UI;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -17,6 +19,7 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.WindowManagement;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -28,6 +31,18 @@ namespace miCompressor
     /// </summary>
     public partial class App : Application
     {
+        /// <summary>
+        /// App-wide instance of Window, required for file/folder pickers.
+        /// </summary>
+        public static Window? MainWindow { get; private set; }
+
+        /// <summary>
+        /// To store files that are passed in argument (possibly by 'open with')
+        /// </summary>
+        public static List<string> OpenedFiles { get; private set; } = new List<string>();
+
+
+        public static int TitleBarHeight { get; private set; } 
         /// <summary>
         /// App-wide instance of FileStore.
         /// </summary>
@@ -46,6 +61,8 @@ namespace miCompressor
         public App()
         {
             this.InitializeComponent();
+            HandleCommandLineArgs();
+
 #if DEBUG
             _ = Task.Run(async () =>
             {
@@ -54,6 +71,17 @@ namespace miCompressor
                 //FileStoreInstance.AddAsync(@"C:\Users\yogee\Pictures\Camera Roll");
             });
 #endif
+        }
+
+        private void HandleCommandLineArgs()
+        {
+            string[] args = Environment.GetCommandLineArgs();
+
+            // Skip the first argument (executable path)
+            if (args.Length > 1)
+            {
+                OpenedFiles = args.Skip(1).ToList();
+            }
         }
 
         /// <summary>
@@ -65,10 +93,10 @@ namespace miCompressor
             // Create UI helper
             core.UIThreadHelper.Initialize();
 
-            m_window = new MainWindow();
-            m_window.Activate();
-        }
+            MainWindow = new MainWindow();           
+            MainWindow.Activate();
 
-        private Window? m_window;
+            OpenedFiles.ForEach(file =>  FileStoreInstance.AddAsync(file));
+        }
     }
 }

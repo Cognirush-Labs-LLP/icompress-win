@@ -78,7 +78,7 @@ namespace miCompressor.core
 
         /// <summary>
         /// Determines whether this operation is replacing the original file.
-        /// Used when OutputLocationSettings is set to ReplaceOriginal.
+        /// Used when OutputLocationSetting is set to ReplaceOriginal.
         /// </summary>
         public bool IsReplaceOperation { get; private set; } = false;
 
@@ -179,7 +179,7 @@ namespace miCompressor.core
         /// location strategy, file naming modifications, and preview mode.
         /// There is no guarantee that the actual file creation path will be same as this method returns temporary path for replace operations. 
         /// Throws <see cref="InvalidOperationException"/> if required settings are missing.
-        /// Throws <see cref="NotSupportedException"/> if an unsupported OutputLocationSettings is encountered.
+        /// Throws <see cref="NotSupportedException"/> if an unsupported OutputLocationSetting is encountered.
         /// </summary>
         /// <param name="outputSettings">The output settings.</param>
         /// <param name="onlyPreview">If true, the output will be stored in a temporary directory.</param>
@@ -210,17 +210,17 @@ namespace miCompressor.core
             // Apply prefix and suffix
             string modifiedFileName = $"{outputSettings.prefix}{originalFileName}{outputSettings.suffix}{fileExtension}";
 
-            if (onlyPreview || outputSettings.outputLocationSettings == OutputLocationSettings.ReplaceOriginal)
+            if (onlyPreview || outputSettings.outputLocationSettings == OutputLocationSetting.ReplaceOriginal)
             {
                 // Store in temp directory
                 outputDirectory = TempDataManager.GetTempStorageDirPath(RelativeImageDirPath);
-                IsReplaceOperation = outputSettings.outputLocationSettings == OutputLocationSettings.ReplaceOriginal;
+                IsReplaceOperation = outputSettings.outputLocationSettings == OutputLocationSetting.ReplaceOriginal;
             }
             else
             {
                 switch (outputSettings.outputLocationSettings)
                 {
-                    case OutputLocationSettings.InCompressedFolder:
+                    case OutputLocationSetting.InCompressedFolder:
                         outputDirectory = FileToCompress.Directory!.FullName;
                         if (Directory.Exists(SelectedRootPath))
                         {
@@ -232,11 +232,11 @@ namespace miCompressor.core
                         }
                         break;
 
-                    case OutputLocationSettings.SameFolderWithFileNameSuffix:
+                    case OutputLocationSetting.SameFolderWithFileNameSuffix:
                         outputDirectory = FileToCompress.Directory!.FullName;
                         break;
 
-                    case OutputLocationSettings.UserSpecificFolder:
+                    case OutputLocationSetting.UserSpecificFolder:
                         if (!string.IsNullOrWhiteSpace(outputSettings.outputFolder))
                         {
                             outputDirectory = Path.Combine(outputSettings.outputFolder, RelativeImageDirPath );
@@ -248,7 +248,7 @@ namespace miCompressor.core
                         break;
 
                     default:
-                        throw new NotSupportedException("Unsupported OutputLocationSettings");
+                        throw new NotSupportedException("Unsupported OutputLocationSetting");
                 }
             }
 

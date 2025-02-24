@@ -61,7 +61,7 @@ namespace miCompressor.core
         /// Output Location stragegy 
         /// </summary>
         [AutoNotify]
-        public OutputLocationSettings outputLocationSettings = OutputLocationSettings.UserSpecificFolder;
+        public OutputLocationSetting outputLocationSettings = OutputLocationSetting.UserSpecificFolder;
 
         /// <summary>
         /// Path of user specified output folder.
@@ -155,7 +155,7 @@ namespace miCompressor.core
             PrintDimension = other.PrintDimension;
 
             CopyMetadata = other.copyMetadata;
-            //OutputLocationSettings = other.outputLocationSettings;
+            //OutputLocationSetting = other.outputLocationSettings;
             //OutputFolder = other.outputFolder;
             //Suffix = other.suffix;
             //Prefix = other.prefix;
