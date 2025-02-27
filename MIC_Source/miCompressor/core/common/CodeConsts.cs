@@ -11,7 +11,7 @@ namespace miCompressor.core
         /// <summary>
         /// Size of Thumbnail in pixels to show image list in UI
         /// </summary>
-        public static int ThumbSize = 100;
+        public const int ThumbSize = 100;
 
         /// <summary>
         /// Supported lower cased input file extensions without dot. i.e. "jpg", "jpeg", "png", "webp".

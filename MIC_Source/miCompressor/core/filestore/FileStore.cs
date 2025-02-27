@@ -316,9 +316,10 @@ namespace miCompressor.core
         /// <returns>The result of the add operation.</returns>
         public PathAddedResult Enqueue(string path, bool scanSubDirectories = false)
         {
+            path = Path.GetFullPath(path);
             using (_lock.WriteLock())
             {
-                if (_store.Any(sp => sp.Path.Equals(path, StringComparison.OrdinalIgnoreCase)))
+                if (_store.Any(sp => sp.Path.TrimEnd('\\').Equals(path.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase)))
                     return PathAddedResult.AlreadyExists;
 
                 try
@@ -353,8 +354,7 @@ namespace miCompressor.core
                 var selectedPath = _store.FirstOrDefault(sp => sp.Path.Equals(path, StringComparison.OrdinalIgnoreCase));
 
                 if (selectedPath == null) return false;
-                selectedPath.CancelScanning();
-
+                
                 _store.Remove(selectedPath);
                 UIThreadHelper.RunOnUIThread(() =>
                 {
@@ -362,7 +362,8 @@ namespace miCompressor.core
                         _uiStore.Remove(selectedPath);
                     OnPropertyChanged(nameof(SelectedPaths));
                 });
-                OnPropertyChanged(nameof(SelectedPaths));
+                selectedPath.CancelScanning();
+                //OnPropertyChanged(nameof(SelectedPaths));
                 return true;
             }
         }

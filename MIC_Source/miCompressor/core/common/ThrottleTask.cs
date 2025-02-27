@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using System.Threading;
+using Microsoft.UI.Dispatching;
 
 namespace miCompressor.core
 {
@@ -67,12 +68,13 @@ namespace miCompressor.core
                     {
                         // For example, if using WPF:
                         // Application.Current.Dispatcher.Invoke(_action);
-                        UIThreadHelper.RunOnUIThread(_action);
+                        UIThreadHelper.RunOnUIThread(DispatcherQueuePriority.Low, _action);
                     }
                     else
                     {
                         _action();
                     }
+                    _action = null;
                 }
                 finally
                 {

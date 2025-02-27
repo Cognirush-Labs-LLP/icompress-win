@@ -30,6 +30,34 @@
         </Grid>
         
         <CommandBar Grid.Row="1" IsOpen="False" DefaultLabelPosition="Right" Margin="10">
+            <AppBarElementContainer VerticalAlignment="Center" Visibility="{x:Bind IsEmptyViewVisible, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}">
+                <StackPanel>
+                    <DropDownButton ToolTipService.ToolTip="Image thumbnails view settings" FontSize="{StaticResource TextSmall}">
+                        <DropDownButton.Content>
+                            <FontIcon FontFamily="{StaticResource FontAwesomeSolid}" Glyph="{x:Bind ThumbSettingOptionIcon_Selected, Mode=OneWay}" FontSize="{StaticResource TextMedium}"/>
+                        </DropDownButton.Content>
+                        <DropDownButton.Flyout>
+                            <MenuFlyout Placement="Bottom">
+                                <MenuFlyoutItem Text="{x:Bind ThumbSettingOption_Show}" Click="OnThumbSettingSelected">
+                                    <MenuFlyoutItem.Icon>
+                                        <FontIcon FontFamily="{StaticResource FontAwesomeSolid}" Glyph="{x:Bind ThumbSettingOptionIcon_Show}"/>
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                                <MenuFlyoutItem Text="{x:Bind ThumbSettingOption_OnHover}" Click="OnThumbSettingSelected">
+                                    <MenuFlyoutItem.Icon>
+                                        <FontIcon FontFamily="{StaticResource FontAwesomeSolid}" Glyph="{x:Bind ThumbSettingOptionIcon_OnHover}"/>
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                                <MenuFlyoutItem Text="{x:Bind ThumbSettingOption_NoThumb}" Click="OnThumbSettingSelected">
+                                    <MenuFlyoutItem.Icon>
+                                        <FontIcon FontFamily="{StaticResource FontAwesomeSolid}" Glyph="{x:Bind ThumbSettingOptionIcon_NoThumb}"/>
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                            </MenuFlyout>
+                        </DropDownButton.Flyout>
+                    </DropDownButton>
+                </StackPanel>
+            </AppBarElementContainer>
             <AppBarButton Name="AddFilesButton" Label="Add Image(s)" Click="AddFilesButton_Click">
                 <AppBarButton.Icon>
                     <FontIcon Glyph="&#xEB9F;" />
@@ -51,8 +79,9 @@
                     <FontIcon Glyph="&#xECC9;"/>
                 </AppBarButton.Icon>
             </AppBarButton>
+            
         </CommandBar>
-        <ListView Grid.Row="2" ItemsSource="{Binding FileStore.SelectedPaths}"
+        <ListView Grid.Row="2" ItemsSource="{x:Bind FileStore.SelectedPaths}"
                       VerticalAlignment="Stretch" SelectionMode="None"
                       HorizontalAlignment="Stretch"
                       ScrollViewer.HorizontalScrollMode="Auto"

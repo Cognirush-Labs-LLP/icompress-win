@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using miCompressor.core;
+using miCompressor.viewmodels;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
@@ -42,17 +43,21 @@ namespace miCompressor
         public static List<string> OpenedFiles { get; private set; } = new List<string>();
 
 
-        public static int TitleBarHeight { get; private set; } 
+        public static int TitleBarHeight { get; private set; }
         /// <summary>
         /// App-wide instance of FileStore.
         /// </summary>
-        public static FileStore FileStoreInstance { get; } = new();
+        public static FileStore FileStoreInstance => CurrentState.FileStore;
 
         /// <summary>
         /// App-wide instance of OutputSettings.
         /// </summary>
-        public static OutputSettings OutputSettingsInstance { get; } = new();
+        public static OutputSettings OutputSettingsInstance => CurrentState.OutputSettings;
 
+        /// <summary>
+        /// Holds shared state information between views. 
+        /// </summary>
+        public static MasterState CurrentState = new();
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -69,6 +74,7 @@ namespace miCompressor
             {
                 await Task.Delay(1000);
                 FileStoreInstance.Enqueue(@"F:\OpenSource\MassImageCompressor_4\MIC_Source\miCompressor.IntegrationTests\test_imgs\");
+                FileStoreInstance.Enqueue(@"F:\\photo_work", true);
                 //FileStoreInstance.Enqueue(@"C:\Users\yogee\Pictures\Camera Roll");
             });
 #endif
@@ -98,6 +104,7 @@ namespace miCompressor
             MainWindow.Activate();
 
             OpenedFiles.ForEach(file =>  FileStoreInstance.Enqueue(file));
+            OpenedFiles.Clear(); //not required, but let's clean it up. 
         }
     }
 }

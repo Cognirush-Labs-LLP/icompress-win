@@ -10,11 +10,6 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-
-    <Page.DataContext>
-        <vm:MasterState />
-    </Page.DataContext>
-
     <Grid
         Padding="0"
         AllowDrop="True"

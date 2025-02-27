@@ -2,22 +2,12 @@ using miCompressor.core;
 using miCompressor.viewmodels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.Storage.Pickers;
 using Windows.Storage;
-using miCompressor.core.common;
-using System.Threading;
+using Windows.Storage.Pickers;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -29,19 +19,41 @@ namespace miCompressor.ui
     /// </summary>
     public sealed partial class FileSelectionView : UserControl
     {
-        [AutoNotify]
-        private bool isEmptyViewVisible = true;
+
+        public const string c_ThumbSettingOption_Show = "Show Thumb";
+        public const string c_ThumbSettingOption_OnHover = "Thumb On Mouse";
+        public const string c_ThumbSettingOption_NoThumb = "No Thumbs";
+
+        public string ThumbSettingOption_Show => c_ThumbSettingOption_Show;
+        public string ThumbSettingOption_OnHover => c_ThumbSettingOption_OnHover;
+        public string ThumbSettingOption_NoThumb => c_ThumbSettingOption_NoThumb;
+
+        public string ThumbSettingOptionIcon_Show => "\uf03a";
+        public string ThumbSettingOptionIcon_OnHover => "\uf27a";
+        public string ThumbSettingOptionIcon_NoThumb => "\uf0c9";
+
+        [AutoNotify] public string thumbSettingOptionIcon_Selected = "\uf03a";
+
+        [AutoNotify] private bool isEmptyViewVisible = true;
+
+        /// <summary>
+        /// Global State.
+        /// </summary>
+        public MasterState CurrentState = App.CurrentState;
+
+        public FileStore FileStore => CurrentState.FileStore;
 
         public FileSelectionView()
         {
             this.InitializeComponent();
+            SetThumbSettingOptionIcon_Selected();
             IsEmptyViewVisible = !App.FileStoreInstance.SelectedPaths.Any();
             App.FileStoreInstance.PropertyChanged += FileStore_PropertyChanged;
         }
 
         private void FileStore_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if(e.PropertyName == nameof(FileStore.SelectedPaths))
+            if (e.PropertyName == nameof(FileStore.SelectedPaths))
                 IsEmptyViewVisible = !App.FileStoreInstance.SelectedPaths.Any();
         }
 
@@ -125,7 +137,7 @@ namespace miCompressor.ui
             {
                 string inputPathTxt = (InputPathTextBox.Text ?? "").Trim();
                 if (string.IsNullOrWhiteSpace(inputPathTxt))
-                    { return; }
+                { return; }
 
                 if (Directory.Exists(inputPathTxt) || File.Exists(inputPathTxt))
                 {
@@ -135,7 +147,7 @@ namespace miCompressor.ui
             }
             finally
             {
-                    AddInputPathButton.IsEnabled = true;
+                AddInputPathButton.IsEnabled = true;
             }
         }
 
@@ -145,6 +157,43 @@ namespace miCompressor.ui
             {
                 AddInputPathButton_Click(sender, new RoutedEventArgs());
             }
+        }
+
+        private void OnThumbSettingSelected(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem menuItem)
+            {
+                string selectedValue = menuItem.Text;
+                switch (selectedValue)
+                {
+                    case c_ThumbSettingOption_Show:
+                        App.CurrentState.ShowImageIconInFileSelectionTreeView = true;
+                        App.CurrentState.ShowImageIconInFileSelectionTreeViewWhenMouseHovers = false;
+                        ThumbSettingOptionIcon_Selected = ThumbSettingOptionIcon_Show;
+                        break;
+                    case c_ThumbSettingOption_OnHover:
+                        App.CurrentState.ShowImageIconInFileSelectionTreeView = false;
+                        App.CurrentState.ShowImageIconInFileSelectionTreeViewWhenMouseHovers = true;
+                        ThumbSettingOptionIcon_Selected = ThumbSettingOptionIcon_OnHover;
+                        break;
+                    case c_ThumbSettingOption_NoThumb:
+                        App.CurrentState.ShowImageIconInFileSelectionTreeView = false;
+                        App.CurrentState.ShowImageIconInFileSelectionTreeViewWhenMouseHovers = false;
+                        ThumbSettingOptionIcon_Selected = ThumbSettingOptionIcon_NoThumb;
+                        break;
+                }
+            }
+        }
+
+        private void SetThumbSettingOptionIcon_Selected()
+        {
+            if (App.CurrentState.ShowImageIconInFileSelectionTreeView == false && App.CurrentState.ShowImageIconInFileSelectionTreeViewWhenMouseHovers == false)
+                ThumbSettingOptionIcon_Selected = ThumbSettingOptionIcon_NoThumb;
+            if (App.CurrentState.ShowImageIconInFileSelectionTreeView == true && App.CurrentState.ShowImageIconInFileSelectionTreeViewWhenMouseHovers == false)
+                ThumbSettingOptionIcon_Selected = ThumbSettingOptionIcon_Show;
+            if (App.CurrentState.ShowImageIconInFileSelectionTreeView == false && App.CurrentState.ShowImageIconInFileSelectionTreeViewWhenMouseHovers == true)
+                ThumbSettingOptionIcon_Selected = ThumbSettingOptionIcon_OnHover;
+
         }
     }
 }

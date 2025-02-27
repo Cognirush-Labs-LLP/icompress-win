@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <UserControl
     x:Class="miCompressor.ui.FileTreeSelectionView"
+    x:Name="RootControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:miCompressor.ui"
@@ -10,17 +11,19 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
+    <UserControl.Resources>
+        <!-- Set the proxy Data to the FileTreeSelectionView instance -->
+        <local:BindingProxy x:Key="CurrentState" Data="{x:Bind CurrentState, Mode=OneWay}" />
+    </UserControl.Resources>
+    
     <Grid>
-        <TreeView x:Name="SelectedPathTreeView" ItemsSource="{x:Bind ViewModel.ImageTree, Mode=OneWay}"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AllowDrop="False"
-                  ScrollViewer.HorizontalScrollMode="Auto"
-                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                  ScrollViewer.VerticalScrollMode="Disabled"
+        <TreeView x:Name="SelectedPathTreeView" ItemsSource="{x:Bind ViewModel.ImageTree, Mode=OneWay}" SelectionMode="None"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AllowDrop="False"
                   RightTapped="FolderTreeView_RightTapped">
             <TreeView.ItemContainerStyle>
                 <Style TargetType="TreeViewItem">
                     <Setter Property="Padding" Value="0,0,0,0"/>
                     <!-- Reduce spacing -->
-                    <Setter Property="Margin" Value="-4"/>
+                    <Setter Property="Margin" Value="0"/>
                     <Setter Property="MinHeight" Value="0"/>
                     <!-- No extra margin -->
                     <!--<Setter Property="Height" Value="34"/>-->
@@ -29,8 +32,13 @@
             <TreeView.ItemTemplate>
                 <DataTemplate x:DataType="vm:ImageTreeNode">
                     <TreeViewItem ItemsSource="{x:Bind Children}">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
+                        <StackPanel x:Name="ImageInfoStackpanel" Orientation="Horizontal" HorizontalAlignment="Left" PointerEntered="Image_PointerEntered" PointerExited="Image_PointerExited">
                             <!-- Checkbox for selecting files/folders -->
+                            <FlyoutBase.AttachedFlyout>
+                                <Flyout x:Name="PreviewFlyout" OverlayInputPassThroughElement="{x:Bind ImageInfoStackpanel}">
+                                    <Image x:Name="PreviewImage" Source="{x:Bind FileInfo.FilePath, Mode=OneWay}" IsHitTestVisible="False" Width="100" Height="100"/>
+                                </Flyout>
+                            </FlyoutBase.AttachedFlyout>
                             <Border>
                                 <Border.RenderTransform>
                                     <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -42,6 +50,23 @@
                                             <FontIcon Glyph="&#xED43;"  Foreground="Black" Opacity="0.3" Margin="0,0,6,0" />
                                         </Grid>
                                         <TextBlock Text="{x:Bind ShortName}" VerticalAlignment="Center" Opacity="0.6" TextWrapping="Wrap" Visibility="{x:Bind IsFolder, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                                        <Border Visibility="{Binding Data.ShowImageIconInFileSelectionTreeView, Source={StaticResource CurrentState}, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" >
+                                            <Grid Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}" Margin="6,0" Width="80">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="*" />
+                                                </Grid.RowDefinitions>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                            <local:ImageThumbnailView FileInfo="{x:Bind FileInfo}" Show="{Binding Data.ShowImageIconInFileSelectionTreeView, Source={StaticResource CurrentState}, Mode=OneWay}" AutoLoadOnVisible="True" />
+                                            </Grid>
+                                        </Border>
+                                        
                                         <TextBlock Text="{x:Bind ShortName}" VerticalAlignment="Center" Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     </StackPanel>
                                 </CheckBox>
@@ -54,7 +79,6 @@
                             <TextBlock Text="{x:Bind Dimensions, Mode=OneWay}" VerticalAlignment="Center" Style="{StaticResource TextBlockSmall}" Margin="10,0,10,0" Foreground="{StaticResource Acccent_70}" />
 
                             <TextBlock Text="{x:Bind FileSize, Mode=OneWay}" VerticalAlignment="Center" Style="{StaticResource TextBlockSmall}" Foreground="{StaticResource Acccent_70}" Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}"/>
-
                             <!-- "Preview" Link (Only for Files) -->
                             <HyperlinkButton Content="Preview" NavigateUri="{x:Bind FileInfo.FileToCompress.FullName}" FontSize="12" Padding="4"
                                      Margin="20,-4,0,-4" Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}"/>
@@ -74,5 +98,10 @@
                 </DataTemplate>
             </TreeView.ItemTemplate>
         </TreeView>
+        <Border x:Name="ImagePreviewBorder" Background="White" Visibility="Collapsed"
+            Width="100" Height="100" BorderBrush="Black" BorderThickness="1"
+            CornerRadius="4">
+            <Image x:Name="PreviewImage"/>
+        </Border>
     </Grid>
 </UserControl>

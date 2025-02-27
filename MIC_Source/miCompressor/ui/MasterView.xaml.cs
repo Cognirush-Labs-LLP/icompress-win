@@ -28,12 +28,10 @@ namespace miCompressor.ui
     /// </summary>
     public sealed partial class MasterView : Page
     {
-        private MasterState masterState => (MasterState)DataContext;
-
         /// <summary>
         /// Comes from Static variable of App
         /// </summary>
-        public FileStore FileStore => masterState.FileStore;
+        public FileStore FileStore => App.FileStoreInstance;
 
         [AutoNotify]
         private bool isEmptyViewVisible = true;
@@ -44,7 +42,7 @@ namespace miCompressor.ui
         public MasterView()
         {
             this.InitializeComponent();
-            isEmptyViewVisible = !masterState.FileStore.SelectedPaths.Any();
+            isEmptyViewVisible = !FileStore.SelectedPaths.Any();
 
             FileStore.PropertyChanged += masterState_PropertyChanged;
         }
@@ -63,34 +61,41 @@ namespace miCompressor.ui
 
         private async void MasterView_Drop(object sender, DragEventArgs e)
         {
-            var items = await e.DataView.GetStorageItemsAsync();
-            if (items == null || items.Count == 0) return;
-
-            List<string> unsupportedFiles = new();
-
-            foreach (var item in items)
+            try
             {
-                string path = item.Path;
-                if (Directory.Exists(path))
+                var items = await e.DataView.GetStorageItemsAsync();
+                if (items == null || items.Count == 0) return;
+
+                List<string> unsupportedFiles = new();
+
+                foreach (var item in items)
                 {
-                    // Add Folders
-                    FileStore.Enqueue(path);
-                }
-                else if (File.Exists(path))
-                {
-                    // Check if file is supported
-                    string extension = Path.GetExtension(path).ToLower();
-                    if (CodeConsts.SupportedInputExtensionsWithDot.Contains(extension))
+                    string path = item.Path;
+                    if (Directory.Exists(path))
+                    {
+                        // Add Folders
                         FileStore.Enqueue(path);
-                    else
-                        unsupportedFiles.Add(path);
+                    }
+                    else if (File.Exists(path))
+                    {
+                        // Check if file is supported
+                        string extension = Path.GetExtension(path).ToLower();
+                        if (CodeConsts.SupportedInputExtensionsWithDot.Contains(extension))
+                            FileStore.Enqueue(path);
+                        else
+                            unsupportedFiles.Add(path);
+                    }
                 }
-            }
 
-            // Show warning message if unsupported files were ignored
-            if (unsupportedFiles.Any())
+                // Show warning message if unsupported files were ignored
+                if (unsupportedFiles.Any())
+                {
+                    ShowWarning($"Files with extensions {string.Join(", ", unsupportedFiles.Select(f => Path.GetExtension(f)))} were ignored as they are unsupported.");
+                }
+            } 
+            catch
             {
-                ShowWarning($"Files with extensions {string.Join(", ", unsupportedFiles.Select(f => Path.GetExtension(f)))} were ignored as they are unsupported.");
+                // Some strange drag/drop may cause this. Those should be ignored.
             }
         }
 

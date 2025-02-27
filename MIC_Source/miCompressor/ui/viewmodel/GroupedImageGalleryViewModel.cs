@@ -21,7 +21,18 @@ namespace miCompressor.ui.viewmodel
         public ObservableCollection<ImageTreeNode> ImageTree { get; } = new();
         private readonly object _treeLock = new();
 
-        private SelectedPath _currentSelectedPath;
+        private WeakReference<SelectedPath> _currentSelectedPathWeak;
+        private SelectedPath _currentSelectedPath
+        {
+            get
+            {
+                if (_currentSelectedPathWeak == null) return null;
+                SelectedPath selectedPath;
+                if(_currentSelectedPathWeak.TryGetTarget(out selectedPath))
+                    return selectedPath;
+                return null;
+            }
+        }
 
         public void LoadData(SelectedPath selectedPath)
         {
@@ -31,7 +42,7 @@ namespace miCompressor.ui.viewmodel
             if (selectedPath == null)
                 return;
 
-            _currentSelectedPath = selectedPath;
+            _currentSelectedPathWeak = new WeakReference<SelectedPath>(selectedPath);
             _currentSelectedPath.PropertyChanged += SelectedPath_PropertyChanged;
 
             RefreshImagesWithThrottled();
@@ -123,7 +134,7 @@ namespace miCompressor.ui.viewmodel
                 return;
             }
 
-            var rootNode = new ImageTreeNode(_currentSelectedPath.Path, true);
+            var rootNode = new ImageTreeNode(_currentSelectedPath.Path, true, null);
             Dictionary<string, ImageTreeNode> nodeLookup = new()
             {
                 { _currentSelectedPath.Path, rootNode }
@@ -157,7 +168,7 @@ namespace miCompressor.ui.viewmodel
                 parentNode = CreateFolderNodes(root, directoryPath, nodeLookup);
             }
 
-            var fileNode = new ImageTreeNode(file.FileToCompress.FullName, false)
+            var fileNode = new ImageTreeNode(file.FileToCompress.FullName, false, parentNode)
             {
                 FileInfo = file
             };
@@ -195,7 +206,7 @@ namespace miCompressor.ui.viewmodel
             while (missingFolders.Count > 0)
             {
                 string folderName = missingFolders.Pop();
-                var newFolderNode = new ImageTreeNode(folderName, true);
+                var newFolderNode = new ImageTreeNode(folderName, true, parentNode);
                 parentNode.Children.Add(newFolderNode);
                 parentNode = newFolderNode;
                 currentPath = Path.Combine(currentPath, folderName);
@@ -298,6 +309,10 @@ namespace miCompressor.ui.viewmodel
     public class ImageTreeNode : ObservableBase
     {
         private string _name;
+
+        /// <summary>
+        /// Name for root folder is full path, child nodes may have name same as folder/file name or intermediate path like "abc\def" if 'abc' folder is empty. 
+        /// </summary>
         public string Name
         {
             get
@@ -314,11 +329,39 @@ namespace miCompressor.ui.viewmodel
             }
         }
 
+        private string _fullPath = null;
+        public string FullPath
+        {
+            get
+            {
+                if (_fullPath != null)
+                    return _fullPath;
+
+                Stack<String> pathComponenets = new();
+
+                var node = this;
+                while (node != null)
+                {
+                    pathComponenets.Push(node.Name);
+                    node = node.parent;
+                }
+
+                string fullPath = "";
+                while (pathComponenets.Count > 0)
+                {
+                    fullPath = Path.Combine(fullPath, pathComponenets.Pop());
+                }
+                _fullPath = Path.GetFullPath(fullPath);
+                return _fullPath;
+            }
+        }
+
         public string ShortName { get; set; }
 
         public bool IsFolder { get; }
         public bool IsImage => !IsFolder;
 
+        public ImageTreeNode parent;
         public ObservableCollection<ImageTreeNode> Children { get; } = new();
 
         private MediaFileInfo? _fileInfo;
@@ -435,10 +478,11 @@ namespace miCompressor.ui.viewmodel
             }
         }
 
-        public ImageTreeNode(string name, bool isFolder)
+        public ImageTreeNode(string name, bool isFolder, ImageTreeNode parentNode)
         {
             Name = name;
             IsFolder = isFolder;
+            parent = parentNode;
         }
 
         /// <summary>

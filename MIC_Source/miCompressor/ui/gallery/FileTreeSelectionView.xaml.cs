@@ -1,17 +1,20 @@
 using miCompressor.core;
 using miCompressor.ui.viewmodel;
+using miCompressor.viewmodels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.System;
@@ -24,6 +27,8 @@ namespace miCompressor.ui
     public sealed partial class FileTreeSelectionView : UserControl
     {
         public GroupedImageGalleryViewModel ViewModel { get; } = new GroupedImageGalleryViewModel();
+        public MasterState CurrentState => App.CurrentState;
+
 
         /// <summary>
         /// Gets or sets the selected path.
@@ -56,6 +61,7 @@ namespace miCompressor.ui
         {
             ViewModel.IsTreeView = true;
             this.InitializeComponent();
+            this.DataContext = this;
         }
 
         private void OnCheckBoxClicked(object sender, RoutedEventArgs e)
@@ -78,9 +84,9 @@ namespace miCompressor.ui
 
         private async void OpenFolderInExplorer_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            if (_selectedNode != null && Directory.Exists(_selectedNode.Name))
+            if (_selectedNode != null && Directory.Exists(_selectedNode.FullPath))
             {
-                await Launcher.LaunchFolderPathAsync(_selectedNode.Name);
+                await Launcher.LaunchFolderPathAsync(_selectedNode.FullPath);
             }
         }
 
@@ -92,5 +98,92 @@ namespace miCompressor.ui
                 await Launcher.LaunchFileAsync(await Windows.Storage.StorageFile.GetFileFromPathAsync(_selectedNode.Name));
             }
         }
+
+        #region Image Flyout
+        /*
+        private void Image_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is StackPanel grid && grid.DataContext is ImageTreeNode node)
+            {
+                if (node.FileInfo == null)
+                    return;
+                PreviewImage.Source = new BitmapImage(new Uri(node.FileInfo.FileToCompress.FullName));
+                ImagePreviewBorder.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void Image_PointerMoved(object sender, PointerRoutedEventArgs e)
+        {
+            if (ImagePreviewBorder.Visibility == Visibility.Visible)
+            {
+                try
+                {
+                    var pointerPos = e.GetCurrentPoint(sender as StackPanel).Position;
+                    ImagePreviewBorder.Margin = new Thickness(pointerPos.X + 50, pointerPos.Y + 50, 0, 0);
+                }
+                catch
+                { }
+            }
+        }
+
+        private void Image_PointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            ImagePreviewBorder.Visibility = Visibility.Collapsed;
+        }*/
+
+        private void Image_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            if (!CurrentState.ShowImageIconInFileSelectionTreeViewWhenMouseHovers)
+                return; //do not display hover thumbnail if showing image in the treeview.
+
+            if (sender is FrameworkElement parent && parent.DataContext is ImageTreeNode node)
+            {
+                if (node.FileInfo == null)
+                    return;
+                var flyout = FlyoutBase.GetAttachedFlyout(parent) as Flyout;
+                if (flyout.IsOpen) return;
+                flyout.ShowAt(parent);
+                var previewImage = (flyout.Content as Image);
+
+                if (previewImage != null)
+                {
+                    CapturePointer(e.Pointer);
+                    ThrottleTask.Add(90, "FileTreeSelectionView_Image_PointerEntered", () =>
+                    {
+                        //previewImage.Source = new BitmapImage(new Uri(node.FileInfo.FileToCompress.FullName));
+                        if (flyout.IsOpen) return;
+                        //flyout.ShowAt(parent);
+                    }, shouldRunInUI: true);
+                }
+            }
+            e.Handled = true;
+            System.Diagnostics.Debug.WriteLine("Pinter Entered");
+        }
+
+        private async void Image_PointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            if (!CurrentState.ShowImageIconInFileSelectionTreeViewWhenMouseHovers)
+                return; //do not display hover thumbnail if showing image in the treeview.
+
+            if (sender is FrameworkElement parent)
+            {
+                ThrottleTask.Add(110, "FileTreeSelectionView_Image_PointerExited", () =>
+                {
+                    var flyout = FlyoutBase.GetAttachedFlyout(parent) as Flyout;
+                    flyout?.Hide();
+                }, shouldRunInUI: true);
+            }
+            e.Handled = true;
+            
+            System.Diagnostics.Debug.WriteLine("Pinter EXITED");
+        }
+
+        private void Image_PointerMoved(object sender, PointerRoutedEventArgs e)
+        {
+            e.Handled = true;
+        }
+        #endregion
+
+
     }
 }

@@ -151,6 +151,7 @@ namespace miCompressor.core
         /// <returns>Returns an ImageMetadata object containing the extracted details.</returns>
         private async Task<ImageMetadata?> LoadImageMetadataAsync(string filePath, bool loadFileSize = true)
         {
+            Debug.WriteLine($"Loading file metadata {Path.GetFileName(filePath)}");
             try
             {
                 StorageFile file = await StorageFile.GetFileFromPathAsync(filePath);

@@ -9,6 +9,9 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Collections.Concurrent;
+using System.Diagnostics;
+using Microsoft.UI.Dispatching;
+using ImageMagick.Factories;
 
 
 namespace miCompressor.core;
@@ -16,7 +19,25 @@ namespace miCompressor.core;
 public partial class MediaFileInfo
 {
     public string FilePath => FileToCompress.FullName;
-    public uint ThumbnailSize { get; set; } = 80;
+
+    private const uint THUMB_SIZE = CodeConsts.ThumbSize;
+
+    /// <summary>
+    /// Returns THUMB_SIZE value if metadata is not loaded or height and width are greater than THUMB_SIZE.
+    /// Otherwise, (if height and wdith are smaller than target THUMB_SIZE) returns larger of height of width.
+    /// </summary>
+    public uint ThumbnailSize
+    {
+        get
+        {
+            if (IsMetadataLoaded == false)
+                return THUMB_SIZE;
+            if (height > THUMB_SIZE || width > THUMB_SIZE)
+                return THUMB_SIZE;
+            return Convert.ToUInt32(height > width ? height : width);
+        }
+    }
+
     private const int MaxParallelThumbnailLoads = 50;
 
     private static readonly ConcurrentDictionary<string, Task<BitmapImage?>> s_thumbnailTasks = new ConcurrentDictionary<string, Task<BitmapImage?>>();
@@ -153,6 +174,8 @@ public partial class MediaFileInfo
             }
         }
 
+        Debug.WriteLine($"Loaded thumbnail for {Path.GetFileName(FilePath)}");
+
         /*
         try
         {
@@ -182,20 +205,22 @@ public partial class MediaFileInfo
         try
         {
             // Run file access in a background thread
-            StorageFile file = await Task.Run(async () =>
-                await StorageFile.GetFileFromPathAsync(FilePath));
+            StorageFile file = await StorageFile.GetFileFromPathAsync(FilePath);
 
-            var thumbnail = await Task.Run(async () =>
-                await file.GetThumbnailAsync(ThumbnailMode.PicturesView, (uint)ThumbnailSize, ThumbnailOptions.UseCurrentScale));
+            var thumbnail = await file.GetThumbnailAsync(ThumbnailMode.SingleItem, (uint)ThumbnailSize, ThumbnailOptions.None);
+            
 
             if (thumbnail != null)
             {
+                if (thumbnail.Type == ThumbnailType.Icon)
+                    return null;
+
                 BitmapImage image = new BitmapImage();
 
                 // Ensure UI thread execution for SetSource
-                await UIThreadHelper.RunOnUIThreadAsync(async () =>
+                await UIThreadHelper.RunOnUIThreadAsync( DispatcherQueuePriority.Low, async () =>
                 {
-                    image.SetSource(thumbnail);
+                    await image.SetSourceAsync(thumbnail);
                 });
 
                 return image;
@@ -223,8 +248,11 @@ public partial class MediaFileInfo
                     var tempStream = new InMemoryRandomAccessStream();
                     using (var image = new MagickImage(FilePath))
                     {
+                        MagickGeometry geometry = new MagickGeometry(ThumbnailSize);
+                        geometry.IgnoreAspectRatio = false;
+                        geometry.FillArea = false;
+                        image.Sample(geometry);
                         image.AutoOrient();  // Correct orientation
-                        image.Thumbnail(ThumbnailSize, ThumbnailSize);
 
                         if (image.HasAlpha)
                         {

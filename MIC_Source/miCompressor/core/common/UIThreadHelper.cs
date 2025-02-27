@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.UI.Dispatching;
+using Windows.Foundation;
 
 namespace miCompressor.core
 {
@@ -33,6 +34,11 @@ namespace miCompressor.core
             }
         }
 
+        public static void RunOnUIThread(Action action)
+        {
+            RunOnUIThread(DispatcherQueuePriority.Normal, action);
+        }
+
         /// <summary>
         /// Runs an action on the UI thread. If already on the UI thread, the action runs immediately.
         /// </summary>
@@ -46,7 +52,7 @@ namespace miCompressor.core
         /// });
         /// </code>
         /// </example>
-        public static void RunOnUIThread(Action action)
+        public static void RunOnUIThread(DispatcherQueuePriority priority, Action action)
         {
             if (UIThreadDispatcherQueue is null)
 #if DEBUG
@@ -59,13 +65,18 @@ namespace miCompressor.core
             if (UIThreadDispatcherQueue.HasThreadAccess)
                 action();
             else
-                UIThreadDispatcherQueue.TryEnqueue(() => action());
+                UIThreadDispatcherQueue.TryEnqueue(priority, () => action());
+        }
+
+        public static async Task RunOnUIThreadAsync(Func<Task> asyncAction)
+        {
+            await RunOnUIThreadAsync(DispatcherQueuePriority.Normal, asyncAction);
         }
 
         /// <summary>
         /// Runs the provided async action on the UI thread. If already on the UI thread, it executes immediately.
         /// </summary>
-        public static async Task RunOnUIThreadAsync(Func<Task> asyncAction)
+        public static async Task RunOnUIThreadAsync(DispatcherQueuePriority priority, Func<Task> asyncAction)
         {
             if (UIThreadDispatcherQueue?.HasThreadAccess == true)
             {
@@ -76,7 +87,7 @@ namespace miCompressor.core
             {
                 var taskCompletionSource = new TaskCompletionSource<bool>();
 
-                UIThreadDispatcherQueue!.TryEnqueue(async () =>
+                UIThreadDispatcherQueue!.TryEnqueue(priority, async () =>
                 {
                     try
                     {
