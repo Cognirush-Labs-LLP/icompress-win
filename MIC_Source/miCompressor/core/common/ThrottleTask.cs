@@ -68,7 +68,7 @@ namespace miCompressor.core
                     {
                         // For example, if using WPF:
                         // Application.Current.Dispatcher.Invoke(_action);
-                        UIThreadHelper.RunOnUIThread(DispatcherQueuePriority.Low, _action);
+                        UIThreadHelper.RunOnUIThread(DispatcherQueuePriority.Normal, _action);
                     }
                     else
                     {

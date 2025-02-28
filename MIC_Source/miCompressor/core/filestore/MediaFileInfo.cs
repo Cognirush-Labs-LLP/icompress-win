@@ -27,6 +27,17 @@ namespace miCompressor.core
         public FileInfo FileToCompress { get; }
 
         /// <summary>
+        /// The full path to the image file.
+        /// </summary>
+        public string FilePath => FileToCompress.FullName;
+
+        /// <summary>
+        /// Used only for logging purpose.
+        /// </summary>
+        public string ShortName => FileToCompress.Name;
+
+
+        /// <summary>
         /// The relative path of the image within the selected directory.
         /// </summary>
         public string RelativePath => Path.GetRelativePath(SelectedRootPath, FileToCompress.FullName);
@@ -36,25 +47,53 @@ namespace miCompressor.core
         /// </summary>
         public string RelativeImageDirPath => Path.GetDirectoryName(RelativePath) ?? string.Empty;
 
+        private int width;
 
         /// <summary>
         /// The width of the input image in pixels.
         /// </summary>
-        [AutoNotify]
-        private int width;
+        public int Width
+        {
+            get => width;
+            private set
+            {
+                width = value;
+                OnPropertyChanged(nameof(Width));
+                OnPropertyChanged(nameof(DimensionsToShow));
+            }
+        }
 
+
+        private int height;
         /// <summary>
         /// The height of the input image in pixels.
         /// </summary>
-        [AutoNotify]
-        private int height;
+        public int Height
+        {
+            get => height;
+            private set
+            {
+                height = value;
+                OnPropertyChanged(nameof(Height));
+                OnPropertyChanged(nameof(DimensionsToShow));
+            }
+        }
 
+        private ulong _fileSize;
         /// <summary>
         /// The size of the input image file in bytes.
         /// </summary>
-        [AutoNotify]
-        private ulong fileSize;
-
+        public ulong FileSize
+        {
+            get => _fileSize;
+            private set
+            {
+                _fileSize = value;
+                OnPropertyChanged(nameof(FileSize));
+                OnPropertyChanged(nameof(FileSizeToShow));
+            }
+        }
+        
         [AutoNotify]
         private string? cameraModel;
 
@@ -90,17 +129,12 @@ namespace miCompressor.core
             get { return excludeAndHide && excludeAndShow; }
         }
 
-        public string FileSizeToShow
-        {
-            get { return HumanReadable.FileSize(fileSize: fileSize); }
-        }
-
+        public string FileSizeToShow => HumanReadable.FileSize(fileSize: FileSize);
+        
         public string DimensionsToShow
         {
             get 
             {
-                if(!IsMetadataLoaded)
-                    LoadImageMetadataAsync().ConfigureAwait(false);
                 return $"{width}x{height}"; 
             }
         }
@@ -151,7 +185,7 @@ namespace miCompressor.core
         /// <returns>Returns an ImageMetadata object containing the extracted details.</returns>
         private async Task<ImageMetadata?> LoadImageMetadataAsync(string filePath, bool loadFileSize = true)
         {
-            Debug.WriteLine($"Loading file metadata {Path.GetFileName(filePath)}");
+            Debug.WriteLineIf(debugThisClass, $"Loading file metadata {Path.GetFileName(filePath)}");
             try
             {
                 StorageFile file = await StorageFile.GetFileFromPathAsync(filePath);

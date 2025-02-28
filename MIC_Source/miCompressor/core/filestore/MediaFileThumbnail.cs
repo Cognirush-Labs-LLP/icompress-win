@@ -12,13 +12,14 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using Microsoft.UI.Dispatching;
 using ImageMagick.Factories;
+using miCompressor.core.common;
 
 
 namespace miCompressor.core;
 
 public partial class MediaFileInfo
 {
-    public string FilePath => FileToCompress.FullName;
+    private bool debugThisClass = false;
 
     private const uint THUMB_SIZE = CodeConsts.ThumbSize;
 
@@ -58,7 +59,8 @@ public partial class MediaFileInfo
         {
             if (_thumbnail == null)
             {
-                _ = LoadThumbnailAsync();  // Fire-and-forget async loading, we will raise PropertyChanged when it's done.
+                ThumbGenerationTaskPool.Instance.EnqueueTask(FilePath, LoadThumbnailAsync);
+                //_ = LoadThumbnailAsync();  // Fire-and-forget async loading, we will raise PropertyChanged when it's done.
                 return _thumbnail;
             }
             return _thumbnail;
@@ -135,7 +137,7 @@ public partial class MediaFileInfo
         try
         {
             var thumbnail = await TryGetThumbnailFromStorageApiAsync();
-            System.Diagnostics.Debug.WriteLine("Thumbnail from Storage API");
+            System.Diagnostics.Debug.WriteLineIf(debugThisClass, "Thumbnail from Storage API");
             if (thumbnail != null) return thumbnail;
         }
         catch (Exception ex) when (ex is FileNotFoundException || ex is UnauthorizedAccessException)
@@ -154,7 +156,6 @@ public partial class MediaFileInfo
         // Fall back to ImageMagick for thumbnail generation
         try
         {
-            System.Diagnostics.Debug.WriteLine("Thumbnail from ImageMagick");
             return await GenerateThumbnailWithImageMagickAsync();
         }
         catch (MagickException magickEx)
@@ -174,7 +175,7 @@ public partial class MediaFileInfo
             }
         }
 
-        Debug.WriteLine($"Loaded thumbnail for {Path.GetFileName(FilePath)}");
+        Debug.WriteLineIf(debugThisClass, $"Loaded thumbnail for {Path.GetFileName(FilePath)}");
 
         /*
         try
@@ -207,20 +208,28 @@ public partial class MediaFileInfo
             // Run file access in a background thread
             StorageFile file = await StorageFile.GetFileFromPathAsync(FilePath);
 
-            var thumbnail = await file.GetThumbnailAsync(ThumbnailMode.SingleItem, (uint)ThumbnailSize, ThumbnailOptions.None);
-            
+            var thumbnail = await file.GetThumbnailAsync(ThumbnailMode.PicturesView, (uint)ThumbnailSize, ThumbnailOptions.None);
+
 
             if (thumbnail != null)
             {
                 if (thumbnail.Type == ThumbnailType.Icon)
                     return null;
 
-                BitmapImage image = new BitmapImage();
+                BitmapImage image = null;
 
                 // Ensure UI thread execution for SetSource
-                await UIThreadHelper.RunOnUIThreadAsync( DispatcherQueuePriority.Low, async () =>
+                await UIThreadHelper.RunOnUIThreadAsync(DispatcherQueuePriority.Normal, async () =>
                 {
-                    await image.SetSourceAsync(thumbnail);
+                    try
+                    {
+                        image = new BitmapImage();
+                        await image.SetSourceAsync(thumbnail);
+                    }
+                    catch (Exception ex)
+                    {
+                        //
+                    }
                 });
 
                 return image;
@@ -236,10 +245,11 @@ public partial class MediaFileInfo
 
     private async Task<BitmapImage> GenerateThumbnailWithImageMagickAsync()
     {
-        BitmapImage thumbnail = new BitmapImage();
+        BitmapImage thumbnail = null;
 
         try
         {
+            Debug.WriteLine("Generating Thumbnail from ImageMagick.");
             // Process image in the background thread and create the stream
             var stream = await Task.Run(() =>
             {
@@ -252,6 +262,7 @@ public partial class MediaFileInfo
                         geometry.IgnoreAspectRatio = false;
                         geometry.FillArea = false;
                         image.Sample(geometry);
+
                         image.AutoOrient();  // Correct orientation
 
                         if (image.HasAlpha)
@@ -281,6 +292,7 @@ public partial class MediaFileInfo
             // Use the stream on the UI thread, then dispose it
             UIThreadHelper.RunOnUIThread(() =>
             {
+                thumbnail = new BitmapImage();
                 thumbnail.SetSource(stream);
                 stream.Dispose();  // Dispose the stream after SetSource
             });

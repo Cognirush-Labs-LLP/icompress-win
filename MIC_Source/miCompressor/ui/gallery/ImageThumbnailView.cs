@@ -8,6 +8,8 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System.Diagnostics;
 using Microsoft.UI.Xaml.Data;
+using System.Collections.Generic;
+using miCompressor.ui.common;
 
 namespace miCompressor.ui
 {
@@ -16,7 +18,10 @@ namespace miCompressor.ui
     /// Conditions: Can be specified as in 'Show' property. Removed Bitmap source if not in view. 
     /// </summary>
     public class ImageThumbnailView : ContentControl
-    {
+   {
+
+        private bool debugThisClass = false;
+        
         // DependencyProperty for FileInfo.
         public static readonly DependencyProperty FileInfoProperty =
             DependencyProperty.Register(nameof(MediaFileInfo), typeof(MediaFileInfo), typeof(ImageThumbnailView),
@@ -39,8 +44,6 @@ namespace miCompressor.ui
             set => SetValue(ShowProperty, value);
         }
 
-        
-
         // Optional: if you want to disable auto-loading behavior.
         public static readonly DependencyProperty AutoLoadOnVisibleProperty =
             DependencyProperty.Register(nameof(AutoLoadOnVisible), typeof(bool), typeof(ImageThumbnailView),
@@ -51,6 +54,10 @@ namespace miCompressor.ui
             get => (bool)GetValue(AutoLoadOnVisibleProperty);
             set => SetValue(AutoLoadOnVisibleProperty, value);
         }
+
+        public int CurrentYLocation = 0;
+        public bool VisibleInLastCheck = false;
+        public bool ImagePopulatedInAnticipation = false;
 
         public ImageThumbnailView()
         {
@@ -73,46 +80,35 @@ namespace miCompressor.ui
 
         private void ImageThumbnailView_Loaded(object sender, RoutedEventArgs e)
         {
-            this.EffectiveViewportChanged -= ImageThumbnailView_EffectiveViewportChanged;
-            this.EffectiveViewportChanged += ImageThumbnailView_EffectiveViewportChanged;
-
-            // Initial check.
-            CheckVisibilityAndUpdate();
+            ImageThumbnailViewVisibilityManager.Add(this);
         }
 
         private void ImageThumbnailView_Unloaded(object sender, RoutedEventArgs e)
         {
-            
+            ImageThumbnailViewVisibilityManager.Remove(this);
             this.LayoutUpdated -= ImageThumbnailView_EffectiveViewportChanged;
+        }
+
+        public bool ScrollLookerForOtherBrothers = false;
+
+        /// <summary>
+        /// This method looks for scroll event. This thumb is most probably selected to look for scroll event on behalf of all Thumbs because this is a visible thumb hence will not miss layout updated event. 
+        /// </summary>
+        public void KeepLookingForScrollEven()
+        {
+            ScrollLookerForOtherBrothers = true;
+            this.EffectiveViewportChanged += ImageThumbnailView_EffectiveViewportChanged;
+        }
+
+        public void StopLookingForScrollEvent()
+        {
+            ScrollLookerForOtherBrothers = false;
+            this.EffectiveViewportChanged -= ImageThumbnailView_EffectiveViewportChanged;
         }
 
         private void ImageThumbnailView_EffectiveViewportChanged(object sender, object e)
         {
-            CheckVisibilityAndUpdate();
-        }
-
-        private bool _inView = false;
-        private object _inView_lock = new();
-        /// <summary>
-        /// Checks if the control is visible in the parent ScrollViewer's viewport.
-        /// </summary>
-        private void CheckVisibilityAndUpdate()
-        {
-            if (!AutoLoadOnVisible || !Show || this.FileInfo == null)
-                return;
-
-            // Schedule the update after the current layout pass.
-            _ = DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () =>
-            {
-                lock (_inView_lock)
-                {
-                    if (_inView != IsInView())
-                    {
-                        _inView = !_inView;
-                        UpdateContent();
-                    }
-                }
-            });
+            ImageThumbnailViewVisibilityManager.FindAndUpdateElementVisibility();
         }
 
 
@@ -120,21 +116,35 @@ namespace miCompressor.ui
         /// Determines if this control is currently within the visible viewport of its parent ScrollViewer.
         /// </summary>
         /// <returns>True if in view, false otherwise.</returns>
-        private bool IsInView()
+        public bool IsInView()
         {
             try
             {
                 // Transform element bounds to window coordinates.
                 GeneralTransform elementTransform = this.TransformToVisual(App.MainWindow.Content);
+
+
                 Rect elementRect = elementTransform.TransformBounds(new Rect(0, 0, this.ActualWidth, this.ActualHeight));
 
-                return RectIntersects(elementRect, App.MainWindow.Bounds);
+                CurrentYLocation = (int)elementRect.Y;
+
+                var isInView = RectIntersects(elementRect, App.MainWindow.Bounds);
+
+                Debug.WriteLineIf(debugThisClass, $"{FileInfo.ShortName} is at {CurrentYLocation} so will be visible: {isInView}");
+
+               VisibleInLastCheck = isInView;
+                return isInView;
             }
             catch (Exception)
             {
                 // In case transformation fails, assume visible.
                 return true;
             }
+        }
+
+        public void RecalculateY()
+        {
+            IsInView(); // we can further optimize this but not required at present. 
         }
 
         private bool RectIntersects(Windows.Foundation.Rect rect1, Windows.Foundation.Rect rect2)
@@ -148,19 +158,20 @@ namespace miCompressor.ui
 
         private Image _image = null;
         private object UpdateContentLock = new();
+
         /// <summary>
         /// Updates the Content of the control based on the Show flag and FileInfo.
         /// </summary>
-        private void UpdateContent()
+        public void UpdateContent(bool forceAddThumbnailInAnticipation = false)
         {
-            
-                // Only create the Image control (and thus invoke FileInfo.Thumbnail) when Show is true.
-                if (this.FileInfo == null || !this.Show)
-                {
-                    this.Content = null;
-                    return;
-                }
-            ThrottleTask.Add(30, FileInfo.FilePath + "UpdateContent", () =>
+
+            // Only create the Image control (and thus invoke FileInfo.Thumbnail) when Show is true.
+            if (this.FileInfo == null || !this.Show)
+            {
+                this.Content = null;
+                return;
+            }
+            //ThrottleTask.Add(100, FileInfo.FilePath + "UpdateContent", () =>
             {
                 var thumbSize = this.FileInfo.ThumbnailSize;
 
@@ -176,14 +187,15 @@ namespace miCompressor.ui
                     };
                     this.Content = _image;
                 }
-                
-                if (!this._inView)
+
+                if (!VisibleInLastCheck && !forceAddThumbnailInAnticipation)
                 {
+                    Debug.WriteLineIf(debugThisClass, $"{FileInfo.ShortName} is hidden.");
                     _image.Source = null;
                     return;
                 }
 
-                if (this.FileInfo.FileSize > 100 * 1024) // don't bother creating and caching thumbs for smaller images.  
+                if (this.FileInfo.FileSize > 50 * 1024) // don't bother creating and caching thumbs for smaller images.  
                 {
                     if (this.FileInfo.Thumbnail == null)
                     {
@@ -196,10 +208,12 @@ namespace miCompressor.ui
                         };
 
                         _image.SetBinding(Image.SourceProperty, binding);
+
                     }
                     else
                     {
                         _image.Source = this.FileInfo.Thumbnail;
+
                     }
                 }
                 else
@@ -208,7 +222,9 @@ namespace miCompressor.ui
                         _image.Source = new BitmapImage(new Uri(this.FileInfo.FilePath));
                 }
                 this.Content = _image;
-            }, true);
+                Debug.WriteLineIf(debugThisClass, $"{FileInfo.ShortName} is shown.");
+            }
+            //, true);
         }
     }
 }

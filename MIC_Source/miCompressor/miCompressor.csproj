@@ -62,6 +62,7 @@
     <None Remove="ui\EmptyFilesView.xaml" />
     <None Remove="ui\ErrorAndWarnings.xaml" />
     <None Remove="ui\FileSelectionView.xaml" />
+    <None Remove="ui\gallery\FileImageTreeView.xaml" />
     <None Remove="ui\gallery\FileTreeSelectionView.xaml" />
     <None Remove="ui\MasterView.xaml" />
     <None Remove="ui\SelectedItemHeader.xaml" />
