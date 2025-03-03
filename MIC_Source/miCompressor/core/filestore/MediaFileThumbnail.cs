@@ -19,7 +19,7 @@ namespace miCompressor.core;
 
 public partial class MediaFileInfo
 {
-    private bool debugThisClass = false;
+    private bool debugThisClass = true;
 
     private const uint THUMB_SIZE = CodeConsts.ThumbSize;
 
@@ -208,7 +208,7 @@ public partial class MediaFileInfo
             // Run file access in a background thread
             StorageFile file = await StorageFile.GetFileFromPathAsync(FilePath);
 
-            var thumbnail = await file.GetThumbnailAsync(ThumbnailMode.PicturesView, (uint)ThumbnailSize, ThumbnailOptions.None);
+            var thumbnail = await file.GetThumbnailAsync(ThumbnailMode.SingleItem, (uint)ThumbnailSize, ThumbnailOptions.None);
 
 
             if (thumbnail != null)
@@ -295,6 +295,7 @@ public partial class MediaFileInfo
                 thumbnail = new BitmapImage();
                 thumbnail.SetSource(stream);
                 stream.Dispose();  // Dispose the stream after SetSource
+                this.Thumbnail = thumbnail; //HACK: Due to many changes, we now have to set this here instead of returning the thumbnail as this is async task. 
             });
         }
         catch (Exception ex)
@@ -302,7 +303,7 @@ public partial class MediaFileInfo
             System.Diagnostics.Debug.WriteLine($"Error generating thumbnail: {ex.Message}");
         }
 
-        return thumbnail;
+        return thumbnail; //BUG: This will always return null as Thumbnail source is assigned in UI task. 
     }
 
     /// <summary>

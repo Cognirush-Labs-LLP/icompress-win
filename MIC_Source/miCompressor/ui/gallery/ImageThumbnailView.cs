@@ -21,7 +21,14 @@ namespace miCompressor.ui
    {
 
         private bool debugThisClass = false;
-        
+
+#if DEBUG
+        /// <summary>
+        /// for debug purpose ONLY. This will not be available in 'Release' build. 
+        /// </summary>
+        public string fileName = "";
+#endif
+
         // DependencyProperty for FileInfo.
         public static readonly DependencyProperty FileInfoProperty =
             DependencyProperty.Register(nameof(MediaFileInfo), typeof(MediaFileInfo), typeof(ImageThumbnailView),
@@ -85,7 +92,8 @@ namespace miCompressor.ui
 
         private void ImageThumbnailView_Unloaded(object sender, RoutedEventArgs e)
         {
-            ImageThumbnailViewVisibilityManager.Remove(this);
+            //ImageThumbnailViewVisibilityManager.Remove(this);
+            ScrollLookerForOtherBrothers = false;
             this.LayoutUpdated -= ImageThumbnailView_EffectiveViewportChanged;
         }
 
@@ -108,7 +116,9 @@ namespace miCompressor.ui
 
         private void ImageThumbnailView_EffectiveViewportChanged(object sender, object e)
         {
-            ImageThumbnailViewVisibilityManager.FindAndUpdateElementVisibility();
+            //ImageThumbnailViewVisibilityManager.Add(this); // HACK: We are not getting Unlaoded and Loaded consistantly.
+            if (ScrollLookerForOtherBrothers)
+                ImageThumbnailViewVisibilityManager.FindAndUpdateElementVisibility();
         }
 
 
@@ -120,6 +130,15 @@ namespace miCompressor.ui
         {
             try
             {
+                if(this.ActualWidth == 0 || this.ActualHeight == 0)
+                {
+                    VisibleInLastCheck = false;
+                    return false;
+                }
+#if DEBUG
+                if (FileInfo != null)
+                    fileName = FileInfo.ShortName; //for debug
+#endif
                 // Transform element bounds to window coordinates.
                 GeneralTransform elementTransform = this.TransformToVisual(App.MainWindow.Content);
 
@@ -197,7 +216,7 @@ namespace miCompressor.ui
 
                 if (this.FileInfo.FileSize > 50 * 1024) // don't bother creating and caching thumbs for smaller images.  
                 {
-                    if (this.FileInfo.Thumbnail == null)
+                    if (this.FileInfo.Thumbnail == null && _image.GetBindingExpression(Image.SourceProperty) == null)
                     {
                         // Bind Source property to FileInfo.Thumbnail
                         var binding = new Binding
@@ -210,7 +229,7 @@ namespace miCompressor.ui
                         _image.SetBinding(Image.SourceProperty, binding);
 
                     }
-                    else
+                    else if(this.FileInfo.Thumbnail != null && _image.Source != this.FileInfo.Thumbnail) // to reduce UI updates
                     {
                         _image.Source = this.FileInfo.Thumbnail;
 

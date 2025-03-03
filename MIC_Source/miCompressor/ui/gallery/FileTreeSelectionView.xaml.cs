@@ -100,37 +100,7 @@ namespace miCompressor.ui
         }
 
         #region Image Flyout
-        /*
-        private void Image_PointerEntered(object sender, PointerRoutedEventArgs e)
-        {
-            if (sender is StackPanel grid && grid.DataContext is ImageTreeNode node)
-            {
-                if (node.FileInfo == null)
-                    return;
-                PreviewImage.Source = new BitmapImage(new Uri(node.FileInfo.FileToCompress.FullName));
-                ImagePreviewBorder.Visibility = Visibility.Visible;
-            }
-        }
-
-        private void Image_PointerMoved(object sender, PointerRoutedEventArgs e)
-        {
-            if (ImagePreviewBorder.Visibility == Visibility.Visible)
-            {
-                try
-                {
-                    var pointerPos = e.GetCurrentPoint(sender as StackPanel).Position;
-                    ImagePreviewBorder.Margin = new Thickness(pointerPos.X + 50, pointerPos.Y + 50, 0, 0);
-                }
-                catch
-                { }
-            }
-        }
-
-        private void Image_PointerExited(object sender, PointerRoutedEventArgs e)
-        {
-            ImagePreviewBorder.Visibility = Visibility.Collapsed;
-        }*/
-
+        
         private void Image_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
             if (!CurrentState.ShowImageIconInFileSelectionTreeViewWhenMouseHovers)

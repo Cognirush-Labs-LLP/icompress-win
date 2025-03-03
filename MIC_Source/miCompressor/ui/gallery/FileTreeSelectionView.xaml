@@ -67,7 +67,7 @@
                                             </Grid>
                                         </Border>
                                         
-                                        <TextBlock Text="{x:Bind ShortName}" VerticalAlignment="Center" Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                        <TextBlock Text="{x:Bind ShortName}" MinWidth="150" VerticalAlignment="Center" Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     </StackPanel>
                                 </CheckBox>
                             </Border>

@@ -16,10 +16,10 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Border Grid.Row="0" >
-        <ItemsRepeater ItemsSource="{x:Bind ViewModel.ImageGroups}">
+            <ItemsRepeater ItemsSource="{x:Bind ViewModel.ImageGroups}"  VerticalCacheLength="10000">
             <ItemsRepeater.Layout>
                 <StackLayout Orientation="Vertical" />
-            </ItemsRepeater.Layout>
+                </ItemsRepeater.Layout>
             <ItemsRepeater.ItemTemplate>
                 <DataTemplate x:DataType="vm:ImageGroup">
                     <StackPanel>
@@ -27,7 +27,7 @@
                         <TextBlock Text="{x:Bind FolderPath}" FontWeight="Bold" />
 
                         <!-- ItemsRepeater replacing inner ListView -->
-                        <ItemsRepeater ItemsSource="{x:Bind Images, Mode=OneWay}" VerticalCacheLength="500" >
+                        <ItemsRepeater ItemsSource="{x:Bind Images, Mode=OneWay}" VerticalCacheLength="5000" >
                             <ItemsRepeater.Layout>
                                 <UniformGridLayout 
                                 Orientation="Horizontal" 
@@ -38,25 +38,24 @@
                                  />
                             </ItemsRepeater.Layout>
                             <ItemsRepeater.ItemTemplate>
-                                <DataTemplate x:DataType="core:MediaFileInfo">
-                                    <StackPanel Width="100" Height="120"
+                                    <DataTemplate x:DataType="core:MediaFileInfo">
+                                        <StackPanel Width="100" Height="120"
                                         Margin="5"
                                         Background="DarkGreen">
-                                        <StackPanel VerticalAlignment="Center">
-                                            <!-- Thumbnail Loading Indicator -->
+                                            <StackPanel VerticalAlignment="Center">
+                                                <!-- Thumbnail Loading Indicator -->
                                                 <!--<ProgressRing IsActive="{x:Bind Thumbnail, Mode=OneWay, Converter={StaticResource NullToBooleanConverter}}" 
                                                       Width="20" Height="20"  />-->
 
                                                 <!-- Primary Thumbnail -->
-                                                <Image Source="{x:Bind Thumbnail, Mode=OneWay}" MaxWidth="80" MaxHeight="80" Stretch="Uniform" />
-
-                                                <!-- File Size Display -->
-                                            <TextBlock Text="{x:Bind FileSizeToShow, Mode=OneWay}" 
-                                                   HorizontalAlignment="Center" />
+                                                <!--<Image Source="{x:Bind Thumbnail, Mode=OneWay}" MaxWidth="80" MaxHeight="80" Stretch="Uniform" />-->
+                                                <Image  />
+                                                <local:ImageThumbnailView FileInfo="{x:Bind}" Show="True" AutoLoadOnVisible="True" />
+                                                <TextBlock Text="{x:Bind FileSizeToShow, Mode=OneWay}" ></TextBlock>
+                                            </StackPanel>
                                         </StackPanel>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ItemsRepeater.ItemTemplate>
+                                    </DataTemplate>
+                                </ItemsRepeater.ItemTemplate>
                         </ItemsRepeater>
                     </StackPanel>
                 </DataTemplate>

@@ -2,15 +2,22 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using miCompressor.core;
 using Microsoft.UI.Composition;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
 
 namespace miCompressor.ui.common
 {
     public static class ImageThumbnailViewVisibilityManager
     {
+        /// <summary>
+        /// Smart mode minimizes calls to IsInView. Smart mode doesn't work for tree view as it is stupidly managed internally. 
+        /// </summary>
+        private static bool SmartMode = false;
+
         private static bool debugThisClass = true;
 
         // The list of views sorted by currentYLocation.
@@ -29,6 +36,36 @@ namespace miCompressor.ui.common
         private static ImageThumbnailView CurrentScrollLooker;
         private static int bestGuessForVisibleElementIndex = 0;
 
+
+        static ImageThumbnailViewVisibilityManager()
+        {
+            // Start a sanity checker to ensure we can get scroll events.
+            var token = new CancellationTokenSource();
+            if (!SmartMode)
+                _ = SanityCheckerAsync(token.Token);
+        }
+        /// <summary>
+        /// Check if we can reliably get scroll events from the current scroll looker.
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        static async Task SanityCheckerAsync(CancellationToken token)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                if (CurrentScrollLooker == null || !CurrentScrollLooker.IsInView())
+                {
+                    FindAndSetScrollLooker();
+                    Console.WriteLine("_ sanitized _");
+
+                }
+                else 
+                    Console.WriteLine("_");
+
+                await Task.Delay(2000, token); // Delay for 2 seconds
+            }
+        }
+
         /// <summary>
         /// Adds a new ImageThumbnailView. Note that this is a costly operation because
         /// we need to recalc Y positions for all items and re‑sort the entire collection.
@@ -36,6 +73,12 @@ namespace miCompressor.ui.common
         /// </summary>
         public static void Add(ImageThumbnailView thumb)
         {
+            lock (thumbCollections_lock)
+            {
+                if (thumbCollections.Contains(thumb))
+                    return;
+            }
+
             lock (ItemsToAdd_lock)
             {
                 if (ItemsToAdd.Contains(thumb))
@@ -67,6 +110,9 @@ namespace miCompressor.ui.common
                     {
                         thumbCollections.AddRange(ItemsToAdd.Where(item => thumbCollections.Contains(item) == false));
                         // Sort by the current Y coordinate.
+
+                        thumbCollections.RemoveAll(t => !t.IsLoaded); // clean up...
+
                         thumbCollections.Sort((a, b) => a.CurrentYLocation.CompareTo(b.CurrentYLocation));
                     }
                     ItemsToAdd.Clear();
@@ -102,13 +148,22 @@ namespace miCompressor.ui.common
 
             // Use our helper to get any visible element.
             var visible = FastFindAnyVisibleElement();
+
             lock (thumbCollections_lock)
             {
                 CurrentScrollLooker = visible;
                 // If we found one and it is not already subscribed, subscribe to its scroll events.
+
+                foreach (var t in thumbCollections)
+                    if (t != CurrentScrollLooker)
+                        t.StopLookingForScrollEvent();
+
                 if (CurrentScrollLooker != null && !CurrentScrollLooker.ScrollLookerForOtherBrothers)
                 {
                     CurrentScrollLooker.KeepLookingForScrollEven();
+                } else if(CurrentScrollLooker == null)
+                {
+                    Debug.WriteLine("**** No Scroll Looker ****");
                 }
             }
         }
@@ -123,15 +178,21 @@ namespace miCompressor.ui.common
 
             ThrottleTask.Add(30, "ImageThumbnailViewVisibilityManager_FindAndUpdateElements", () =>
             {
-                var visibleThumb = FastFindAnyVisibleElement();
-                if (visibleThumb != null)
+                if (SmartMode)
                 {
-                    // Crawl upward (moveUpwards = true) and downward (moveUpwards = false).
-                    CrawlAndUpdate(visibleThumb, moveUpwards: true);
-                    CrawlAndUpdate(visibleThumb, moveUpwards: false);
+                    var visibleThumb = FastFindAnyVisibleElement();
+                    if (visibleThumb != null)
+                    {
+                        // Crawl upward (moveUpwards = true) and downward (moveUpwards = false).
+                        CrawlAndUpdate(visibleThumb, moveUpwards: true);
+                        CrawlAndUpdate(visibleThumb, moveUpwards: false);
+                    }
+                } else
+                {
+                    CrawlAllThumbs();
                 }
-                // Also update the scroll looker in case the visible block has shifted.
-                FindAndSetScrollLooker();
+                    // Also update the scroll looker in case the visible block has shifted.
+                    FindAndSetScrollLooker();
             }, true);
         }
 
@@ -146,13 +207,13 @@ namespace miCompressor.ui.common
             lock (thumbCollections_lock)
             {
 
-                if (thumbCollections.Count > bestGuessForVisibleElementIndex 
+                if (thumbCollections.Count > bestGuessForVisibleElementIndex
                     && thumbCollections[bestGuessForVisibleElementIndex].IsLoaded
                     && thumbCollections[bestGuessForVisibleElementIndex].IsInView())
                     return thumbCollections[bestGuessForVisibleElementIndex];
 
                 thumbCollections.RemoveAll(t => !t.IsLoaded); // clean up...
-                if(thumbCollections.Count == 0)
+                if (thumbCollections.Count == 0)
                     return null;
 
                 int count = thumbCollections.Count;
@@ -173,7 +234,7 @@ namespace miCompressor.ui.common
 
                 if (thumbCollections[0].IsInView())
                     return thumbCollections[0];
-                
+
                 return null;
             }
         }
@@ -204,6 +265,20 @@ namespace miCompressor.ui.common
                 }
             }
             return -1;
+        }
+
+        /// <summary>
+        /// We crawl all thumbs and check their visibility. If found visible, we update it. This is dubm mode i.e. when Smart Mode is off.
+        /// </summary>
+        private static void CrawlAllThumbs()
+        {
+            foreach (var thumb in thumbCollections)
+            {
+                if (thumb.IsInView())
+                {
+                    thumb.UpdateContent();
+                }
+            }
         }
 
         /// <summary>
@@ -262,7 +337,9 @@ namespace miCompressor.ui.common
                     currentIndex += step;
                 }
 
-                Debug.WriteLineIf(debugThisClass && (showCount > 0 || hideCount > 0), $"CrawlAndUpdate > Show {showCount}, Hide {hideCount}. Total {thumbCollections.Count}");
+                Debug.WriteLineIf(debugThisClass && (showCount > 0 || hideCount > 0), $"CrawlAndUpdate > Show {showCount}, Hide {hideCount}. Total {thumbCollections.Count}. Active {thumbCollections.Where(t => t.IsLoaded).Count()}");
+
+                Debug.WriteIf(debugThisClass, ".");
             }
         }
     }

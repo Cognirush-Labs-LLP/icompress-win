@@ -34,7 +34,7 @@ namespace miCompressor.core
         /// <summary>
         /// Used only for logging purpose.
         /// </summary>
-        public string ShortName => FileToCompress.Name;
+        public string ShortName;
 
 
         /// <summary>
@@ -152,6 +152,7 @@ namespace miCompressor.core
 
             SelectedRootPath = selectedPath;
             FileToCompress = mediaFile;
+            ShortName = mediaFile.Name;
             FileSize = (ulong) mediaFile.Length;
 
             // Load metadata asynchronously

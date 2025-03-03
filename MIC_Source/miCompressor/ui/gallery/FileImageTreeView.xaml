@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="miCompressor.ui.FileImageTreeView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:miCompressor.ui"
+    xmlns:vm="using:miCompressor.ui.viewmodel"
+    xmlns:core="using:miCompressor.core"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <!-- DataTemplate for image nodes (no TreeViewItem wrapper) -->
+        <DataTemplate x:Key="ImageTemplate" x:DataType="vm:ImageTreeNode">
+            <StackPanel x:Name="ImageInfoStackpanel"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Left">
+
+                <TextBlock Text=" Image - " />
+
+                <TextBlock Text="{x:Bind ShortName }" />
+
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- DataTemplate for folder nodes (no TreeViewItem wrapper) -->
+        <DataTemplate x:Key="FolderTemplate" x:DataType="vm:ImageTreeNode">
+            <StackPanel x:Name="ImageInfoStackpanel" Orientation="Vertical" HorizontalAlignment="Left">
+                <TextBlock Text=" Folder - " />
+                <TextBlock Text="{x:Bind ShortName }" />
+                <ItemsRepeater ItemsSource="{x:Bind Images}" VerticalCacheLength="10000">
+                    <ItemsRepeater.Layout>
+                        <UniformGridLayout Orientation="Horizontal" MinItemWidth="100" MinItemHeight="100" MinRowSpacing="5" MinColumnSpacing="5" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ImageTreeNode">
+                            <StackPanel Margin="5" Background="Blue">
+                                <TextBlock Text="{x:Bind ShortName}" />
+                                <local:ImageThumbnailView FileInfo="{x:Bind FileInfo}" Show="True" AutoLoadOnVisible="True" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- Template selector to choose between the two DataTemplates -->
+        <local:ImageFolderTemplateSelector x:Key="ImageFolderTemplateSelector"
+                                       ImageTemplate="{StaticResource ImageTemplate}"
+                                       FolderTemplate="{StaticResource FolderTemplate}" />
+    </UserControl.Resources>
+
+    <Grid>
+        <TreeView x:Name="SelectedPathTreeView" ItemsSource="{x:Bind ViewModel.ImageTree, Mode=OneWay}" SelectionMode="None" >
+            <TreeView.ItemTemplate>
+                <DataTemplate x:DataType="vm:ImageTreeNode">
+                    <TreeViewItem ItemsSource="{x:Bind Children}" Content="{x:Bind}" ContentTemplateSelector="{StaticResource ImageFolderTemplateSelector}">
+
+                    </TreeViewItem>
+                </DataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+        <Border x:Name="ImagePreviewBorder" Background="White" Visibility="Collapsed"
+        Width="100" Height="100" BorderBrush="Black" BorderThickness="1"
+        CornerRadius="4">
+            <Image x:Name="PreviewImage"/>
+        </Border>
+    </Grid>
+</UserControl>

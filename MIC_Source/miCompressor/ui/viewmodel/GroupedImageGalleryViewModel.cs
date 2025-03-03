@@ -364,6 +364,18 @@ namespace miCompressor.ui.viewmodel
         public ImageTreeNode parent;
         public ObservableCollection<ImageTreeNode> Children { get; } = new();
 
+        private List<ImageTreeNode> _images = null;
+        public List<ImageTreeNode> Images
+        {
+            get
+            {
+                if (_images == null)
+                    _images = Children.Where(node => node.IsImage && node.FileInfo != null).ToList();
+                
+                return _images;
+            }
+        }
+
         private MediaFileInfo? _fileInfo;
         public MediaFileInfo? FileInfo
         {

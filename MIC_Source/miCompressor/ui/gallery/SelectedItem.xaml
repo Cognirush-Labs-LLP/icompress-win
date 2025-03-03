@@ -40,8 +40,12 @@
                 </StackPanel>
             </Grid>
             <TextBlock  Text="{x:Bind SelectedPath.Path, Mode=OneWay}" Style="{StaticResource TextBlockSmall}" Opacity="0.5" VerticalAlignment="Center" TextWrapping="Wrap" Margin="10,4,4,4" />
+            
             <!--<local:SelectionDetailView x:Name="DetailViewInstance" SelectedPath="{x:Bind SelectedPath, Mode=OneWay}" />-->
-            <local:FileTreeSelectionView x:Name="FileTreeSelectionViewInstance" SelectedPath="{x:Bind SelectedPath, Mode=OneWay}" Visibility="{x:Bind SelectedPath.IsDirectory, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
+
+            <!--<local:FileImageTreeView x:Name="ImageTreeDetailViewInstance" SelectedPath="{x:Bind SelectedPath, Mode=OneWay}" />-->
+
+            <local:FileTreeSelectionView x:Name="FileTreeSelectionViewInstance" SelectedPath="{x:Bind SelectedPath, Mode=OneWay}" />
         </StackPanel>
     </Border>
 </UserControl>
