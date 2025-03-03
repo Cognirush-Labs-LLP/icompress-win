@@ -50,12 +50,12 @@
 
     <Style x:Key="TextBlockH1" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextH1}"/>
-        <Setter Property="FontWeight" Value="{StaticResource FontWeightBold}"/>
+        <Setter Property="FontWeight" Value="Thin"/>
     </Style>
 
     <Style x:Key="TextBlockH2" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextH2}"/>
-        <Setter Property="FontWeight" Value="{StaticResource FontWeightMedium}"/>
+        <Setter Property="FontWeight" Value="Thin"/>
     </Style>
 
     <Style x:Key="TextBlockH3" TargetType="TextBlock">

@@ -17,7 +17,7 @@ namespace miCompressor.core
         /// Output Quality between 0 to 100.
         /// </summary>
         [AutoNotify]
-        public int quality = 80;
+        public uint quality = 80;
 
         /// <summary>
         /// Output Image Format. Defaults to JPEG if the output image format is not supported.
@@ -41,7 +41,7 @@ namespace miCompressor.core
         /// <summary>
         /// When reducing image by specifying long edge, height or width, this server as its value.
         /// </summary>
-        [AutoNotify] public int primaryEdgeLength = 1920;
+        [AutoNotify] public uint primaryEdgeLength = 1920;
 
         /// <summary>
         /// Print dimension for printing. This is used when dimension strategy is set to FitInFrame or FixedInFrame.

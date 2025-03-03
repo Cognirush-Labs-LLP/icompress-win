@@ -177,7 +177,7 @@ namespace miCompressor.core
                                 _files.Clear();
                             }
                             OnPropertyChanged(nameof(Files));
-                            PopulateAllFilesForSupportedExtension(CodeConsts.SupportedInputExtensionsWithDot, Path, IncludeSubDirectories, cancellationToken);
+                            PopulateAllFilesForSupportedExtension(CodeConsts.SupportedInputExtensionsWithDot, Path, Path, IncludeSubDirectories, cancellationToken);
                         }
                     }, cancellationToken);
                 }
@@ -201,9 +201,9 @@ namespace miCompressor.core
         /// <param name="rootFolderPath">Selected Path by user to search the images within</param>
         /// <param name="includeSubDir">Should search directories within `rootFolderPath` or not</param>
         /// <param name="cancellationToken">Token to cancel the ongoing operation</param>
-        private void PopulateAllFilesForSupportedExtension(HashSet<string> supportedInputExtensions, string rootFolderPath, bool includeSubDir, CancellationToken cancellationToken)
+        private void PopulateAllFilesForSupportedExtension(HashSet<string> supportedInputExtensions, string directoryToScan, string originalSelectedDirectory, bool includeSubDir, CancellationToken cancellationToken)
         {
-            DirectoryInfo di = new DirectoryInfo(rootFolderPath);
+            DirectoryInfo di = new DirectoryInfo(directoryToScan);
 
 
             try
@@ -216,7 +216,7 @@ namespace miCompressor.core
                 var newFiles = fiArr.Select(file =>
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    return new MediaFileInfo(file.FullName, file);
+                    return new MediaFileInfo(originalSelectedDirectory, file);
                 }).ToList();
 
                 if (newFiles.Any())
@@ -242,7 +242,7 @@ namespace miCompressor.core
                         subDir =>
                         {
                             cancellationToken.ThrowIfCancellationRequested();
-                            PopulateAllFilesForSupportedExtension(supportedInputExtensions, subDir.FullName, includeSubDir, cancellationToken);
+                            PopulateAllFilesForSupportedExtension(supportedInputExtensions, subDir.FullName, originalSelectedDirectory, includeSubDir, cancellationToken);
                         });
                 }
             }

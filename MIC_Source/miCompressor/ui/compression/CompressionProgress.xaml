@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="miCompressor.ui.CompressionProgress"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:miCompressor.ui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollView>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.Resources>
+                <Style x:Key="LabelStyle" TargetType="TextBlock">
+                    <Setter Property="Foreground" Value="{StaticResource Primary_50}"/>
+                    <Setter Property="HorizontalAlignment" Value="Right" />
+                    <Setter Property="VerticalAlignment" Value="Center" />
+                </Style>
+
+                <!-- Style for values -->
+                <Style x:Key="ValueStyle" TargetType="TextBlock">
+                    <Setter Property="FontWeight" Value="Thin"/>
+                    <Setter Property="FontSize" Value="{StaticResource TextLarge}"/>
+                    <Setter Property="Margin" Value="10"/>
+                    <Setter Property="HorizontalAlignment" Value="Left" />
+                </Style>
+
+                <Style TargetType="local:PieChart">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="local:PieChart">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <!-- Pie Chart Canvas -->
+                                    <Canvas x:Name="PART_Canvas"
+                Width="140" Height="140"
+                HorizontalAlignment="Center" />
+                                    <!-- Legends Panel -->
+                                    <StackPanel x:Name="PART_LegendPanel"
+                    Orientation="Vertical"
+                    HorizontalAlignment="Center"
+                    Margin="10,5,10,0">
+                                    </StackPanel>
+                                </StackPanel>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Grid.Resources>
+            <CommandBar  Grid.Column="0"  Grid.ColumnSpan="4" Grid.Row="0" IsOpen="False" HorizontalAlignment="Left" DefaultLabelPosition="Right" Margin="5">
+                <AppBarButton Name="CancelButton" Label="Cancel" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" Click="CancelButton_Click" >
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE711;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton Name="BackButton" Label="Back" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" Click="BackButton_Click" >
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE72B;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+            </CommandBar>
+
+            <TextBlock Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="4" HorizontalAlignment="Center" Text="Processing.." Style="{StaticResource TextBlockH2}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+            <TextBlock Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" Grid.ColumnSpan="4"  Text="Done!" Style="{StaticResource TextBlockH2}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" />
+
+            <local:PieChart Grid.Column="1" Grid.Row="2"  HorizontalAlignment="Center" Margin="40" VerticalAlignment="Center" Data="{x:Bind CompressionProgressVisuals, Mode=OneWay}"/>
+
+            <Grid Grid.Column="2" Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+
+                <TextBlock Grid.Column="0" Grid.Row="2" Text="Took" Style="{StaticResource LabelStyle}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" />
+                <TextBlock Grid.Column="1" Grid.Row="1" VerticalAlignment="Center"  Style="{StaticResource ValueStyle}" FontSize="{StaticResource TextMedium}" Text="{x:Bind vm.TimeToShow, Mode=OneWay}" />
+
+                <TextBlock Grid.Column="0" Grid.Row="2" Text="Total" Style="{StaticResource LabelStyle}" />
+                <TextBlock Grid.Column="1" Grid.Row="2"  Style="{StaticResource ValueStyle}" Text="{x:Bind vm.TotalFilesToCompress, Mode=OneWay}" />
+
+                <TextBlock Grid.Column="0" Grid.Row="3" Text="Processed" Style="{StaticResource LabelStyle}" />
+                <TextBlock Grid.Column="1" Grid.Row="3" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.TotalFilesCompressed, Mode=OneWay}" />
+
+                <TextBlock Grid.Column="0" Grid.Row="4" Text="Failed" Style="{StaticResource LabelStyle}" />
+                <TextBlock Grid.Column="1" Grid.Row="4" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.TotalFilesFailedToCompress, Mode=OneWay}" />
+
+                <TextBlock Grid.Column="0" Grid.Row="5" Text="Cancelled" Style="{StaticResource LabelStyle}" />
+                <TextBlock Grid.Column="1" Grid.Row="5" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.TotalFilesCancelled, Mode=OneWay}" />
+
+                <TextBlock Grid.Column="0" Grid.Row="6" Text="Original Size" Style="{StaticResource LabelStyle}" />
+                <TextBlock Grid.Column="1" Grid.Row="6" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.OriginalSize, Mode=OneWay}" />
+
+                <TextBlock Grid.Column="0" Grid.Row="7" Text="Compressed Size" Style="{StaticResource LabelStyle}" />
+                <TextBlock Grid.Column="1" Grid.Row="7" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.CompressedSize, Mode=OneWay}" />
+
+                <TextBlock Grid.Column="0" Grid.Row="8" Text="Reduced" Style="{StaticResource LabelStyle}" />
+                <TextBlock Grid.Column="1" Grid.Row="8" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.PercentageReduction, Mode=OneWay}" />
+            </Grid>
+
+        </Grid>
+        
+    </ScrollView>
+    
+    
+</UserControl>

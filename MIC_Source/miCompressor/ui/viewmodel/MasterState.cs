@@ -4,8 +4,10 @@ using miCompressor.ui;
 using System.Linq;
 using Microsoft.UI.Xaml.Controls;
 using System;
+using miCompressor.ui.viewmodel;
+using Windows.ApplicationModel.UserDataTasks;
 
-namespace miCompressor.viewmodels
+namespace miCompressor.viewmodel
 {
     /// <summary>
     /// ViewModel for MasterView to manage UI navigation.
@@ -23,11 +25,16 @@ namespace miCompressor.viewmodels
         /// </summary>
         public OutputSettings OutputSettings { get; private set; }
 
+        public CompressionViewModel CompressionViewModel { get; private set; }
+
         [AutoNotify]
         private bool showImageIconInFileSelectionTreeView = false;
 
         [AutoNotify]
         private bool showImageIconInFileSelectionTreeViewWhenMouseHovers = false;
+
+        [AutoNotify]
+        public bool showCompressionProgress = false;
 
         /// <summary>
         /// Constructor initializes with `EmptyFilesView`
@@ -36,11 +43,22 @@ namespace miCompressor.viewmodels
         {
             FileStore = new();
             OutputSettings = new();
+            CompressionViewModel = new(FileStore, OutputSettings);
 
             showImageIconInFileSelectionTreeView = AppSettingsManager.Get<bool>("Visuals." + nameof(ShowImageIconInFileSelectionTreeView));
             ShowImageIconInFileSelectionTreeViewWhenMouseHovers = AppSettingsManager.Get<bool>("Visuals." + nameof(ShowImageIconInFileSelectionTreeViewWhenMouseHovers));
 
             this.PropertyChanged += MasterState_PropertyChanged;
+            this.CompressionViewModel.PropertyChanged += CompressionViewModel_PropertyChanged;
+        }
+
+        private void CompressionViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if(e.PropertyName == nameof(CompressionViewModel.CompressionInProgress))
+            {
+                if (CompressionViewModel.CompressionInProgress)
+                    ShowCompressionProgress = true;
+            }
         }
 
         private void MasterState_PropertyChanged(object? sender, PropertyChangedEventArgs e)

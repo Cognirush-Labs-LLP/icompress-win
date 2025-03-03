@@ -39,7 +39,7 @@ namespace miCompressor.ui.common
 
         static ImageThumbnailViewVisibilityManager()
         {
-            // Start a sanity checker to ensure we can get scroll events.
+            // StartTimer a sanity checker to ensure we can get scroll events.
             var token = new CancellationTokenSource();
             if (!SmartMode)
                 _ = SanityCheckerAsync(token.Token);

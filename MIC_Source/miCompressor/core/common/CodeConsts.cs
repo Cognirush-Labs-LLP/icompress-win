@@ -14,17 +14,17 @@ namespace miCompressor.core
         public const int ThumbSize = 100;
 
         /// <summary>
-        /// Supported lower cased input file extensions without dot. i.e. "jpg", "jpeg", "png", "webp".
+        /// Supported lower cased input file extensions without dot. i.e. "jpg", "jpeg", "png", "webp". We will add all supported image formats later, this is just for testing. 
         /// </summary>
-        public static string[] SupportedInputExtensions = ["jpg", "jpeg", "png", "webp", "arw", "dng", "nef", "cr2", "cr3"];
+        public static string[] SupportedInputExtensions = ["jpg", "jpeg", "png", "webp","gif","tif", "tiff", "avif", "heic", "jp2", "bmp", "arw", "dng", "nef", "cr2", "cr3"];
 
 
         /// <summary>
         /// Supported lower cased output file extensions without dot. i.e. "jpg", "png", "webp"
         /// </summary>
-        public static string[] SupportedOutputExtensions = ["jpg", "png", "webp"];
+        public static string[] SupportedOutputExtensions = ["jpg", "png", "webp", "tiff", "avif"];
 
-        /// <summary>
+/// <summary>
         /// Generated from <![CDATA[SupportedInputExtensions]]> but file extensions with dot. i.e. ".jpg", ".jpeg", ".png", ".webp"
         /// </summary>
         public static HashSet<string> SupportedInputExtensionsWithDot

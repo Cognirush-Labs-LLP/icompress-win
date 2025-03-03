@@ -33,7 +33,17 @@ namespace miCompressor.core
         /// <summary>
         /// WebP format (.webp, .WEBP)
         /// </summary>
-        Webp        // WebP format (.webp, .WEBP)
+        Webp,        // WebP format (.webp, .WEBP)
+
+        /// <summary>
+        /// HEIC (experimental)
+        /// </summary>
+        heic,
+
+        /// <summary>
+        /// AVID (very slow, experimental)
+        /// </summary>
+        avif,
     }
 
     /// <summary>
@@ -50,7 +60,7 @@ namespace miCompressor.core
         /// <returns>The correct file extension preserving case and format.</returns>
         public static string GetOutputExtension(this OutputFormat format, string originalFilePath)
         {
-            if (string.IsNullOrWhiteSpace(originalFilePath) || !File.Exists(originalFilePath))
+            if (string.IsNullOrWhiteSpace(originalFilePath))
                 throw new ArgumentException("Invalid file path provided.", nameof(originalFilePath));
 
             string originalExtension = Path.GetExtension(originalFilePath);
@@ -61,15 +71,25 @@ namespace miCompressor.core
                 OutputFormat.Png => IsPng(originalExtension) ? originalExtension : ".png",
                 OutputFormat.Tiff => IsTiff(originalExtension) ? originalExtension : ".tiff",
                 OutputFormat.Webp => IsWebp(originalExtension) ? originalExtension : ".webp",
-                OutputFormat.KeepSame => AdvancedSettings.Instance.defaultImageExtension.GetOutputExtension(originalFilePath),
+                OutputFormat.heic => IsWebp(originalExtension) ? originalExtension : ".heic",
+                OutputFormat.avif => IsWebp(originalExtension) ? originalExtension : ".avif",
+                OutputFormat.KeepSame => isSupportedAsOutput(originalExtension) ? originalExtension : AdvancedSettings.Instance.defaultImageExtension.GetOutputExtension(originalFilePath),
                 _ => throw new ArgumentOutOfRangeException(nameof(format), "Unsupported format.")
             };
+        }
+
+        private static bool isSupportedAsOutput(string originalExtension)
+        {
+            return IsJpeg(originalExtension) || IsPng(originalExtension) || IsTiff(originalExtension) || IsWebp(originalExtension) || IsHeic(originalExtension) || IsAvif(originalExtension);
         }
 
         private static bool IsJpeg(string ext) => ext.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || ext.Equals(".jpeg", StringComparison.OrdinalIgnoreCase);
         private static bool IsPng(string ext) => ext.Equals(".png", StringComparison.OrdinalIgnoreCase);
         private static bool IsTiff(string ext) => ext.Equals(".tiff", StringComparison.OrdinalIgnoreCase) || ext.Equals(".tif", StringComparison.OrdinalIgnoreCase);
         private static bool IsWebp(string ext) => ext.Equals(".webp", StringComparison.OrdinalIgnoreCase);
+        private static bool IsHeic(string ext) => ext.Equals(".heic", StringComparison.OrdinalIgnoreCase);
+        private static bool IsAvif(string ext) => ext.Equals(".avif", StringComparison.OrdinalIgnoreCase);
+
 
         /// <summary>
         /// 

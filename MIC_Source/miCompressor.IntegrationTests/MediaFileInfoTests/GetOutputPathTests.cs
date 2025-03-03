@@ -36,8 +36,8 @@ namespace miCompressor.Tests.MediaFileInfoTests
             var mediaFile2 = CreateMediaFileInfoAsSelectedPath("abc\\def\\test.jpg");
 
             // Act
-            string result1 = mediaFile1.GetOutputPath(outputSettings, onlyPreview);
-            string result2 = mediaFile2.GetOutputPath(outputSettings, onlyPreview);
+            string result1 = mediaFile1.GetOutputPath(outputSettings, multipleFolderSelected: false, onlyPreview);
+            string result2 = mediaFile2.GetOutputPath(outputSettings, multipleFolderSelected: false, onlyPreview);
 
             // Assert
             Assert.True(mediaFile1.IsReplaceOperation);
@@ -57,12 +57,13 @@ namespace miCompressor.Tests.MediaFileInfoTests
             var mediaFile2 = CreateMediaFileInfoAsSelectedPath("def\\ghq\\image.png");
 
             var outputSettingsConvertToJPEG = CreateOutputSettings(OutputLocationSetting.InCompressedFolder);
+            outputSettingsConvertToJPEG.Format = OutputFormat.Jpg;
 
             // Act
-            string result1 = mediaFile1.GetOutputPath(outputSettings, false);
-            string result2 = mediaFile2.GetOutputPath(outputSettings, false);
-            string result3 = mediaFile1.GetOutputPath(outputSettingsConvertToJPEG, false);
-            string result4 = mediaFile2.GetOutputPath(outputSettingsConvertToJPEG, false);
+            string result1 = mediaFile1.GetOutputPath(outputSettings, multipleFolderSelected: false, false);
+            string result2 = mediaFile2.GetOutputPath(outputSettings, multipleFolderSelected: false, false);
+            string result3 = mediaFile1.GetOutputPath(outputSettingsConvertToJPEG, multipleFolderSelected: false, false);
+            string result4 = mediaFile2.GetOutputPath(outputSettingsConvertToJPEG, multipleFolderSelected: false, false);
 
 
             // Assert
@@ -90,13 +91,25 @@ namespace miCompressor.Tests.MediaFileInfoTests
             var mediaFile2 = CreateMediaFileInfoAsSelectedPath("c  d\\ghi\\fil e.bmp");
 
             // Act
-            string result1 = mediaFile1.GetOutputPath(outputSettings, false);
-            string result2 = mediaFile2.GetOutputPath(outputSettings, false);
+            string result1 = mediaFile1.GetOutputPath(outputSettings, multipleFolderSelected: true, false);
+            string result2 = mediaFile2.GetOutputPath(outputSettings, multipleFolderSelected: true, false);
 
 
             // Act & Assert
-            string expectedPath1 = "C:\\output folder\\c  d\\ghi\\fil e.bmp";
-            string expectedPath2 = "C:\\output folder\\fil e.bmp";
+            string expectedPath1 = "C:\\output folder\\GetOutputPathTests\\c  d\\ghi\\fil e.jpg";
+            string expectedPath2 = "C:\\output folder\\fil e.jpg";
+
+            Assert.True(TestFileHelper.IsSamePath(result1, expectedPath1));
+            Assert.True(TestFileHelper.IsSamePath(result2, expectedPath2));
+
+            // with multiple folder selected: true, we expect files to carry their selected folder's name in output folder
+            result1 = mediaFile1.GetOutputPath(outputSettings, multipleFolderSelected: false, false);
+            result2 = mediaFile2.GetOutputPath(outputSettings, multipleFolderSelected: false, false);
+
+
+            // Act & Assert
+            expectedPath1 = "C:\\output folder\\c  d\\ghi\\fil e.jpg";
+            expectedPath2 = "C:\\output folder\\fil e.jpg";
 
             Assert.True(TestFileHelper.IsSamePath(result1, expectedPath1));
             Assert.True(TestFileHelper.IsSamePath(result2, expectedPath2));
@@ -112,7 +125,7 @@ namespace miCompressor.Tests.MediaFileInfoTests
             var mediaFile1 = CreateMediaFileInfo("ReplaceFromAndReplaceToTransformation_AppliedCorrectlyIMG_OK/IMG_sample.jpg");
 
             // Act
-            string result1 = mediaFile1.GetOutputPath(outputSettings, false);
+            string result1 = mediaFile1.GetOutputPath(outputSettings, multipleFolderSelected: false, false);
 
             // Assert
             Assert.Equal(Path.Combine(_tempDirectory, "ReplaceFromAndReplaceToTransformation_AppliedCorrectlyIMG_OK\\PHOTO_sample.jpg"), result1);
@@ -123,7 +136,7 @@ namespace miCompressor.Tests.MediaFileInfoTests
             var mediaFile2 = CreateMediaFileInfo("ReplaceFromAndReplaceToTransformation_AppliedCorrectly/IMG_sample@3x.jpg");
 
             // Act
-            string result2 = mediaFile2.GetOutputPath(outputSettings, false);
+            string result2 = mediaFile2.GetOutputPath(outputSettings, multipleFolderSelected: false, false);
 
             // Assert
             Assert.True(TestFileHelper.IsSamePath(Path.Combine(_tempDirectory, "ReplaceFromAndReplaceToTransformation_AppliedCorrectly/IMG_sample@2x.jpg"), result2));
@@ -139,7 +152,7 @@ namespace miCompressor.Tests.MediaFileInfoTests
             var mediaFile = CreateMediaFileInfo("test123.jpg");
 
             // Act
-            string result = mediaFile.GetOutputPath(outputSettings, false);
+            string result = mediaFile.GetOutputPath(outputSettings, multipleFolderSelected: false, false);
 
             // Assert
             string expectedFileName = "PRE_test123_SUF.jpg";
@@ -155,7 +168,7 @@ namespace miCompressor.Tests.MediaFileInfoTests
             var mediaFile = CreateMediaFileInfo("ghi\\file.bmp");
 
             // Act & Assert
-            Assert.Throws<InvalidOperationException>(() => mediaFile.GetOutputPath(outputSettings, false));
+            Assert.Throws<InvalidOperationException>(() => mediaFile.GetOutputPath(outputSettings, multipleFolderSelected: false, false));
         }
 
         [Fact]
@@ -166,7 +179,7 @@ namespace miCompressor.Tests.MediaFileInfoTests
             var mediaFile = CreateMediaFileInfo("random.jpg");
 
             // Act & Assert
-            Assert.Throws<NotSupportedException>(() => mediaFile.GetOutputPath(outputSettings, false));
+            Assert.Throws<NotSupportedException>(() => mediaFile.GetOutputPath(outputSettings, multipleFolderSelected: false, false));
         }
 
         private OutputSettings CreateOutputSettings(OutputLocationSetting locationSettings)

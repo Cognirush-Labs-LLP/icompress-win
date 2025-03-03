@@ -1,3 +1,4 @@
+using miCompressor.viewmodel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -24,6 +25,8 @@ namespace miCompressor.ui
     /// </summary>
     public sealed partial class QualitySettings : UserControl
     {
+        public MasterState CurrentState => App.CurrentState;
+
         public QualitySettings()
         {
             this.InitializeComponent();
@@ -31,7 +34,7 @@ namespace miCompressor.ui
 
         protected ICommand SetQualityCommand => new RelayCommand<object>(param =>
         {
-            if (param is string qualityValue && int.TryParse(qualityValue, out int quality))
+            if (param is string qualityValue && uint.TryParse(qualityValue, out uint quality))
                 App.OutputSettingsInstance.Quality = quality;
         });
     }

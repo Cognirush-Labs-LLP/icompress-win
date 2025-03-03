@@ -59,12 +59,15 @@
   <ItemGroup>
     <None Remove="Assets\Icons\source\createFrom256Png.bat" />
     <None Remove="Assets\Icons\source\mic_256.png" />
+    <None Remove="ui\compression\CompressionProgress.xaml" />
     <None Remove="ui\EmptyFilesView.xaml" />
     <None Remove="ui\ErrorAndWarnings.xaml" />
     <None Remove="ui\FileSelectionView.xaml" />
     <None Remove="ui\gallery\FileImageTreeView.xaml" />
     <None Remove="ui\gallery\FileTreeSelectionView.xaml" />
     <None Remove="ui\MasterView.xaml" />
+    <None Remove="ui\preview\PreviewView.xaml" />
+    <None Remove="ui\RightPanelView.xaml" />
     <None Remove="ui\SelectedItemHeader.xaml" />
     <None Remove="ui\SelectionDetailView.xaml" />
     <None Remove="ui\SettingsView.xaml" />
@@ -127,6 +130,9 @@
     <PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.0.240109" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.250108002" />
+    <PackageReference Include="Serilog" Version="4.2.0" />
+    <PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AutoNotifyGenerator\AutoNotifyGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
@@ -232,6 +238,21 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets\Icons\source\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="ui\RightPanelView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="ui\compression\CompressionProgress.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="ui\preview\PreviewView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="ui\gallery\FileImageTreeView.xaml">

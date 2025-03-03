@@ -193,38 +193,44 @@ namespace miCompressor.core
         /// <param name="originalWidth">Original image width in pixels.</param>
         /// <param name="originalHeight">Original image height in pixels.</param>
         /// <returns>A tuple representing the new height and width.</returns>
-        public static (int height, int width) GetOutputDimensions(OutputSettings outputSettings, int originalWidth, int originalHeight)
+        public static (uint height, uint width) GetOutputDimensions(OutputSettings outputSettings, uint originalWidth, uint originalHeight)
         {
             // Ensure valid input dimensions
             if (originalWidth <= 0 || originalHeight <= 0)
                 return (0, 0); // Invalid image size, return zero dimensions safely
 
-            int newHeight = originalHeight;
-            int newWidth = originalWidth;
+            uint newHeight = originalHeight;
+            uint newWidth = originalWidth;
 
             // Ensure valid primary edge length
-            int primaryEdge = Math.Max(1, outputSettings.primaryEdgeLength);
+            uint primaryEdge = Math.Max(1, outputSettings.primaryEdgeLength);
 
             switch (outputSettings.dimensionStrategy)
             {
+                case DimensionReductionStrategy.Percentage:
+                    // Reduce both dimensions by the given percentage
+                    double scale = outputSettings.percentageOfLongEdge / 100.0;
+                    newWidth = (uint)Math.Round(originalWidth * scale);
+                    newHeight = (uint)Math.Round(originalHeight * scale);
+                    break;
+
                 case DimensionReductionStrategy.LongEdge:
-                    if (originalWidth > originalHeight)
+                    uint maxLongEdge = primaryEdge;
+                    uint longEdge = Math.Max(originalWidth, originalHeight);
+                    if (longEdge > maxLongEdge)
                     {
-                        newWidth = Math.Min(primaryEdge, originalWidth);
-                        newHeight = Math.Max(1, (int)Math.Round((double)originalHeight / originalWidth * newWidth));
+                        double ratio = (double)maxLongEdge / longEdge;
+                        newWidth = (uint)Math.Round(originalWidth * ratio);
+                        newHeight = (uint)Math.Round(originalHeight * ratio);
                     }
-                    else
-                    {
-                        newHeight = Math.Min(primaryEdge, originalHeight);
-                        newWidth = Math.Max(1, (int)Math.Round((double)originalWidth / originalHeight * newHeight));
-                    }
+                    break;
                     break;
 
                 case DimensionReductionStrategy.MaxHeight:
                     if (originalHeight > primaryEdge)
                     {
                         newHeight = primaryEdge;
-                        newWidth = Math.Max(1, (int)Math.Round((double)originalWidth / originalHeight * newHeight));
+                        newWidth = Math.Max(1, (uint)Math.Round((double)originalWidth / originalHeight * newHeight));
                     }
                     break;
 
@@ -232,27 +238,27 @@ namespace miCompressor.core
                     if (originalWidth > primaryEdge)
                     {
                         newWidth = primaryEdge;
-                        newHeight = Math.Max(1, (int)Math.Round((double)originalHeight / originalWidth * newWidth));
+                        newHeight = Math.Max(1, (uint)Math.Round((double)originalHeight / originalWidth * newWidth));
                     }
                     break;
 
                 case DimensionReductionStrategy.FixedHeight:
                     newHeight = primaryEdge;
-                    newWidth = Math.Max(1, (int)Math.Round((double)originalWidth / originalHeight * newHeight));
+                    newWidth = Math.Max(1, (uint)Math.Round((double)originalWidth / originalHeight * newHeight));
                     break;
 
                 case DimensionReductionStrategy.FixedWidth:
                     newWidth = primaryEdge;
-                    newHeight = Math.Max(1, (int)Math.Round((double)originalHeight / originalWidth * newWidth));
+                    newHeight = Math.Max(1, (uint)Math.Round((double)originalHeight / originalWidth * newWidth));
                     break;
 
                 case DimensionReductionStrategy.FitInFrame:
                 case DimensionReductionStrategy.FixedInFrame:
                     {
                         // Convert inches to pixels (300 DPI standard)
-                        int marginPixels = Math.Max(0, (int)(outputSettings.PrintDimension.margin * 300));
-                        int primaryEdgePixels = Math.Max(1, (int)((outputSettings.PrintDimension.longEdgeInInch - outputSettings.PrintDimension.margin) * 300));
-                        int secondaryEdgePixels = Math.Max(1, (int)((outputSettings.PrintDimension.shortEdgeInInch - outputSettings.PrintDimension.margin) * 300));
+                        uint marginPixels = Math.Max(0, (uint)(outputSettings.PrintDimension.margin * 300));
+                        uint primaryEdgePixels = Math.Max(1, (uint)((outputSettings.PrintDimension.longEdgeInInch - outputSettings.PrintDimension.margin) * 300));
+                        uint secondaryEdgePixels = Math.Max(1, (uint)((outputSettings.PrintDimension.shortEdgeInInch - outputSettings.PrintDimension.margin) * 300));
 
                         if (originalWidth > originalHeight) // Landscape
                         {
@@ -260,12 +266,12 @@ namespace miCompressor.core
                                 ? Math.Min(primaryEdgePixels, originalWidth)  // No upscaling for FitInFrame
                                 : primaryEdgePixels; // Always scale for FixedInFrame
 
-                            newHeight = Math.Max(1, (int)Math.Round((double)originalHeight / originalWidth * newWidth));
+                            newHeight = Math.Max(1, (uint)Math.Round((double)originalHeight / originalWidth * newWidth));
 
                             if (newHeight > secondaryEdgePixels)
                             {
                                 newHeight = secondaryEdgePixels;
-                                newWidth = Math.Max(1, (int)Math.Round((double)originalWidth / originalHeight * newHeight));
+                                newWidth = Math.Max(1, (uint)Math.Round((double)originalWidth / originalHeight * newHeight));
                             }
                         }
                         else // Portrait
@@ -274,12 +280,12 @@ namespace miCompressor.core
                                 ? Math.Min(primaryEdgePixels, originalHeight)  // No upscaling for FitInFrame
                                 : primaryEdgePixels; // Always scale for FixedInFrame
 
-                            newWidth = Math.Max(1, (int)Math.Round((double)originalWidth / originalHeight * newHeight));
+                            newWidth = Math.Max(1, (uint)Math.Round((double)originalWidth / originalHeight * newHeight));
 
                             if (newWidth > secondaryEdgePixels)
                             {
                                 newWidth = secondaryEdgePixels;
-                                newHeight = Math.Max(1, (int)Math.Round((double)originalHeight / originalWidth * newWidth));
+                                newHeight = Math.Max(1, (uint)Math.Round((double)originalHeight / originalWidth * newWidth));
                             }
                         }
                     }
@@ -289,6 +295,10 @@ namespace miCompressor.core
                     // Keep original dimensions (KeepSame strategy)
                     break;
             }
+
+            // Ensure at least 1 pixel in each dimension
+            if (newWidth < 1) newWidth = 1;
+            if (newHeight < 1) newHeight = 1;
 
             return (newHeight, newWidth);
         }

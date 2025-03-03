@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid>
+    <Grid >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
@@ -21,11 +21,16 @@
 
         <TextBlock VerticalAlignment="Center" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Text="OUTPUT FOLDER SETTINGS" Margin="10, 10, 10, 0" Style="{StaticResource SettingsHeading}"/>
 
-        <ComboBox Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" SelectedItem="{x:Bind SelectedOutputLocationSettingsItem, Mode=TwoWay}"
-          ItemsSource="{x:Bind OutputLocationSettings}" 
-          DisplayMemberPath="Name"
-          HorizontalAlignment="Stretch" 
-          Margin="0,5,0,5"/>
+        <DropDownButton x:Name="OutputLocationSettingsDropDownButton" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1"
+            Content="{x:Bind SelectedOutputLocationSettingsItem.Name, Mode=OneWay}"
+                        HorizontalContentAlignment="Left"
+             Loaded="OutputLocationSettingsDropDownButton_Loaded"
+            HorizontalAlignment="Stretch"
+            Margin="0,5,0,5" >
+            <DropDownButton.Flyout>
+                <MenuFlyout x:Name="OutputLocationMenuFlyout" />
+            </DropDownButton.Flyout>
+        </DropDownButton>
 
         <Grid Name="OutputFolderUI" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2">
             <Grid.ColumnDefinitions>
@@ -36,7 +41,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            
+
             <TextBox Grid.Column="0" Grid.Row="0" Margin="0" x:Name="FoderPathTextBox" PlaceholderText="Output Folder Here..."  FontSize="{StaticResource TextSmall}" TextChanged="FoderPathTextBox_TextChanged" TextWrapping="Wrap" VerticalAlignment="Center" />
 
             <Button Grid.Column="1" Grid.Row="0" x:Name="PickFolderButton"

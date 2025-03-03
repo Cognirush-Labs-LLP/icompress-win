@@ -60,7 +60,7 @@ namespace miCompressor.core
         }
 
         /// <summary>
-        /// Stop any residual background tasks remaining for SaveWindowSize.
+        /// StopTimer any residual background tasks remaining for SaveWindowSize.
         /// Should be called when window is closing, not necessory. 
         /// </summary>
         public static void CleanupSizeCapture()

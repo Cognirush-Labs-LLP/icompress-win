@@ -34,6 +34,11 @@ namespace miCompressor.core
         private static readonly string cacheDirName = "cache";
 
         /// <summary>
+        /// To store temporary data such as log file zip before sending/copying to email. 
+        /// </summary>
+        private static readonly string commonTempDirName = "temp_data";
+
+        /// <summary>
         /// Temporary directory of the application. All temporary files are stored here.
         /// This only returns the path, does not guarantee the directory exists.
         /// </summary>
@@ -77,6 +82,14 @@ namespace miCompressor.core
             return Path.Combine(tempAppDir, cacheDirName, dirPath, fileName); 
         }
 
+        /// <summary>
+        /// Get the temp storage path for any intermediate file such as log zip.
+        /// </summary>
+        /// <returns>Path of temp App dir.</returns>
+        public static string GetCommonTempDir()
+        {
+            return Path.Combine(tempAppDir, commonTempDirName);
+        }
         /// <summary>
         /// Get the temp storage directory path for storing compressed files temporarily to be moved to designated location later if applicable.
         /// </summary>

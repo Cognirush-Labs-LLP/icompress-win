@@ -2,24 +2,12 @@ using miCompressor.core;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.Storage.AccessCache;
-using Windows.Storage.Pickers;
 using Windows.Storage;
-using miCompressor.core;
-using static miCompressor.ui.OutputFileSettingsView;
-using miCompressor.core.common;
+using Windows.Storage.Pickers;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -87,36 +75,22 @@ namespace miCompressor.ui
 
         private async void PickFolderButton_Click(object sender, RoutedEventArgs e)
         {
-            //disable the button to avoid double-clicking
-            var folderPickerButton = sender as Button;
-            folderPickerButton.IsEnabled = false;
-
-            FolderPicker openPicker = new Windows.Storage.Pickers.FolderPicker();
-
-            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow!);
-            WinRT.Interop.InitializeWithWindow.Initialize(openPicker, hWnd);
-
-            // Set options for your folder picker
-            //openPicker.SuggestedStartLocation = PickerLocationId.Desktop;
-            openPicker.FileTypeFilter.Add("*");
-
-            // Open the picker for the user to pick a folder
-            StorageFolder folder = await openPicker.PickSingleFolderAsync();
-            if (folder != null)
+            if (sender is Button folderPickerButton)
             {
-                //StorageApplicationPermissions.FutureAccessList.AddOrReplace("PickedFolderToken", folder);
-                FoderPathTextBox.Text = folder.Path;
-            }
+                folderPickerButton.IsEnabled = false;
 
-            //re-enable the button
-            folderPickerButton.IsEnabled = true;
+                string? selectedFolderPath = await FolderPickerHelper.PickFolderAsync(App.MainWindow!);
+                if (selectedFolderPath != null)
+                    FoderPathTextBox.Text = selectedFolderPath;
+
+                folderPickerButton.IsEnabled = true;
+            }
         }
 
-        
         public string FolderPathError = String.Empty;
         private void FoderPathTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if(String.IsNullOrWhiteSpace(FoderPathTextBox.Text))
+            if (String.IsNullOrWhiteSpace(FoderPathTextBox.Text))
             {
                 OutputSettings.outputFolder = String.Empty;
                 FolderPathError = "Provide output folder path.";
@@ -131,6 +105,28 @@ namespace miCompressor.ui
 
             FolderPathError = error;
             OnPropertyChanged(nameof(FolderPathError));
+        }
+
+        private void OutputLocationSettingsDropDownButton_Loaded(object sender, RoutedEventArgs e)
+        {
+            OutputLocationMenuFlyout.Items.Clear();
+            foreach (var setting in OutputLocationSettings)
+            {
+                var menuItem = new MenuFlyoutItem()
+                {
+                    Text = setting.Name,
+                    Tag = setting 
+                };
+                menuItem.Click += SelectedOutputLocationSettings_Click;
+                OutputLocationMenuFlyout.Items.Add(menuItem);
+            }
+        }
+
+        // When a flyout item is selected, update the bound property.
+        private void SelectedOutputLocationSettings_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem item)
+                SelectedOutputLocationSettingsItem = item.Tag as OutputLocationSettingsItem;
         }
     }
 }

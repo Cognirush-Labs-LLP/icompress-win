@@ -47,12 +47,12 @@ namespace miCompressor.core
         /// </summary>
         public string RelativeImageDirPath => Path.GetDirectoryName(RelativePath) ?? string.Empty;
 
-        private int width;
+        private uint width;
 
         /// <summary>
         /// The width of the input image in pixels.
         /// </summary>
-        public int Width
+        public uint Width
         {
             get => width;
             private set
@@ -64,11 +64,11 @@ namespace miCompressor.core
         }
 
 
-        private int height;
+        private uint height;
         /// <summary>
         /// The height of the input image in pixels.
         /// </summary>
-        public int Height
+        public uint Height
         {
             get => height;
             private set
@@ -93,7 +93,26 @@ namespace miCompressor.core
                 OnPropertyChanged(nameof(FileSizeToShow));
             }
         }
-        
+
+        public string FileSizeToShow => HumanReadable.FileSize(fileSize: FileSize);
+
+        private ulong _compressedFileSize;
+        /// <summary>
+        /// The size of the input image file in bytes.
+        /// </summary>
+        public ulong CompressedFileSize
+        {
+            get => _compressedFileSize;
+            private set
+            {
+                _compressedFileSize = value;
+                OnPropertyChanged(nameof(CompressedFileSize));
+                OnPropertyChanged(nameof(CompressedFileSizeToShow));
+            }
+        }
+
+        public string CompressedFileSizeToShow => HumanReadable.FileSize(fileSize: CompressedFileSize);
+
         [AutoNotify]
         private string? cameraModel;
 
@@ -129,13 +148,11 @@ namespace miCompressor.core
             get { return excludeAndHide && excludeAndShow; }
         }
 
-        public string FileSizeToShow => HumanReadable.FileSize(fileSize: FileSize);
-        
         public string DimensionsToShow
         {
-            get 
+            get
             {
-                return $"{width}x{height}"; 
+                return $"{width}x{height}";
             }
         }
 
@@ -153,7 +170,7 @@ namespace miCompressor.core
             SelectedRootPath = selectedPath;
             FileToCompress = mediaFile;
             ShortName = mediaFile.Name;
-            FileSize = (ulong) mediaFile.Length;
+            FileSize = (ulong)mediaFile.Length;
 
             // Load metadata asynchronously
             //UIThreadHelper.RunOnUIThreadAsync(async () => LoadImageMetadataAsync());
@@ -165,13 +182,13 @@ namespace miCompressor.core
         /// </summary>
         private async Task LoadImageMetadataAsync(bool force = false)
         {
-            if(!force && IsMetadataLoaded)
+            if (!force && IsMetadataLoaded)
                 return;
-            
+
             ImageMetadata? outputMeta = await LoadImageMetadataAsync(FileToCompress.FullName, loadFileSize: false);
             Width = outputMeta?.Width ?? 0;
             Height = outputMeta?.Height ?? 0;
-            
+
             OnPropertyChanged(nameof(DimensionsToShow));
             //CameraModel = outputMeta?.CameraModel;
             //DateTaken = outputMeta?.DateTaken;
@@ -194,9 +211,9 @@ namespace miCompressor.core
 
                 return new ImageMetadata
                 {
-                    Width = (int)properties.Width,
-                    Height = (int)properties.Height,
-                    FileSize = loadFileSize? (ulong)new FileInfo(filePath).Length : 0,
+                    Width = properties.Width,
+                    Height = properties.Height,
+                    FileSize = loadFileSize ? (ulong)new FileInfo(filePath).Length : 0,
                     //CameraModel = properties.CameraModel,
                     //DateTaken = properties.DateTaken
                 };
@@ -231,7 +248,7 @@ namespace miCompressor.core
         /// </list>
         /// <para>This method may throw an exception if required output settings are not provided.</para>
         /// </remarks>
-        public string GetOutputPath(OutputSettings outputSettings, bool onlyPreview)
+        public string GetOutputPath(OutputSettings outputSettings, bool multipleFolderSelected, bool onlyPreview)
         {
             string outputDirectory;
             string originalFileName = Path.GetFileNameWithoutExtension(FileToCompress.Name);
@@ -275,7 +292,12 @@ namespace miCompressor.core
                     case OutputLocationSetting.UserSpecificFolder:
                         if (!string.IsNullOrWhiteSpace(outputSettings.outputFolder))
                         {
-                            outputDirectory = Path.Combine(outputSettings.outputFolder, RelativeImageDirPath );
+                            if (multipleFolderSelected && Directory.Exists(SelectedRootPath))
+                            {
+                                outputDirectory = Path.Combine(outputSettings.outputFolder, Path.GetFileName(SelectedRootPath), RelativeImageDirPath);
+                            }
+                            else
+                                outputDirectory = Path.Combine(outputSettings.outputFolder, RelativeImageDirPath);
                         }
                         else
                         {
@@ -306,17 +328,20 @@ namespace miCompressor.core
         /// If compression fails, it copies the original file when appropriate.
         /// </summary>
         /// <param name="outputPath">The path where the compressed file was saved.</param>
-        /// <param name="expectedWidth">The expected width of the compressed image.</param>
-        /// <param name="expectedHeight">The expected height of the compressed image.</param>
+        /// <param name="outputSettings">The output settings to get height and width of output image.</param>
         /// <returns>
         /// A tuple with:
         /// 1. wasOriginalFileUsed (True if we discarded the compressed file and kept the original).
         /// 2. failedToFreezeOutput (True if the compressed file was corrupt or unreadable).
         /// </returns>
         public async Task<(bool wasOriginalFileUsed, bool failedToFreezeOutput)> FreezeOutputAsync(
-            string outputPath, int expectedWidth, int expectedHeight)
+            string outputPath, OutputSettings outputSettings)
         {
+            (uint expectedWidth, uint expectedHeight) = DimensionHelper.GetOutputDimensions(outputSettings, width, height);
+
             FileInfo outputFile = new FileInfo(outputPath);
+            outputFile.Refresh();
+            CompressedFileSize = (ulong) outputFile.Length;
 
             if (!outputFile.Exists)
             {
@@ -324,13 +349,16 @@ namespace miCompressor.core
                 if (ShouldCopyOriginal(expectedWidth, expectedHeight, outputPath))
                 {
                     File.Copy(FileToCompress.FullName, outputPath, overwrite: true);
+                    CompressedFileSize = FileSize;
                     return (true, false); // Original file used, output file missing but not corrupt
                 }
                 return (false, true); // Output file missing/corrupt and can't be replaced
             }
 
             // Load metadata for the compressed file
-            ImageMetadata? outputMeta = await LoadImageMetadataAsync(outputPath);
+            ImageMetadata? outputMeta = await LoadImageMetadataAsync(outputPath, loadFileSize: false);
+            if(outputMeta != null)
+                outputMeta.FileSize = (uint)outputFile.Length;
 
             if (outputMeta == null)
             {
@@ -338,6 +366,7 @@ namespace miCompressor.core
                 if (ShouldCopyOriginal(expectedWidth, expectedHeight, outputPath))
                 {
                     File.Copy(FileToCompress.FullName, outputPath, overwrite: true);
+                    CompressedFileSize = FileSize;
                     return (true, false); // Used original file, output file unreadable but not fatal
                 }
 
@@ -359,7 +388,7 @@ namespace miCompressor.core
                 }
 
                 File.Copy(FileToCompress.FullName, outputPath, overwrite: true);
-                outputFile.Delete();
+                CompressedFileSize = FileSize;
                 return (true, false); // Original file used instead of larger compressed file
             }
 
@@ -379,7 +408,7 @@ namespace miCompressor.core
         /// <param name="expectedHeight">Expected height of the output image.</param>
         /// <param name="outputPath">Path of the compressed file.</param>
         /// <returns>True if the original file should be copied instead.</returns>
-        private bool ShouldCopyOriginal(int expectedWidth, int expectedHeight, string outputPath)
+        private bool ShouldCopyOriginal(uint expectedWidth, uint expectedHeight, string outputPath)
         {
             return HasSameExtension(outputPath) && HasSameDimensions(expectedWidth, expectedHeight);
         }
@@ -411,7 +440,7 @@ namespace miCompressor.core
         /// <param name="width">Width of the file to compare.</param>
         /// <param name="height">Height of the file to compare.</param>
         /// <returns>True if the dimensions match the original.</returns>
-        private bool HasSameDimensions(int width, int height)
+        private bool HasSameDimensions(uint width, uint height)
         {
             return Width == width && Height == height;
         }
@@ -423,8 +452,8 @@ namespace miCompressor.core
         /// </summary>
         private class ImageMetadata
         {
-            public int Width { get; set; }
-            public int Height { get; set; }
+            public uint Width { get; set; }
+            public uint Height { get; set; }
             public ulong FileSize { get; set; }
             public string? CameraModel { get; set; }
             public DateTimeOffset? DateTaken { get; set; }

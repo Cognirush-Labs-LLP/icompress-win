@@ -156,7 +156,7 @@ namespace miCompressor.ui
         {
             var lengthVals = param as string;
             var sizes = lengthVals.Split(",");
-            if (int.TryParse(sizes[0].Trim(), out int sizeX) && int.TryParse(sizes[1].Trim(), out int sizeY))
+            if (uint.TryParse(sizes[0].Trim(), out uint sizeX) && uint.TryParse(sizes[1].Trim(), out uint sizeY))
                 App.OutputSettingsInstance.PrimaryEdgeLength = App.OutputSettingsInstance.PrimaryEdgeLength == sizeY ? sizeX : sizeY;
         });
     }
