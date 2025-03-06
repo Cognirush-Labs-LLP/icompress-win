@@ -71,6 +71,10 @@ namespace miCompressor.ui
                 _outputLocationSettingsItem = OutputLocationSettings.FirstOrDefault(o => o.Value == OutputSettings.OutputLocationSettings) ?? OutputLocationSettings.First();
                 OnPropertyChanged(nameof(SelectedOutputLocationSettingsItem));
             }
+            if (e.PropertyName == nameof(OutputSettings.OutputFolder))
+            {
+                FoderPathTextBox.Text = OutputSettings.OutputFolder;
+            }
         }
 
         private async void PickFolderButton_Click(object sender, RoutedEventArgs e)

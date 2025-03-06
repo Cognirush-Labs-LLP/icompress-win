@@ -401,3 +401,4 @@ FodyWeavers.xsd
 MIC_Source/doc/*.md
 MIC_Source/doc2/
 MIC_Source/miCompressor/Assets/Icons/source/output/
+MIC_Source/miCompressor.IntegrationTests/test_imgs/output/

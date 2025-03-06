@@ -59,13 +59,13 @@
                     </Setter>
                 </Style>
             </Grid.Resources>
-            <CommandBar  Grid.Column="0"  Grid.ColumnSpan="4" Grid.Row="0" IsOpen="False" HorizontalAlignment="Left" DefaultLabelPosition="Right" Margin="5">
-                <AppBarButton Name="CancelButton" Label="Cancel" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" Click="CancelButton_Click" >
+            <CommandBar  Grid.Column="0"  Grid.ColumnSpan="4" Grid.Row="0" IsOpen="False" HorizontalAlignment="Left" DefaultLabelPosition="Right" >
+                <AppBarButton Name="CancelButton" Label="Cancel"  Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" Click="CancelButton_Click" >
                     <AppBarButton.Icon>
                         <FontIcon Glyph="&#xE711;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
-                <AppBarButton Name="BackButton" Label="Back" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" Click="BackButton_Click" >
+                <AppBarButton Name="BackButton" Label="Back" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" BorderThickness="1" FontSize="{StaticResource TextSmall}" Click="BackButton_Click" >
                     <AppBarButton.Icon>
                         <FontIcon Glyph="&#xE72B;" />
                     </AppBarButton.Icon>
@@ -75,7 +75,7 @@
             <TextBlock Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="4" HorizontalAlignment="Center" Text="Processing.." Style="{StaticResource TextBlockH2}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
             <TextBlock Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" Grid.ColumnSpan="4"  Text="Done!" Style="{StaticResource TextBlockH2}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" />
 
-            <local:PieChart Grid.Column="1" Grid.Row="2"  HorizontalAlignment="Center" Margin="40" VerticalAlignment="Center" Data="{x:Bind CompressionProgressVisuals, Mode=OneWay}"/>
+            <local:PieChart Grid.Column="1" Grid.Row="2"  HorizontalAlignment="Center" Margin="40" VerticalAlignment="Center" Data="{x:Bind CompressionProgressVisuals, Mode=OneWay}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
             <Grid Grid.Column="2" Grid.Row="2">
                 <Grid.ColumnDefinitions>
@@ -100,7 +100,7 @@
                 </Grid.RowDefinitions>
 
 
-                <TextBlock Grid.Column="0" Grid.Row="2" Text="Took" Style="{StaticResource LabelStyle}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" />
+                <TextBlock Grid.Column="0" Grid.Row="1" Text="Took" Style="{StaticResource LabelStyle}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" />
                 <TextBlock Grid.Column="1" Grid.Row="1" VerticalAlignment="Center"  Style="{StaticResource ValueStyle}" FontSize="{StaticResource TextMedium}" Text="{x:Bind vm.TimeToShow, Mode=OneWay}" />
 
                 <TextBlock Grid.Column="0" Grid.Row="2" Text="Total" Style="{StaticResource LabelStyle}" />
@@ -116,13 +116,24 @@
                 <TextBlock Grid.Column="1" Grid.Row="5" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.TotalFilesCancelled, Mode=OneWay}" />
 
                 <TextBlock Grid.Column="0" Grid.Row="6" Text="Original Size" Style="{StaticResource LabelStyle}" />
-                <TextBlock Grid.Column="1" Grid.Row="6" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.OriginalSize, Mode=OneWay}" />
+                <TextBlock Grid.Column="1" Grid.Row="6" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.OriginalSize, Mode=OneWay}" MinWidth="120" />
 
                 <TextBlock Grid.Column="0" Grid.Row="7" Text="Compressed Size" Style="{StaticResource LabelStyle}" />
                 <TextBlock Grid.Column="1" Grid.Row="7" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.CompressedSize, Mode=OneWay}" />
 
+                <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="8" CornerRadius="20"  BorderThickness="1" BorderBrush="{StaticResource Acccent_20}" Background="{StaticResource Acccent_05}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" />
                 <TextBlock Grid.Column="0" Grid.Row="8" Text="Reduced" Style="{StaticResource LabelStyle}" />
                 <TextBlock Grid.Column="1" Grid.Row="8" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.PercentageReduction, Mode=OneWay}" />
+
+                
+                <Button Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="9" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Margin="20" x:Name="OpenOutputFolderButton" Click="OpenOutputFolderButton_Click" 
+                        Visibility="{x:Bind ShowOutputFolderLink, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon Glyph="&#xE838;" />
+                        <TextBlock HorizontalAlignment="Center" Margin="10,5" Text="Open Output Foder" />
+                    </StackPanel>
+                </Button>
+
             </Grid>
 
         </Grid>

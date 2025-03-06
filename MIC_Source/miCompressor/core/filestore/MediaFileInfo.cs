@@ -294,7 +294,7 @@ namespace miCompressor.core
                         {
                             if (multipleFolderSelected && Directory.Exists(SelectedRootPath))
                             {
-                                outputDirectory = Path.Combine(outputSettings.outputFolder, Path.GetFileName(SelectedRootPath), RelativeImageDirPath);
+                                outputDirectory = Path.Combine(outputSettings.outputFolder, new DirectoryInfo(SelectedRootPath).Name, RelativeImageDirPath);
                             }
                             else
                                 outputDirectory = Path.Combine(outputSettings.outputFolder, RelativeImageDirPath);

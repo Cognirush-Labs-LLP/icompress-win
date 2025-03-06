@@ -188,7 +188,7 @@ namespace miCompressor.ui.viewmodel
             // Walk upwards, but stop at the selected root
             while (!nodeLookup.ContainsKey(currentPath) && currentPath.StartsWith(selectedRoot, StringComparison.OrdinalIgnoreCase))
             {
-                missingFolders.Push(Path.GetFileName(currentPath)); // Store missing folder names
+                missingFolders.Push(Path.GetFileName(currentPath.TrimEnd(Path.DirectorySeparatorChar))); // Store missing folder names
                 string parentPath = Path.GetDirectoryName(currentPath);
 
                 if (string.IsNullOrEmpty(parentPath) || parentPath == currentPath || parentPath.Length < selectedRoot.Length)

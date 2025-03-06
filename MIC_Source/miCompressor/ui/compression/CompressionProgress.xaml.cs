@@ -2,7 +2,10 @@ using miCompressor.core;
 using miCompressor.ui.viewmodel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using Windows.System;
 using Windows.UI;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -15,6 +18,15 @@ namespace miCompressor.ui
         public CompressionViewModel vm => App.CurrentState.CompressionViewModel;
 
         [AutoNotify] public List<PieChartData> compressionProgressVisuals = new();
+
+        public bool ShowOutputFolderLink
+        {
+            get
+            {
+                return App.OutputSettingsInstance.OutputLocationSettings == OutputLocationSetting.UserSpecificFolder
+                    && Directory.Exists(App.OutputSettingsInstance.OutputFolder) && vm.CompressionInProgress == false;
+            }
+        }
 
         public CompressionProgress()
         {
@@ -36,6 +48,8 @@ namespace miCompressor.ui
                     new() { Label="Failed", Value=vm.TotalFilesFailedToCompress, Color = Color.FromArgb(255,  217, 92, 108) },
                     new() { Label="Cancelled", Value= vm.TotalFilesCancelled, Color = Color.FromArgb(255,  92, 128, 217) },
                 };
+
+                OnPropertyChanged(nameof(ShowOutputFolderLink));
             }
         }
 
@@ -48,6 +62,14 @@ namespace miCompressor.ui
         private async void BackButton_Click(object sender, RoutedEventArgs e)
         {
             App.CurrentState.ShowCompressionProgress = false;
+        }
+
+        private async void OpenOutputFolderButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            if (App.OutputSettingsInstance.OutputFolder != null && Directory.Exists(App.OutputSettingsInstance.OutputFolder))
+            {
+                await Launcher.LaunchFolderPathAsync(App.OutputSettingsInstance.OutputFolder);
+            }
         }
     }
 }

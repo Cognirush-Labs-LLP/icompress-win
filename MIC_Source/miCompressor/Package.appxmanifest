@@ -40,30 +40,6 @@
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
-      <Extensions>
-        <uap:Extension Category="windows.fileTypeAssociation">
-          <uap:FileTypeAssociation Name="mic">
-            <uap:SupportedFileTypes>
-              <uap:FileType ContentType="image/jpeg">.jpg</uap:FileType>
-              <uap:FileType ContentType="image/jpeg">.jpeg</uap:FileType>
-              <uap:FileType ContentType="image/jpeg">.jpe</uap:FileType>
-              <uap:FileType ContentType="image/png">.png</uap:FileType>
-              <uap:FileType ContentType="image/png">.apng</uap:FileType>
-              <uap:FileType ContentType="image/tiff">.tif</uap:FileType>
-              <uap:FileType ContentType="image/tiff">.tiff</uap:FileType>
-              <uap:FileType ContentType="image/webp">.webp</uap:FileType>
-              <uap:FileType ContentType="image/bmp">.bmp</uap:FileType>
-              <uap:FileType ContentType="image/heic">.heic</uap:FileType>
-              <uap:FileType ContentType="image/heif">.heif</uap:FileType>
-              <uap:FileType ContentType="image/avif">.avif</uap:FileType>
-              <uap:FileType ContentType="image/gif">.gif</uap:FileType>
-            </uap:SupportedFileTypes>
-            <uap:DisplayName>Mass Image Compressor</uap:DisplayName>
-            <uap:Logo>Assets\StoreLogo.png</uap:Logo>
-            <uap:InfoTip>Convert, Resize, Compress Images in Batch</uap:InfoTip>
-          </uap:FileTypeAssociation>
-        </uap:Extension>
-      </Extensions>
     </Application>
   </Applications>
 
