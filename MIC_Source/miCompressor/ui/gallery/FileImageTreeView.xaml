@@ -55,7 +55,7 @@
         <TreeView x:Name="SelectedPathTreeView" ItemsSource="{x:Bind ViewModel.ImageTree, Mode=OneWay}" SelectionMode="None" >
             <TreeView.ItemTemplate>
                 <DataTemplate x:DataType="vm:ImageTreeNode">
-                    <TreeViewItem ItemsSource="{x:Bind Children}" Content="{x:Bind}" ContentTemplateSelector="{StaticResource ImageFolderTemplateSelector}">
+                    <TreeViewItem ItemsSource="{x:Bind AllChildren}" Content="{x:Bind}" ContentTemplateSelector="{StaticResource ImageFolderTemplateSelector}">
 
                     </TreeViewItem>
                 </DataTemplate>

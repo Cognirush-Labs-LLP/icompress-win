@@ -26,8 +26,9 @@ namespace miCompressor
             this.SizeChanged += (sender, args) => PersistentSettings.SaveWindowSize(this);
             this.Closed += MainWindow_Closed;
 
+
 #if DEBUG
-            AppWindow.Resize(new Windows.Graphics.SizeInt32(800, 700));
+            AppWindow.Resize(new Windows.Graphics.SizeInt32(900, 700));
 #endif
         }
                 

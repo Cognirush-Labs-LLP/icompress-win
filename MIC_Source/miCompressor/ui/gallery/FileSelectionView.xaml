@@ -11,7 +11,25 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
+        <Grid.Resources>
+            <!-- Fade-In Animation -->
+            <Storyboard x:Name="FadeInAnimation">
+                <DoubleAnimation Storyboard.TargetName="FilterOptions"
+                         Storyboard.TargetProperty="Opacity"
+                         From="0" To="1"
+                         Duration="0:0:0.1" />
+            </Storyboard>
+
+            <!-- Fade-Out Animation -->
+            <Storyboard x:Name="FadeOutAnimation">
+                <DoubleAnimation Storyboard.TargetName="FilterOptions"
+                         Storyboard.TargetProperty="Opacity"
+                         From="1" To="0"
+                         Duration="0:0:0.1" />
+            </Storyboard>
+        </Grid.Resources>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -28,8 +46,19 @@
                 <FontIcon Glyph="&#xE710;" FontSize="{StaticResource TextMedium}"/>
             </Button>
         </Grid>
+
         
         <CommandBar Grid.Row="1" IsOpen="False" DefaultLabelPosition="Right" Margin="10">
+            
+            <AppBarButton Name="ShowFilterButton" Label="Hide Filters" Click="ShowFilterButton_Click">
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xE71C;"/>
+                </AppBarButton.Icon>
+                <AppBarButton.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="F" Modifiers="Control" Invoked="ShowFilterKeyboardAccelerator_Invoked"/>
+                </AppBarButton.KeyboardAccelerators>
+            </AppBarButton>
+            
             <AppBarElementContainer VerticalAlignment="Center" Visibility="{x:Bind IsEmptyViewVisible, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}">
                 <StackPanel>
                     <DropDownButton ToolTipService.ToolTip="Image thumbnails view settings" FontSize="{StaticResource TextSmall}">
@@ -81,7 +110,10 @@
             </AppBarButton>
             
         </CommandBar>
-        <ListView Grid.Row="2" ItemsSource="{x:Bind FileStore.SelectedPaths}"
+        
+        <local:FiltersView x:Name="FilterOptions" Grid.Row="2" />
+        
+        <ListView Grid.Row="3" ItemsSource="{x:Bind FileStore.SelectedPaths}"
                       VerticalAlignment="Stretch" SelectionMode="None"
                       HorizontalAlignment="Stretch"
                       ScrollViewer.HorizontalScrollMode="Auto"

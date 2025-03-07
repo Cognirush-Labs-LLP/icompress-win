@@ -115,6 +115,32 @@ namespace miCompressor.ui
             AddFolderButton.IsEnabled = true;
         }
 
+        private async void ShowFilterButton_Click(object sender, RoutedEventArgs e)
+        {
+            var isFilterOptionVisible = FilterOptions.Visibility == Visibility.Visible;
+            if (isFilterOptionVisible)
+                HideFilterOptions();
+            else 
+                ShowFilterOptions();
+
+            ShowFilterButton.Label = isFilterOptionVisible ? "Show Filters" : "Hide Filters"; // reverse as we just toggled visibility value. 
+        }
+
+        private void ShowFilterOptions()
+        {
+            FilterOptions.Visibility = Visibility.Visible; // Make it render
+            FadeInAnimation.Begin(); // Start fade-in effect
+        }
+
+        private void HideFilterOptions()
+        {
+            FadeOutAnimation.Completed += (s, e) =>
+            {
+                FilterOptions.Visibility = Visibility.Collapsed; // Hide after animation ends
+            };
+            FadeOutAnimation.Begin();
+        }
+
         private async void AddFolderKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
         {
             AddFolderButton_Click(sender, new RoutedEventArgs());
@@ -126,6 +152,12 @@ namespace miCompressor.ui
             AddFilesButton_Click(sender, new RoutedEventArgs());
             args.Handled = true;
         }
+        private async void ShowFilterKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+        {
+            ShowFilterButton_Click(sender, new RoutedEventArgs());
+            args.Handled = true;
+        }
+        
 
         private void AddInputPathButton_Click(object sender, RoutedEventArgs e)
         {
@@ -190,7 +222,6 @@ namespace miCompressor.ui
                 ThumbSettingOptionIcon_Selected = ThumbSettingOptionIcon_Show;
             if (App.CurrentState.ShowImageIconInFileSelectionTreeView == false && App.CurrentState.ShowImageIconInFileSelectionTreeViewWhenMouseHovers == true)
                 ThumbSettingOptionIcon_Selected = ThumbSettingOptionIcon_OnHover;
-
         }
     }
 }

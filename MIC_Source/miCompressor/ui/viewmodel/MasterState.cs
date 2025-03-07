@@ -36,6 +36,8 @@ namespace miCompressor.viewmodel
         [AutoNotify]
         public bool showCompressionProgress = false;
 
+        public Filter SelectionFilter = new();
+
         /// <summary>
         /// Constructor initializes with `EmptyFilesView`
         /// </summary>

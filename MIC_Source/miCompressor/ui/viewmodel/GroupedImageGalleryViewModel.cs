@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -28,7 +29,7 @@ namespace miCompressor.ui.viewmodel
             {
                 if (_currentSelectedPathWeak == null) return null;
                 SelectedPath selectedPath;
-                if(_currentSelectedPathWeak.TryGetTarget(out selectedPath))
+                if (_currentSelectedPathWeak.TryGetTarget(out selectedPath))
                     return selectedPath;
                 return null;
             }
@@ -173,7 +174,7 @@ namespace miCompressor.ui.viewmodel
                 FileInfo = file
             };
 
-            parentNode.Children.Add(fileNode);
+            parentNode.AllChildren.Add(fileNode);
         }
 
         private ImageTreeNode CreateFolderNodes(ImageTreeNode root, string fullPath, Dictionary<string, ImageTreeNode> nodeLookup)
@@ -207,7 +208,7 @@ namespace miCompressor.ui.viewmodel
             {
                 string folderName = missingFolders.Pop();
                 var newFolderNode = new ImageTreeNode(folderName, true, parentNode);
-                parentNode.Children.Add(newFolderNode);
+                parentNode.AllChildren.Add(newFolderNode);
                 parentNode = newFolderNode;
                 currentPath = Path.Combine(currentPath, folderName);
                 nodeLookup[currentPath] = newFolderNode;
@@ -224,33 +225,33 @@ namespace miCompressor.ui.viewmodel
 
             // Merge nodes: while the node has exactly one child and that child is a folder,
             // merge the child’s ShortName into the parent and splice in its children.
-            while (nodeToShorten.Children.Count == 1 && nodeToShorten.Children[0].IsFolder)
+            while (nodeToShorten.AllChildren.Count == 1 && nodeToShorten.AllChildren[0].IsFolder)
             {
-                var child = nodeToShorten.Children[0];
+                var child = nodeToShorten.AllChildren[0];
                 // Combine the ShortNames using the system’s directory separator.
                 nodeToShorten.ShortName = $"{nodeToShorten.ShortName}{Path.DirectorySeparatorChar}{child.ShortName}";
 
                 // Replace the current node's children with the merged child's children.
-                nodeToShorten.Children.Clear();
-                foreach (var grandchild in child.Children)
+                nodeToShorten.AllChildren.Clear();
+                foreach (var grandchild in child.AllChildren)
                 {
-                    nodeToShorten.Children.Add(grandchild);
+                    nodeToShorten.AllChildren.Add(grandchild);
                 }
             }
 
             // Sort children: first folders (sorted by ShortName) then files (sorted by ShortName)
-            var sortedChildren = nodeToShorten.Children
+            var sortedChildren = nodeToShorten.AllChildren
                 .OrderBy(child => child.IsFolder ? 0 : 1)
                 .ThenBy(child => child.ShortName)
                 .ToList();
-            nodeToShorten.Children.Clear();
+            nodeToShorten.AllChildren.Clear();
             foreach (var child in sortedChildren)
             {
-                nodeToShorten.Children.Add(child);
+                nodeToShorten.AllChildren.Add(child);
             }
 
             // Recursively process each child.
-            foreach (var child in nodeToShorten.Children)
+            foreach (var child in nodeToShorten.AllChildren)
             {
                 ShortenTree(child);
             }
@@ -362,7 +363,15 @@ namespace miCompressor.ui.viewmodel
         public bool IsImage => !IsFolder;
 
         public ImageTreeNode parent;
-        public ObservableCollection<ImageTreeNode> Children { get; } = new();
+        public ObservableCollection<ImageTreeNode> AllChildren { get; } = new();
+        public List<ImageTreeNode> FilteredChildren
+        {
+            get
+            {
+                return AllChildren.Where(child => child.FileInfo == null || !child.FileInfo.ExcludeAndHide).ToList();
+            }
+        }
+
 
         private List<ImageTreeNode> _images = null;
         public List<ImageTreeNode> Images
@@ -370,8 +379,8 @@ namespace miCompressor.ui.viewmodel
             get
             {
                 if (_images == null)
-                    _images = Children.Where(node => node.IsImage && node.FileInfo != null).ToList();
-                
+                    _images = AllChildren.Where(node => node.IsImage && node.FileInfo != null).ToList();
+
                 return _images;
             }
         }
@@ -419,7 +428,7 @@ namespace miCompressor.ui.viewmodel
             {
                 if (IsFolder)
                 {
-                    int fileCount = Children.Count(child => !child.IsFolder);
+                    int fileCount = AllChildren.Count(child => !child.IsFolder);
                     return fileCount > 0 ? $"{ShortName} ({fileCount})" : ShortName;
                 }
                 else if (FileInfo != null)
@@ -441,7 +450,7 @@ namespace miCompressor.ui.viewmodel
                 if (FileInfo != null)
                     FileInfo.ExcludeAndShow = !value;
                 // Apply the same value to all children recursively
-                foreach (var child in Children)
+                foreach (var child in AllChildren)
                 {
                     child.IsIncluded = value;
                 }
@@ -463,11 +472,11 @@ namespace miCompressor.ui.viewmodel
         {
             get
             {
-                if (Children.Count == 0)
+                if (AllChildren.Count == 0)
                     return IsIncluded; // No children, binary state
 
-                bool allSelected = Children.All(c => c.SelectionState == true);
-                bool noneSelected = Children.All(c => c.SelectionState == false);
+                bool allSelected = AllChildren.All(c => c.SelectionState == true);
+                bool noneSelected = AllChildren.All(c => c.SelectionState == false);
 
                 if (allSelected)
                     return true;
@@ -516,7 +525,7 @@ namespace miCompressor.ui.viewmodel
         private void SubscribeToChangeInChildStatusImageTreeNode()
         {
             // Subscribe to changes in children
-            foreach (var child in Children)
+            foreach (var child in AllChildren)
             {
                 child.PropertyChanged += Child_PropertyChanged;
             }
@@ -528,7 +537,7 @@ namespace miCompressor.ui.viewmodel
         private void UnsubscribeToChangeInChildStatusImageTreeNode()
         {
             // Subscribe to changes in children
-            foreach (var child in Children)
+            foreach (var child in AllChildren)
             {
                 child.PropertyChanged -= Child_PropertyChanged;
             }
@@ -575,7 +584,7 @@ namespace miCompressor.ui.viewmodel
                 return 1;
 
             int count = 0;
-            foreach (var child in node.Children)
+            foreach (var child in node.AllChildren)
             {
                 count += GetImageFileCount(child);
             }
@@ -594,7 +603,7 @@ namespace miCompressor.ui.viewmodel
                 return node.FileInfo == null ? 0 : ((node.FileInfo.ExcludeAndShow || node.FileInfo.ExcludeAndHide) ? 0 : 1);
 
             int count = 0;
-            foreach (var child in node.Children)
+            foreach (var child in node.AllChildren)
             {
                 count += GetImageSelectedFileCount(child);
             }
@@ -619,7 +628,7 @@ namespace miCompressor.ui.viewmodel
                 return node.FileInfo?.FileSize ?? 0;
 
             ulong count = 0;
-            foreach (var child in node.Children)
+            foreach (var child in node.AllChildren)
             {
                 count += GetImageFileSizeOfAllChild(child);
             }
@@ -642,7 +651,7 @@ namespace miCompressor.ui.viewmodel
                 return node.FileInfo == null ? 0 : ((node.FileInfo.ExcludeAndShow || node.FileInfo.ExcludeAndHide) ? 0 : node.FileInfo.FileSize);
 
             ulong count = 0;
-            foreach (var child in node.Children)
+            foreach (var child in node.AllChildren)
             {
                 count += GetSelectedImageFileSizeOfAllChild(child);
             }
@@ -659,6 +668,15 @@ namespace miCompressor.ui.viewmodel
             }
             else if (e.PropertyName == nameof(MediaFileInfo.FileSize))
             {
+                OnPropertyChanged(nameof(FileSize));
+            }
+            else if (e.PropertyName == nameof(MediaFileInfo.ExcludeAndHide))
+            {
+                OnPropertyChanged(nameof(SelectionState));
+                OnPropertyChanged(nameof(IsIncluded));
+                CalculateSelectedImageFileCount();
+                OnPropertyChanged(nameof(FilteredChildren));
+                OnPropertyChanged(nameof(SelectedFileCountString));
                 OnPropertyChanged(nameof(FileSize));
             }
         }

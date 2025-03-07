@@ -31,7 +31,7 @@
             </TreeView.ItemContainerStyle>
             <TreeView.ItemTemplate>
                 <DataTemplate x:DataType="vm:ImageTreeNode">
-                    <TreeViewItem ItemsSource="{x:Bind Children}">
+                    <TreeViewItem ItemsSource="{x:Bind FilteredChildren, Mode=OneWay}">
                         <StackPanel x:Name="ImageInfoStackpanel" Orientation="Horizontal" HorizontalAlignment="Left" PointerEntered="Image_PointerEntered" PointerExited="Image_PointerExited">
                             <!-- Checkbox for selecting files/folders -->
                             <FlyoutBase.AttachedFlyout>

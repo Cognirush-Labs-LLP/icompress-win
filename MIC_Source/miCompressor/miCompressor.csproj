@@ -65,6 +65,7 @@
     <None Remove="ui\FileSelectionView.xaml" />
     <None Remove="ui\gallery\FileImageTreeView.xaml" />
     <None Remove="ui\gallery\FileTreeSelectionView.xaml" />
+    <None Remove="ui\gallery\FiltersView.xaml" />
     <None Remove="ui\MasterView.xaml" />
     <None Remove="ui\preview\PreviewView.xaml" />
     <None Remove="ui\RightPanelView.xaml" />
@@ -238,6 +239,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets\Icons\source\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="ui\gallery\FiltersView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="ui\RightPanelView.xaml">
