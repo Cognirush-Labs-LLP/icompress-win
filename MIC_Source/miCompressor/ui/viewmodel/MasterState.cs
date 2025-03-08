@@ -52,6 +52,31 @@ namespace miCompressor.viewmodel
 
             this.PropertyChanged += MasterState_PropertyChanged;
             this.CompressionViewModel.PropertyChanged += CompressionViewModel_PropertyChanged;
+            this.FileStore.PropertyChanged += FileStore_PropertyChanged;
+        }
+
+        private void FileStore_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if(e.PropertyName == nameof(FileStore.SelectedPaths))
+            {
+                foreach (var selectedPath in FileStore.SelectedPaths)
+                {
+                    selectedPath.PropertyChanged -= SelectedPath_PropertyChanged;
+                    selectedPath.PropertyChanged += SelectedPath_PropertyChanged;
+                }
+            }
+        }
+
+        private void SelectedPath_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if(e.PropertyName == nameof(SelectedPath.Files))
+            {
+                var selectedPath = sender as SelectedPath;
+                if (selectedPath == null) return;
+
+                foreach (var file in selectedPath.Files)
+                    SelectionFilter.Apply(file);
+            }
         }
 
         private void CompressionViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)

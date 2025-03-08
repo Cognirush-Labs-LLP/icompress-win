@@ -1,9 +1,11 @@
 ﻿using miCompressor.core;
+using Microsoft.UI.Content;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.Design;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -368,7 +370,8 @@ namespace miCompressor.ui.viewmodel
         {
             get
             {
-                return AllChildren.Where(child => child.FileInfo == null || !child.FileInfo.ExcludeAndHide).ToList();
+                return AllChildren.Where(child => (child.FileInfo == null && child.FilteredChildren.Count > 0) 
+                || (child.FileInfo != null && !child.FileInfo.ExcludeAndHide)).ToList();
             }
         }
 
@@ -672,13 +675,37 @@ namespace miCompressor.ui.viewmodel
             }
             else if (e.PropertyName == nameof(MediaFileInfo.ExcludeAndHide))
             {
-                OnPropertyChanged(nameof(SelectionState));
-                OnPropertyChanged(nameof(IsIncluded));
-                CalculateSelectedImageFileCount();
-                OnPropertyChanged(nameof(FilteredChildren));
-                OnPropertyChanged(nameof(SelectedFileCountString));
-                OnPropertyChanged(nameof(FileSize));
+                ThrottleTask.Add(100, $"ImageTreeNode_FileInfo_{FullPath}PropertyChanged",() => {
+
+                    OnPropertyChanged(nameof(SelectionState));
+                    OnPropertyChanged(nameof(IsIncluded));
+                    CalculateSelectedImageFileCount();
+                    //OnPropertyChanged(nameof(FilteredChildren));
+                    OnPropertyChanged(nameof(SelectedFileCountString));
+                    OnPropertyChanged(nameof(FileSize));
+
+                    var superParent = this;
+                    while (superParent.parent != null)
+                        superParent = superParent.parent;
+
+                    superParent.RaiseFilteredChildrenChangedAsSuperParent();
+                }, true);
             }
+        }
+
+        /// <summary>
+        /// Raise this even for parent only.
+        /// </summary>
+        public void RaiseFilteredChildrenChangedAsSuperParent()
+        {
+            if (parent != null)
+                return;
+
+            ThrottleTask.Add(100, $"ImageTreeNode_{FullPath}_FileInfo_RaiseFilteredChildrenChanged_PropertyChanged", () =>
+            {
+                Debug.WriteLine($"Raising FilteredChildren for {FullPath}");
+                OnPropertyChanged(nameof(FilteredChildren));
+            }, true);
         }
     }
 }

@@ -316,6 +316,11 @@ public partial class MediaFileInfo
         return placeholder;
     }
 
+    public void Cleanup()
+    {
+        this.PropertyChanged = null;
+    }
+
     ~MediaFileInfo()
     {
         s_thumbnailTasks.TryRemove(s_thumbnailTasksKey, out _);

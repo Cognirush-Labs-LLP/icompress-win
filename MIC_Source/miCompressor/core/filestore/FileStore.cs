@@ -133,14 +133,6 @@ namespace miCompressor.core
             _cancellationTokenSource?.Cancel();
         }
 
-        public void Cleanup()
-        {
-            for (int i = 0; i < 1000 && ScanningForFiles; i++) // wait for 1 second max if still scanning
-                Thread.Sleep(1);
-
-            _cancellationTokenSource?.Dispose();
-        }
-
         /// <summary>
         /// Scans the directory asynchronously and updates the file list.
         /// Only files with supported extensions are included.
@@ -160,7 +152,7 @@ namespace miCompressor.core
                 {
                     using (_lockForFiles.WriteLock())
                     {
-                        _files.Clear();
+                        ClearFiles();
                         _files.Add(new MediaFileInfo(basePath, new FileInfo(basePath)));
                     }
                     OnPropertyChanged(nameof(Files));
@@ -174,7 +166,7 @@ namespace miCompressor.core
                         {
                             using (_lockForFiles.WriteLock())
                             {
-                                _files.Clear();
+                                ClearFiles();
                             }
                             OnPropertyChanged(nameof(Files));
                             PopulateAllFilesForSupportedExtension(CodeConsts.SupportedInputExtensionsWithDot, Path, Path, IncludeSubDirectories, cancellationToken);
@@ -191,6 +183,13 @@ namespace miCompressor.core
                 ScanningForFiles = false;
                 OnPropertyChanged(nameof(Files));
             }
+        }
+
+        private void ClearFiles()
+        {
+            foreach (var file in _files)
+                file.Cleanup();
+            _files.Clear();
         }
 
         /// <summary>
@@ -255,6 +254,19 @@ namespace miCompressor.core
                 System.Diagnostics.Debug.WriteLine($"Error while scanning directory: {di.FullName}. Error: {ex.Message}");
             }
         }
+
+        public void Cleanup()
+        {
+            this.PropertyChanged = null;
+            
+            foreach (var file in _files)
+                file.Cleanup();
+        }
+
+        ~SelectedPath()
+        {
+            _cancellationTokenSource?.Dispose();
+        }
     }
 
     /// <summary>
@@ -266,7 +278,7 @@ namespace miCompressor.core
         private readonly ObservableCollection<SelectedPath> _uiStore = new(); // UI-friendly ObservableCollection
 
         private readonly ReaderWriterLockSlim _lock = new(LockRecursionPolicy.SupportsRecursion);
-        private readonly object _uiStoreLock = new(); //plain simle lock for observable collection for UI. Optimizaiton not required.
+        private readonly object _uiStoreLock = new(); //plain simle lock for observable collection for UI. Optimization not required.
 
 
         /// <summary>
@@ -363,6 +375,7 @@ namespace miCompressor.core
                     OnPropertyChanged(nameof(SelectedPaths));
                 });
                 selectedPath.CancelScanning();
+                selectedPath.Cleanup();
                 //OnPropertyChanged(nameof(SelectedPaths));
                 return true;
             }
@@ -396,6 +409,7 @@ namespace miCompressor.core
             using (_lock.WriteLock())
             {
                 _store.ForEach(selectedPath => selectedPath.CancelScanning());
+                _store.ForEach(selectedPath => selectedPath.Cleanup());
                 _store.Clear();
                 UIThreadHelper.RunOnUIThread(() =>
                 {
