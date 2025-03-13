@@ -57,6 +57,13 @@
   </ItemGroup>
   
   <ItemGroup>
+    <None Remove="3rdParty_x64\apngopt.exe" />
+    <None Remove="3rdParty_x64\ffmpeg.exe" />
+    <None Remove="3rdParty_x64\gif2apng.exe" />
+    <None Remove="3rdParty_x64\gifdiff.exe" />
+    <None Remove="3rdParty_x64\gifsicle.exe" />
+    <None Remove="3rdParty_x64\oxipng.exe" />
+    <None Remove="3rdParty_x64\OXIPNG_LICENSE.txt" />
     <None Remove="Assets\Icons\source\createFrom256Png.bat" />
     <None Remove="Assets\Icons\source\mic_256.png" />
     <None Remove="ui\compression\CompressionProgress.xaml" />
@@ -87,6 +94,21 @@
 
 
   <ItemGroup>
+    <Content Include="3rdParty_x64\apngopt.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="3rdParty_x64\ffmpeg.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="3rdParty_x64\gif2apng.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="3rdParty_x64\gifdiff.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="3rdParty_x64\gifsicle.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\SplashScreen.scale-200.png" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\Square150x150Logo.scale-200.png" />
@@ -120,7 +142,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(Platform)' == 'x64'">
-    <PackageReference Include="Magick.NET-Q8-OpenMP-x64" Version="14.4.0" />
+    <PackageReference Include="Magick.NET-Q8-OpenMP-x64" Version="14.5.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(Platform)' == 'arm64'">
@@ -241,6 +263,14 @@
     <Folder Include="Assets\Icons\source\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="3rdParty_x64\oxipng.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="3rdParty_x64\OXIPNG_LICENSE.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <Page Update="ui\gallery\FiltersView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -280,4 +310,7 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="robocopy &quot;$(ProjectDir)3rdParty_x64\exiftool&quot; &quot;$(OutDir)3rdParty_x64\exiftool&quot; /E /NFL /NDL /NJH /NJS&#xD;&#xA;exit 0" />
+  </Target>
 </Project>

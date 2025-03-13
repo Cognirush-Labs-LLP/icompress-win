@@ -120,7 +120,7 @@ namespace miCompressor.ui
             var isFilterOptionVisible = FilterOptions.Visibility == Visibility.Visible;
             if (isFilterOptionVisible)
                 HideFilterOptions();
-            else 
+            else
                 ShowFilterOptions();
 
             ShowFilterButton.Label = isFilterOptionVisible ? "Show Filters" : "Hide Filters"; // reverse as we just toggled visibility value. 
@@ -157,7 +157,7 @@ namespace miCompressor.ui
             ShowFilterButton_Click(sender, new RoutedEventArgs());
             args.Handled = true;
         }
-        
+
 
         private void AddInputPathButton_Click(object sender, RoutedEventArgs e)
         {
@@ -186,6 +186,18 @@ namespace miCompressor.ui
             {
                 AddInputPathButton_Click(sender, new RoutedEventArgs());
             }
+        }
+
+        public bool InputPathExists {
+            get
+            {
+                return !String.IsNullOrEmpty(InputPathTextBox.Text) && (File.Exists(InputPathTextBox.Text.Trim()) || Directory.Exists(InputPathTextBox.Text.Trim()));
+            }
+        }
+
+        private void InputPathTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(InputPathExists));
         }
 
         private void OnThumbSettingSelected(object sender, RoutedEventArgs e)

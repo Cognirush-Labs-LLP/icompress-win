@@ -3,6 +3,7 @@ using miCompressor.viewmodel;
 using Microsoft.UI.Xaml;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -74,6 +75,8 @@ namespace miCompressor
             try
             {
                 TempDataManager.CleanUpTempDir();
+                Environment.SetEnvironmentVariable("OMP_NUM_THREADS", "2", EnvironmentVariableTarget.Process);
+                Environment.SetEnvironmentVariable("PATH", ProcessExecutor.ThirdPartyBasePath + Path.PathSeparator + Environment.GetEnvironmentVariable("PATH"), EnvironmentVariableTarget.Process);
             }
             catch
             { }

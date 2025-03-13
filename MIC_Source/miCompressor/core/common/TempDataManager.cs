@@ -109,6 +109,22 @@ namespace miCompressor.core
         }
 
         /// <summary>
+        /// Get a unique temporary file path with the specified extension.
+        /// </summary>
+        /// <param name="extension">File extension including dot (e.g., ".jpg").</param>
+        /// <returns>Path to a unique temporary file.</returns>
+        public static string GetTempFile(string extension)
+        {
+            string tempFilePath;
+            do
+            {
+                tempFilePath = Path.Combine(tempAppDir, cacheDirName, Path.GetRandomFileName() + extension);
+            } while (File.Exists(tempFilePath));
+
+            return tempFilePath;
+        }
+
+        /// <summary>
         /// Clean up temp directory, should be called when compression is done, or when application starts.
         /// Non-blocking operation.
         /// Ensure there is no other operation using temp directory before calling this.

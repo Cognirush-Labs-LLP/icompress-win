@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -36,20 +37,20 @@ namespace miCompressor.core
         Webp,        // WebP format (.webp, .WEBP)
 
         /// <summary>
-        /// HEIC (experimental)
-        /// </summary>
-        heic,
-
-        /// <summary>
         /// AVID (very slow, experimental)
         /// </summary>
         avif,
+
+        /// <summary>
+        /// Gif 
+        /// </summary>
+        Gif
     }
 
     /// <summary>
     /// Provides extension methods for OutputFormat enumeration.
     /// </summary>
-    public static class OutputFormatExtensions
+    public static class OutputFormatHelper
     {
         /// <summary>
         /// Retrieves the corresponding file extension for a given output format,
@@ -71,8 +72,9 @@ namespace miCompressor.core
                 OutputFormat.Png => IsPng(originalExtension) ? originalExtension : ".png",
                 OutputFormat.Tiff => IsTiff(originalExtension) ? originalExtension : ".tiff",
                 OutputFormat.Webp => IsWebp(originalExtension) ? originalExtension : ".webp",
-                OutputFormat.heic => IsWebp(originalExtension) ? originalExtension : ".heic",
-                OutputFormat.avif => IsWebp(originalExtension) ? originalExtension : ".avif",
+                //OutputFormat.heic => IsHeic(originalExtension) ? originalExtension : ".heic",
+                OutputFormat.avif => IsAvif(originalExtension) ? originalExtension : ".avif",
+                OutputFormat.Gif => IsGif(originalExtension) ? originalExtension : ".gif",
                 OutputFormat.KeepSame => isSupportedAsOutput(originalExtension) ? originalExtension : AdvancedSettings.Instance.defaultImageExtension.GetOutputExtension(originalFilePath),
                 _ => throw new ArgumentOutOfRangeException(nameof(format), "Unsupported format.")
             };
@@ -89,31 +91,50 @@ namespace miCompressor.core
         private static bool IsWebp(string ext) => ext.Equals(".webp", StringComparison.OrdinalIgnoreCase);
         private static bool IsHeic(string ext) => ext.Equals(".heic", StringComparison.OrdinalIgnoreCase);
         private static bool IsAvif(string ext) => ext.Equals(".avif", StringComparison.OrdinalIgnoreCase);
+        private static bool IsGif(string ext) => ext.Equals(".gif", StringComparison.OrdinalIgnoreCase);
 
 
         /// <summary>
-        /// 
+        /// Get text to show to user for the image format
         /// </summary>
         /// <param name="format"></param>
         /// <returns></returns>
         public static string GetDescription(this OutputFormat format)
         {
-            switch (format)
+            return format switch
             {
-                case OutputFormat.KeepSame:
-                    return "Keep Same";
-                case OutputFormat.Jpg:
-                    return "JPEG";
-                case OutputFormat.Png:
-                    return "PNG";
-                case OutputFormat.Tiff:
-                    return "TIFF";
-                case OutputFormat.Webp:
-                    return "WebP";
-                default:
-                    return format.ToString();
-            }
+                OutputFormat.KeepSame => "Keep Same",
+                OutputFormat.Jpg => "JPEG",
+                OutputFormat.Png => "PNG",
+                OutputFormat.Tiff => "TIFF",
+                OutputFormat.Webp => "WebP",
+                //OutputFormat.heic => "HEIC",
+                OutputFormat.avif => "AVIF",
+                OutputFormat.Gif => "GIF"
+            };
         }
+
+        /// <summary>
+        /// Returns format that will be actually used. Basically, 'Keep Same' will be converted to one of the actual output format. Others, will be returend as it is.
+        /// </summary>
+        /// <param name="format"></param>
+        /// <param name="outputPath">Output file path, full or short path, we need this to extract extension</param>
+        public static OutputFormat GetOutputFormatFor(string outputPath)
+        {
+            string requiredExtension = Path.GetExtension(outputPath);
+
+            if (IsJpeg(requiredExtension)) return OutputFormat.Jpg;
+            if (IsPng(requiredExtension)) return OutputFormat.Png;
+            if (IsTiff(requiredExtension)) return OutputFormat.Tiff;
+            if (IsWebp(requiredExtension)) return OutputFormat.Webp;
+            //if (IsHeic(requiredExtension)) return OutputFormat.heic;
+            if (IsAvif(requiredExtension)) return OutputFormat.avif;
+            if (IsGif(requiredExtension)) return OutputFormat.Gif;
+            return OutputFormat.Jpg;
+        }
+
+
+
     }
     #endregion
 

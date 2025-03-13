@@ -33,10 +33,22 @@ namespace miCompressor.ui.viewmodel
         {
             get
             {
+                if (totalOriginalSize == 0)
+                    return " -- ";
                 var reducedPercentage = 100.0 - (100.0 * (double)totalCompressedSize / (double)totalOriginalSize);
 
-                string upOrdown = reducedPercentage > 0 ? "↓" : "↑";
-                return reducedPercentage.ToString("0.##") + $" {upOrdown}";
+                string upOrdown;
+                if(reducedPercentage == 0)
+                    upOrdown = "↓ 😐";
+                else if (reducedPercentage > 70)
+                    upOrdown = "↓ 🤗";
+                else if (reducedPercentage > 30)
+                    upOrdown = "↓ 😏";
+                else if (reducedPercentage > 0)
+                   upOrdown = "↓ 🙂"; 
+                else
+                    upOrdown = "↑ 😢";
+                return reducedPercentage.ToString("0.##") + $"% {upOrdown}";
             }
         }
 

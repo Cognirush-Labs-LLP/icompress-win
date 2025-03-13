@@ -193,7 +193,7 @@ namespace miCompressor.core
         /// <param name="originalWidth">Original image width in pixels.</param>
         /// <param name="originalHeight">Original image height in pixels.</param>
         /// <returns>A tuple representing the new height and width.</returns>
-        public static (uint height, uint width) GetOutputDimensions(OutputSettings outputSettings, uint originalWidth, uint originalHeight)
+        public static (uint height, uint width) GetOutputDimensions(OutputSettings outputSettings, uint originalHeight, uint originalWidth)
         {
             // Ensure valid input dimensions
             if (originalWidth <= 0 || originalHeight <= 0)
@@ -223,7 +223,6 @@ namespace miCompressor.core
                         newWidth = (uint)Math.Round(originalWidth * ratio);
                         newHeight = (uint)Math.Round(originalHeight * ratio);
                     }
-                    break;
                     break;
 
                 case DimensionReductionStrategy.MaxHeight:

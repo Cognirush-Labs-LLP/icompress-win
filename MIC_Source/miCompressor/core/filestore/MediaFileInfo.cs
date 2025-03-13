@@ -340,8 +340,16 @@ namespace miCompressor.core
             (uint expectedWidth, uint expectedHeight) = DimensionHelper.GetOutputDimensions(outputSettings, width, height);
 
             FileInfo outputFile = new FileInfo(outputPath);
-            outputFile.Refresh();
-            CompressedFileSize = (ulong) outputFile.Length;
+            
+            try
+            {
+                outputFile.Refresh();
+                CompressedFileSize = (ulong)outputFile.Length;
+            }
+            catch
+            {
+                return (false, true); // no file was created.
+            }
 
             if (!outputFile.Exists)
             {

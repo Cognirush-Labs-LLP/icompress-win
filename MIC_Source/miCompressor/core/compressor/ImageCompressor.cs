@@ -5,6 +5,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ImageMagick;
+using ImageMagick.Formats;
+using Serilog.Core;
+using Windows.Security.EnterpriseData;
 
 namespace miCompressor.core;
 
@@ -27,6 +30,9 @@ public class ImageCompressor
     /// A flag is better than a complex cancellation token here.
     /// </summary>
     private bool stop = false;
+
+    string[] MultiFrameSupportedFormats = [".gif", ".webp", ".tif", ".tiff", ".png", ".apng", ".heic", ".avif", ".jp2"];
+
     /// <summary>
     /// Cancel any on-going compression.
     /// </summary>
@@ -50,7 +56,7 @@ public class ImageCompressor
         // Determine max degree of parallelism (half the CPU core count)
         int maxParallel = Math.Max(1, Environment.ProcessorCount / 2);
 #if DEBUG
-        //maxParallel = 1;
+        maxParallel = 1;
 #endif
         int total = files.Count();
         int errorCount = 0;
@@ -68,7 +74,7 @@ public class ImageCompressor
                 try
                 {
                     await ProcessSingleFileAsync(file, fromMultipleSelectPath
-                        ,outputSettings, forPreview).ConfigureAwait(false);
+                        , outputSettings, forPreview).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -98,9 +104,11 @@ public class ImageCompressor
         CompressionCompleted?.Invoke(this, completedArgs);
     }
 
-    string[] MultiFrameSupportedFormats = [".gif", ".webp", ".tif", ".tiff", ".png", ".apng", ".heic", ".avif", ".jp2"];
-    OutputFormat[] MultiFrameOutputFormats = [OutputFormat.Webp, OutputFormat.Tiff, OutputFormat.Png, OutputFormat.heic, OutputFormat.avif];
-    
+
+    OutputFormat[] MultiFrameOutputFormats = [OutputFormat.Webp, OutputFormat.Tiff, OutputFormat.Png, 
+        //OutputFormat.heic, 
+        OutputFormat.avif, OutputFormat.Gif];
+
 
     private void RaiseCancellationEvent(MediaFileInfo mediaInfo)
     {
@@ -122,63 +130,191 @@ public class ImageCompressor
 
         string sourcePath = mediaInfo.FilePath;
         string outputPath = mediaInfo.GetOutputPath(settings, multipleSelectPaths, forPreview);
-        bool replaceOriginal = settings.format == OutputFormat.KeepSame
-                                && settings.outputLocationSettings == OutputLocationSetting.ReplaceOriginal;
-        bool multiFrameInput = false;
-        bool outputSupportsMulti = false;
 
-        
-        // Determine if input might have multiple frames (animation or multi-page)
-        string ext = Path.GetExtension(sourcePath).ToLowerInvariant();
-        if (MultiFrameSupportedFormats.Contains(ext))
+
+
+        if (IsGIFToPNG(mediaInfo, outputPath))
         {
-            outputSupportsMulti = settings.format == OutputFormat.KeepSame || MultiFrameOutputFormats.Contains(settings.format);
-            multiFrameInput = true;
+            ConvertFromGIFToPNG(mediaInfo, settings, outputPath);
         }
-
-        // Prepare Magick.NET objects
-        MagickImage? image = null;
-        MagickImageCollection? collection = null;
-        try
+        else if (IsGIFToGIF(mediaInfo, outputPath))
         {
-            if (multiFrameInput)
+            ConvertFromGIFToGIF(mediaInfo, settings, outputPath);
+        }
+        else // use ImageMagick
+        {
+            bool multiFrameInput = false;
+            bool outputSupportsMulti = false;
+
+
+            // Determine if input might have multiple frames (animation or multi-page)
+            string ext = Path.GetExtension(sourcePath).ToLowerInvariant();
+            if (MultiFrameSupportedFormats.Contains(ext))
             {
-                // Load all frames if input is multi-frame 
-                collection = new MagickImageCollection(sourcePath);
-                if (collection.Count > 1)
+                outputSupportsMulti = MultiFrameOutputFormats.Contains(OutputFormatHelper.GetOutputFormatFor(outputPath));
+                multiFrameInput = true;
+            }
+
+            // Prepare Magick.NET objects
+            MagickImage? image = null;
+            MagickImageCollection? collection = null;
+
+            try
+            {
+                if (multiFrameInput)
                 {
-                    // Input has multiple frames
-                    if (!outputSupportsMulti)
+                    if (Path.GetExtension(sourcePath).ToLower().EndsWith("png") && MetadataHelper.IsAnimatedPng(sourcePath))
+                        collection = new MagickImageCollection(sourcePath, MagickFormat.APng);
+                    else
+                        collection = new MagickImageCollection(sourcePath);
+
+                    if (collection.Count > 1)
                     {
-                        // Output format does not support animation: use first frame and warn user
-                        image = new MagickImage(collection[0]);  // take first frame
-                        // Detach first frame from collection so we can dispose collection without disposing the image
-                        collection.RemoveAt(0);
-                        collection.Dispose();
-                        collection = null;
-                        // Log and warn that animation will be lost
-                        MicLog.Warning($"Animation frames dropped for: {mediaInfo.FilePath}");
-                        WarningHelper.Instance.AddPostWarning(PostCompressionWarningType.AnimationLost, mediaInfo);
+                        // Input has multiple frames
+                        if (!outputSupportsMulti)
+                        {
+                            // Output format does not support animation: use first frame and warn user
+                            image = new MagickImage(collection[0]);  // take first frame
+                                                                     // Detach first frame from collection so we can dispose collection without disposing the image
+                            collection.RemoveAt(0);
+                            collection.Dispose();
+                            collection = null;
+                            // Log and warn that animation will be lost
+                            MicLog.Warning($"Animation frames dropped for: {mediaInfo.FilePath}");
+                            WarningHelper.Instance.AddPostWarning(PostCompressionWarningType.AnimationLost, mediaInfo);
+                        }
+                        else
+                        {
+                            // We will preserve animation frames
+                            image = null; // not used; we'll process the collection frames directly
+                        }
                     }
                     else
                     {
-                        // We will preserve animation frames
-                        image = null; // not used; we'll process the collection frames directly
+                        // Only one frame in input
+                        image = new MagickImage(collection[0]);
+                        //collection.Dispose(); //is this ok?
+                        collection = null;
                     }
                 }
                 else
                 {
-                    // Only one frame in input
-                    image = new MagickImage(collection[0]);
-                    //collection.Dispose(); //is this ok?
-                    collection = null;
+                    // Single-frame input, load normally
+                    image = new MagickImage(sourcePath);
+                }
+
+                if (stop)
+                {
+                    RaiseCancellationEvent(mediaInfo);
+                    return;
+                }
+
+                // Determine actual output format by file extension
+                string outExt = Path.GetExtension(outputPath).ToLowerInvariant();
+
+                // If output format was "KeepSame" but original format was not supported, 
+                // we have effectively changed format (e.g., GIF -> JPEG default). Warn user.
+                if (settings.format == OutputFormat.KeepSame)
+                {
+                    string origExt = Path.GetExtension(sourcePath).ToLowerInvariant();
+                    bool origSupported = CodeConsts.SupportedOutputExtensions.Contains(origExt.TrimStart('.'));
+                    if (!origSupported)
+                    {
+                        WarningHelper.Instance.AddPostWarning(PostCompressionWarningType.FileFormatChanged, mediaInfo);
+                        MicLog.Info($"Output format changed for {mediaInfo.FilePath} (original format not supported).");
+                    }
+                }
+
+                // If using collection (multiple frames) and preserving animation:
+                if (collection != null)
+                {
+                    // Resize all frames according to settings
+                    ResizeHelper.ResizeFrames(collection, settings);
+
+                    foreach (var frame in collection)
+                    {
+                        frame.Strip();
+                    }
+                    // If output format is WebP or other lossy, set quality for each frame
+                    if (MagickHelper.CanSetQuality(settings.Format, outputPath))
+                    {
+                        foreach (var frame in collection)
+                        {
+                            frame.Quality = Convert.ToUInt32(settings.quality);
+                        }
+                    }
+
+
+                    if (stop)
+                    {
+                        RaiseCancellationEvent(mediaInfo);
+                        return;
+                    }
+
+                    // Write all frames to output file
+                    var writeDefine = MagickHelper.GetWriteDefinesFor(settings.Format, outputPath, true, settings.Quality, mediaInfo);
+
+                    if (OutputFormatHelper.GetOutputFormatFor(outputPath) == OutputFormat.Gif)
+                    {
+                        collection.Optimize();
+                        collection.OptimizeTransparency();
+                    }
+
+                    if (writeDefine != null)
+                        collection.Write(outputPath, writeDefine);
+                    else
+                        collection.Write(outputPath, MagickHelper.GetMagickFormat(settings.Format, outputPath, isMultiframed: true));
+
+                    OptimizeIfAnimatedPNG(outputPath);
+                }
+                else if (image != null)
+                {
+                    // Single frame image processing
+                    // Apply resizing
+                    ResizeHelper.ResizeImage(image, settings);
+
+                    // Set output quality for lossy formats
+                    if (MagickHelper.CanSetQuality(settings.Format, outputPath))
+                    {
+                        image.Quality = settings.quality;
+                    }
+
+                    if (stop)
+                    {
+                        RaiseCancellationEvent(mediaInfo);
+                        return;
+                    }
+
+                    // Write image to output file (format is determined by outputPath extension)
+                    Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
+
+                    var writeDefine = MagickHelper.GetWriteDefinesFor(settings.Format, outputPath, false, settings.Quality, mediaInfo);
+
+                    image.Strip();
+                    if (writeDefine != null)
+                        image.Write(outputPath, writeDefine);
+                    else
+                        image.Write(outputPath, MagickHelper.GetMagickFormat(settings.Format, outputPath, isMultiframed: false));
                 }
             }
-            else
+            catch (Exception ex)
             {
-                // Single-frame input, load normally
-                image = new MagickImage(sourcePath);
+                // If any error during image loading or processing, log and record error
+                MicLog.Exception(ex, $"Failed to process file: {mediaInfo.FilePath}");
+                WarningHelper.Instance.AddCompressionError(CompressionErrorType.FailedToCompress, mediaInfo);
+                throw;  // rethrow to be handled in outer loop
             }
+            finally
+            {
+                // Dispose Magick objects to free memory
+                image?.Dispose();
+                collection?.Dispose();
+            }
+        }
+        try
+        {
+            // At this point, outputPath file should exist (unless compression failed silently but FreezeOutputAsync will check the file creation with required width and height)
+            // Finalize the output (ensure original is not replaced with larger file, etc.)
 
             if (stop)
             {
@@ -186,113 +322,10 @@ public class ImageCompressor
                 return;
             }
 
-            // Determine actual output format by file extension
-            string outExt = Path.GetExtension(outputPath).ToLowerInvariant();
-
-            // If output format was "KeepSame" but original format was not supported, 
-            // we have effectively changed format (e.g., GIF -> JPEG default). Warn user.
-            if (settings.format == OutputFormat.KeepSame)
-            {
-                string origExt = Path.GetExtension(sourcePath).ToLowerInvariant();
-                bool origSupported = CodeConsts.SupportedOutputExtensions.Contains(origExt.TrimStart('.'));
-                if (!origSupported)
-                {
-                    WarningHelper.Instance.AddPostWarning(PostCompressionWarningType.FileFormatChanged, mediaInfo);
-                    MicLog.Info($"Output format changed for {mediaInfo.FilePath} (original format not supported).");
-                }
-            }
-
-            image?.AutoOrient();
-
-            // If using collection (multiple frames) and preserving animation:
-            if (collection != null)
-            {
-                // Resize all frames according to settings
-                ResizeHelper.ResizeFrames(collection, settings);
-
-                // If output format is WebP or other lossy, set quality for each frame
-                if (outExt == ".webp" || outExt == ".avif" || outExt == ".heic")
-                {
-                    foreach (var frame in collection)
-                    {
-                        frame.Quality = Convert.ToUInt32(settings.quality);
-                    }
-                }
-
-                // Metadata handling: for multi-frame, apply metadata to first frame if needed
-                if (settings.copyMetadata)
-                {
-                    // We assume global metadata is in first frame
-                    MetadataHelper.FilterAndCopyMetadata(collection[0], collection[0], MetadataCopyMode.AllExceptSensitive);
-                }
-                else
-                {
-                    // Strip metadata from first frame (and hence from output file)
-                    collection[0].Strip();
-                }
-
-                if (stop)
-                {
-                    RaiseCancellationEvent(mediaInfo);
-                    return;
-                }
-
-                // Write all frames to output file
-                collection.Write(outputPath);
-            }
-            else if (image != null)
-            {
-                // Single frame image processing
-                // Apply resizing
-                ResizeHelper.ResizeImage(image, settings);
-
-                // Set output quality for lossy formats
-                if (outExt == ".jpg" || outExt == ".jpeg" || outExt == ".webp" || outExt == ".avif" || outExt == ".heic")
-                {
-                    image.Quality = settings.quality;
-                }
-
-                // Handle metadata according to user selection
-                if (settings.copyMetadata)
-                {
-                    // Preserve metadata (EXIF, IPTC, XMP) except sensitive fields
-                    MetadataHelper.FilterAndCopyMetadata(image, image, MetadataCopyMode.AllExceptSensitive);
-                }
-                else
-                {
-                    // Remove all metadata
-                    image.Strip();
-                }
-
-                if (stop)
-                {
-                    RaiseCancellationEvent(mediaInfo);
-                    return;
-                }
-
-                // Write image to output file (format is determined by outputPath extension)
-                Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
-                image.Write(outputPath);
-            }
-        }
-        catch (Exception ex)
-        {
-            // If any error during image loading or processing, log and record error
-            MicLog.Exception(ex, $"Failed to process file: {mediaInfo.FilePath}");
-            WarningHelper.Instance.AddCompressionError(CompressionErrorType.FailedToCompress, mediaInfo);
-            throw;  // rethrow to be handled in outer loop
-        }
-        finally
-        {
-            // Dispose Magick objects to free memory
-            image?.Dispose();
-            collection?.Dispose();
-        }
-
-        try
-        {
-            // At this point, outputPath file should exist (unless compression failed silently but FreezeOutputAsync will check the file creation with required width and height)
-            // Finalize the output (ensure original is not replaced with larger file, etc.)
+            OptimizeIfPNG(outputPath);
+            OptimizeIfGIF(mediaInfo.FilePath, outputPath);
+            if (settings.CopyMetadata)
+                (new MetadataCopyHelper()).Copy(mediaInfo.FilePath, outputPath);
 
             if (stop)
             {
@@ -329,6 +362,114 @@ public class ImageCompressor
             MicLog.Exception(ex, $"Failed to process file: {mediaInfo.FilePath}");
             WarningHelper.Instance.AddCompressionError(CompressionErrorType.FailedToCompress, mediaInfo);
             throw;  // rethrow to be handled in outer loop
+        }
+    }
+
+    private bool IsGIF(string filePath)
+    {
+        return OutputFormatHelper.GetOutputFormatFor(filePath) == OutputFormat.Gif;
+    }
+
+    private bool IsPNG(string filePath)
+    {
+        return OutputFormatHelper.GetOutputFormatFor(filePath) == OutputFormat.Png;
+    }
+
+    private bool IsGIFToPNG(MediaFileInfo mediaInfo, string outputPath)
+    {
+        return IsGIF(mediaInfo.FilePath) && IsPNG(outputPath);
+    }
+
+    private bool IsGIFToGIF(MediaFileInfo mediaInfo, string outputPath)
+    {
+        return IsGIF(mediaInfo.FilePath) && IsGIF(outputPath);
+    }
+
+    private void ConvertFromGIFToPNG(MediaFileInfo mediaInfo, OutputSettings settings, string outputPath)
+    {
+        try
+        {
+            var inputGifFile = mediaInfo.FilePath;
+            if (ResizeHelper.NeedsResize(mediaInfo.Height, mediaInfo.Width, settings))
+            {
+                (uint targetH, uint targetW) = DimensionHelper.GetOutputDimensions(settings, mediaInfo.Height, mediaInfo.Width);
+                var resizedGifFilePath = TempDataManager.GetTempFile(Path.GetExtension(mediaInfo.FilePath));
+                (new GifOptimizeResize()).Resize(inputGifFile, resizedGifFilePath, targetW, targetH);
+                inputGifFile = resizedGifFilePath;
+            }
+            (new GifToApngConverter()).Convert(inputGifFile, outputPath);
+        }
+        catch (Exception ex)
+        {
+            //ignore, failure will be managed by freeze method.
+            MicLog.Error($" *** Failed to ConvertFrom GIF to PNG as {ex.Message}, {ex.StackTrace}");
+        }
+    }
+
+    private void ConvertFromGIFToGIF(MediaFileInfo mediaInfo, OutputSettings settings, string outputPath)
+    {
+        try
+        {
+            var inputGifFile = mediaInfo.FilePath;
+            if (ResizeHelper.NeedsResize(mediaInfo.Height, mediaInfo.Width, settings))
+            {
+                (uint targetH, uint targetW) = DimensionHelper.GetOutputDimensions(settings, mediaInfo.Height, mediaInfo.Width);
+
+                (new GifOptimizeResize()).Resize(inputGifFile, outputPath, targetW, targetH);
+            }
+            else
+            {
+                File.Copy(inputGifFile, outputPath, overwrite: true);
+            }
+        }
+        catch (Exception ex)
+        {
+            //ignore, failure will be managed by freeze method.
+            MicLog.Error($" *** Failed to ConvertFrom GIF to PNG as {ex.Message}, {ex.StackTrace}");
+        }
+    }
+
+    private void OptimizeIfPNG(string outputFilePath)
+    {
+        try
+        {
+            if (IsPNG(outputFilePath))
+                (new PNGOptimizer()).Optimize(outputFilePath);
+        }
+        catch (Exception ex)
+        {
+            MicLog.Error($" *** Failed to Optimize PNG as {ex.Message}, {ex.StackTrace}");
+        }
+    }
+
+    private void OptimizeIfAnimatedPNG(string outputFilePath)
+    {
+        try
+        {
+            if (IsPNG(outputFilePath))
+                (new APNGOptimizer()).Optimize(outputFilePath);
+        }
+        catch (Exception ex)
+        {
+            MicLog.Error($" *** Failed to Optimize PNG as {ex.Message}, {ex.StackTrace}");
+        }
+    }
+
+    private void OptimizeIfGIF(string inputPath, string outputPath)
+    {
+        try
+        {
+            if (!IsGIF(outputPath))
+                return;
+
+            if (IsGIF(inputPath))
+                (new GifOptimizeResize()).Optimize(outputPath);
+            else
+                (new GifOptimizeResize()).OptimizeAndReduceSize(outputPath);
+        }
+        catch (Exception ex)
+        {
+            MicLog.Error($" *** Failed to Optimize GIF as {ex.Message}, {ex.StackTrace}");
         }
     }
 }

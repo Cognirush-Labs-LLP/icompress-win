@@ -42,8 +42,8 @@
                 </Grid.RowDefinitions>
 
                 <Slider Grid.Column="0" Grid.Row="0"  Minimum="1" Maximum="100" HorizontalAlignment="Stretch"
-        SmallChange="1" Value="{Binding OutputSettings.PercentageOfLongEdge, Mode=TwoWay}" Margin="10,0,10,0" />
-                <NumberBox Grid.Column="1" Grid.Row="0" PlaceholderText="0.000" Maximum="100" Minimum="1" Value="{Binding OutputSettings.PercentageOfLongEdge, Mode=TwoWay}"/>
+        SmallChange="1" Value="{x:Bind OutputSettings.PercentageOfLongEdge, Mode=TwoWay}" Margin="10,0,10,0" />
+                <NumberBox Grid.Column="1" Grid.Row="0" PlaceholderText="0.000" Maximum="100" Minimum="1" Value="{x:Bind OutputSettings.PercentageOfLongEdge, Mode=TwoWay}"/>
                 <TextBlock Grid.Column="2" Grid.Row="0" Text="%"  VerticalAlignment="Center"/>
                 <StackPanel  Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Margin="0,10,0,0" Orientation="Horizontal" HorizontalAlignment="Center">
                     <HyperlinkButton Content="25%" Command="{x:Bind SetPercentageCommand}" CommandParameter="25" FontSize="{StaticResource TextXSmall}" />
@@ -65,7 +65,7 @@
                 <TextBlock Text="Fixed Width" Margin="10,0" VerticalAlignment="Center" Visibility="{x:Bind SetFixedWidth, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"/>
                 <TextBlock Text="Longest Edge" Margin="10,0" VerticalAlignment="Center" Visibility="{x:Bind SetLongEdge, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"/>
 
-                <NumberBox PlaceholderText="000000" Minimum="1" Width="130" Value="{Binding OutputSettings.PrimaryEdgeLength, Mode=TwoWay}"/>
+                <NumberBox PlaceholderText="000000" Minimum="1" Width="130" Value="{x:Bind OutputSettings.PrimaryEdgeLength, Mode=TwoWay}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <HyperlinkButton Content="HD" Command="{x:Bind SetPrimaryLength}" CommandParameter="1280,720" FontSize="{StaticResource TextXSmall}"/>
@@ -90,15 +90,15 @@
 
         <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Visibility="{x:Bind SetPrintSize, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" HorizontalAlignment="Right">
             <StackPanel Orientation="Horizontal">
-                <NumberBox Name="numboxShortEdge" PlaceholderText="0.000" Minimum="0.10" Value="{Binding OutputSettings.PrintDimension.ShortEdgeInInch, Mode=TwoWay}"/>
+                <NumberBox Name="numboxShortEdge" PlaceholderText="0.000" Minimum="0.10" Value="{x:Bind OutputSettings.PrintDimension.ShortEdgeInInch, Mode=TwoWay}"/>
                 <TextBlock Text="&quot;" VerticalAlignment="Top" Margin="2" FontSize="20" />
                 <TextBlock Text="x" VerticalAlignment="Center" Margin="6" />
-                <NumberBox Name="numboxLongEdge" PlaceholderText="0.000" Minimum="0.10" Value="{Binding OutputSettings.PrintDimension.LongEdgeInInch, Mode=TwoWay}"/>
+                <NumberBox Name="numboxLongEdge" PlaceholderText="0.000" Minimum="0.10" Value="{x:Bind OutputSettings.PrintDimension.LongEdgeInInch, Mode=TwoWay}"/>
                 <TextBlock Text="&quot;" VerticalAlignment="Top" Margin="2" FontSize="20" />
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0,6" HorizontalAlignment="Right">
                 <TextBlock Text="Margin" VerticalAlignment="Center" Padding="10,0"/>
-                <NumberBox PlaceholderText="0.000" Value="{Binding OutputSettings.PrintDimension.Margin, Mode=TwoWay}"/>
+                <NumberBox PlaceholderText="0.000" Value="{x:Bind OutputSettings.PrintDimension.Margin, Mode=TwoWay}"/>
                 <TextBlock Text="&quot;" VerticalAlignment="Top" Margin="2" FontSize="20" />
             </StackPanel>
         </StackPanel>

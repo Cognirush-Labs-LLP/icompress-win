@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using ImageMagick;
 
 namespace miCompressor.core
@@ -42,7 +43,7 @@ namespace miCompressor.core
         /// <param name="source">The source image containing original metadata.</param>
         /// <param name="dest">The destination image to apply metadata to.</param>
         /// <param name="mode">Metadata copy mode (All, None, AllExceptSensitive).</param>
-        public static void FilterAndCopyMetadata(IMagickImage<byte> source, IMagickImage<byte> dest, MetadataCopyMode mode)
+        private static void FilterAndCopyMetadata(IMagickImage<byte> source, IMagickImage<byte> dest, MetadataCopyMode mode)
         {
             if (mode == MetadataCopyMode.None)
             {
@@ -120,6 +121,35 @@ namespace miCompressor.core
             foreach (ExifTag tag in AlwaysSkipExifTags)
             {
                 exif.RemoveValue(tag);
+            }
+        }
+
+        /// <summary>
+        /// Checks whether the PNG image is animated (APNG) by scanning for the "acTL" chunk.
+        /// </summary>
+        /// <param name="filePath">Path to the PNG file.</param>
+        /// <returns>True if the file is an animated PNG; otherwise, false.</returns>
+        public static bool IsAnimatedPng(string filePath)
+        {
+            try
+            {
+                // Read the file into memory.
+                byte[] fileBytes = File.ReadAllBytes(filePath);
+
+                // "acTL" in ASCII is represented by these byte values: 0x61, 0x63, 0x54, 0x4C.
+                for (int i = 0; i < fileBytes.Length - 3; i++)
+                {
+                    if (fileBytes[i] == 0x61 && fileBytes[i + 1] == 0x63 &&
+                        fileBytes[i + 2] == 0x54 && fileBytes[i + 3] == 0x4C)
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            catch
+            {
+                return true; //consider it animated.
             }
         }
     }
