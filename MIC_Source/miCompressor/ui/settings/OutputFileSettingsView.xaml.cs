@@ -42,6 +42,14 @@ namespace miCompressor.ui
             }
         }
 
+        public bool XMP_IPTC_CopySupported
+        {
+            get
+            {
+                return OutputSettings.CopyMetadata && !OutputSettings.SkipSensitiveMetadata;
+            }
+        }
+
         public OutputSettings OutputSettings { get; set; }
 
         public List<OutputFormatItem> OutputFormats { get; }
@@ -79,6 +87,10 @@ namespace miCompressor.ui
             if (e.PropertyName == nameof(OutputSettings.OutputLocationSettings))
             {
                 DisableFileNameChangeOperations(OutputSettings.OutputLocationSettings == OutputLocationSetting.ReplaceOriginal);
+            }
+            if( e.PropertyName == nameof(OutputSettings.CopyMetadata) || e.PropertyName == nameof(OutputSettings.SkipSensitiveMetadata))
+            {
+                OnPropertyChanged(nameof(XMP_IPTC_CopySupported));
             }
         }
 

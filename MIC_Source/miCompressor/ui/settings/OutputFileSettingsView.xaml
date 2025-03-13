@@ -20,6 +20,9 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <TextBlock VerticalAlignment="Center" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Text="OUTPUT IMAGE SETTINGS" Margin="10, 10, 10, 0" Style="{StaticResource SettingsHeading}"/>
@@ -31,14 +34,27 @@
                   HorizontalAlignment="Stretch" 
                   Margin="0,10,0,5"/>
 
-        <TextBlock VerticalAlignment="Center" Grid.Column="0" Grid.Row="2" Text="Metadata" Margin="0, 0, 10,0"/>
-        <ToggleSwitch Grid.Column="1" Grid.Row="2" IsOn="{x:Bind OutputSettings.CopyMetadata, Mode=TwoWay}" 
-                      OnContent="Copy" OffContent="Do Not Copy"/>
+        <CheckBox Grid.Column="1" Grid.Row="2" Content="Keep Created/Modified Time" MinWidth="80" FontSize="12" VerticalContentAlignment="Center" IsChecked="{x:Bind OutputSettings.RetainDateTime, Mode=TwoWay}" />
 
-        <TextBlock VerticalAlignment="Center" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" Text="RENAME OUTPUT IMAGE" Margin="10, 10, 10, 10" Style="{StaticResource SettingsHeading}"/>
+        <TextBlock VerticalAlignment="Center" Grid.Column="0" Grid.Row="3" Text="Metadata" Margin="0, 0, 10,0"/>
+        <ToggleSwitch Grid.Column="1" Grid.Row="3" IsOn="{x:Bind OutputSettings.CopyMetadata, Mode=TwoWay}" OnContent="Copy" OffContent="Do Not Copy"/>
 
 
-        <Grid Name="FileNameOperationsUI" Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="2" ColumnSpacing="6" RowSpacing="6">
+        <StackPanel  Grid.Column="1" Grid.Row="4" Visibility="{x:Bind OutputSettings.CopyMetadata, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+            <CheckBox Content="Skip Sensitive Metadata" MinWidth="80" FontSize="12" VerticalContentAlignment="Center" IsChecked="{x:Bind OutputSettings.SkipSensitiveMetadata, Mode=TwoWay}"  />
+
+            <TextBlock Text="Copying XMP/IPTC not supported when skipping sensitive metadata" FontSize="{StaticResource TextSmall}" TextWrapping="Wrap" Foreground="{StaticResource Primary_50}" Visibility="{x:Bind XMP_IPTC_CopySupported, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" MinHeight="34" />
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" MinHeight="34" Visibility="{x:Bind XMP_IPTC_CopySupported, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <CheckBox Content="Copy XMP" MinWidth="100" IsChecked="{x:Bind OutputSettings.CopyXMP, Mode=TwoWay}" VerticalContentAlignment="Center" FontSize="12" />
+                <CheckBox Content="Copy IPTC" IsChecked="{x:Bind OutputSettings.CopyIPTC, Mode=TwoWay}" VerticalContentAlignment="Center" FontSize="12" />
+            </StackPanel>
+        </StackPanel>
+
+        <TextBlock VerticalAlignment="Center" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="6" Text="RENAME OUTPUT IMAGE" Margin="10, 10, 10, 10" Style="{StaticResource SettingsHeading}"/>
+
+
+        <Grid Name="FileNameOperationsUI" Grid.Column="0" Grid.Row="7" Grid.ColumnSpan="2" ColumnSpacing="6" RowSpacing="6">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
@@ -53,19 +69,17 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            
+
             <TextBlock VerticalAlignment="Center" Grid.Column="0" Grid.Row="0" Text="Suffix"/>
             <TextBox Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" PlaceholderText="- none -"  Text="{x:Bind OutputSettings.Suffix, Mode=TwoWay}"  VerticalAlignment="Center" />
-            
+
             <TextBlock VerticalAlignment="Center" Grid.Column="0" Grid.Row="1" Text="Prefix" />
             <TextBox Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" PlaceholderText="- none -"  Text="{x:Bind OutputSettings.Prefix, Mode=TwoWay}"  VerticalAlignment="Center" />
-            
-                <TextBlock VerticalAlignment="Center" Grid.Column="0" Grid.Row="3" Text="Replace" />
-                <TextBox Grid.Column="1" Grid.Row="3" PlaceholderText="- none -"  Text="{x:Bind OutputSettings.ReplaceFrom, Mode=TwoWay}"  VerticalAlignment="Center" />
-                <TextBlock VerticalAlignment="Center" Grid.Column="2" Grid.Row="3" Text="To" />
-                <TextBox Grid.Column="3" Grid.Row="3" PlaceholderText="- none -"  Text="{x:Bind OutputSettings.ReplaceTo, Mode=TwoWay}"  VerticalAlignment="Center" />
+
+            <TextBlock VerticalAlignment="Center" Grid.Column="0" Grid.Row="3" Text="Replace" />
+            <TextBox Grid.Column="1" Grid.Row="3" PlaceholderText="- none -"  Text="{x:Bind OutputSettings.ReplaceFrom, Mode=TwoWay}"  VerticalAlignment="Center" />
+            <TextBlock VerticalAlignment="Center" Grid.Column="2" Grid.Row="3" Text="To" />
+            <TextBox Grid.Column="3" Grid.Row="3" PlaceholderText="- none -"  Text="{x:Bind OutputSettings.ReplaceTo, Mode=TwoWay}"  VerticalAlignment="Center" />
         </Grid>
-
-
     </Grid>
 </UserControl>

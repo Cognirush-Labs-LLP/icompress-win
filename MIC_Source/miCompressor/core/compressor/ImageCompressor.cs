@@ -324,8 +324,7 @@ public class ImageCompressor
 
             OptimizeIfPNG(outputPath);
             OptimizeIfGIF(mediaInfo.FilePath, outputPath);
-            if (settings.CopyMetadata)
-                (new MetadataCopyHelper()).Copy(mediaInfo.FilePath, outputPath);
+            (new MetadataCopyHelper()).Copy(mediaInfo.FilePath, outputPath, settings);
 
             if (stop)
             {

@@ -56,9 +56,19 @@ namespace miCompressor.core
         [AutoNotify]
         public bool copyMetadata = true;
 
+        [AutoNotify]
+        public bool skipSensitiveMetadata = false;
+        [AutoNotify]
+        public bool copyIPTC = true;
+        [AutoNotify]
+        public bool copyXMP = true;
+        [AutoNotify]
+        public bool retainDateTime = true;
+
+
         #region Output file creation setting
         /// <summary>
-        /// Output Location stragegy 
+        /// Output Location strategy
         /// </summary>
         [AutoNotify]
         public OutputLocationSetting outputLocationSettings = OutputLocationSetting.UserSpecificFolder;
@@ -155,6 +165,10 @@ namespace miCompressor.core
             PrintDimension = other.PrintDimension;
 
             CopyMetadata = other.copyMetadata;
+            SkipSensitiveMetadata = other.skipSensitiveMetadata;
+            CopyIPTC = other.copyIPTC;
+            CopyXMP = other.copyXMP;
+            RetainDateTime = other.retainDateTime;
             //OutputLocationSetting = other.outputLocationSettings;
             //OutputFolder = other.outputFolder;
             //Suffix = other.suffix;

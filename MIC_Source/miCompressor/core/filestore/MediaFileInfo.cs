@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ImageMagick;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -188,6 +189,20 @@ namespace miCompressor.core
             ImageMetadata? outputMeta = await LoadImageMetadataAsync(FileToCompress.FullName, loadFileSize: false);
             Width = outputMeta?.Width ?? 0;
             Height = outputMeta?.Height ?? 0;
+
+            if( Height == 0 || Width == 0 )
+            {
+                try
+                {
+                    MagickImageInfo imageInfo = new MagickImageInfo(FileToCompress.FullName);
+                    Width = imageInfo.Width;
+                    Height = imageInfo.Height;
+                }
+                catch
+                {
+                    //TODO: This image will fail to compress, inform user in advance.
+                }
+            }
 
             OnPropertyChanged(nameof(DimensionsToShow));
             //CameraModel = outputMeta?.CameraModel;
