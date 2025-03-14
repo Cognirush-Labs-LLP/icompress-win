@@ -55,7 +55,7 @@
     <Content Remove="Assets\Icons\source\createFrom256Png.bat" />
     <Content Remove="Assets\Icons\source\mic_256.png" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <None Remove="3rdParty_x64\apngopt.exe" />
     <None Remove="3rdParty_x64\ffmpeg.exe" />
@@ -310,7 +310,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="robocopy &quot;$(ProjectDir)3rdParty_x64\exiftool&quot; &quot;$(OutDir)3rdParty_x64\exiftool&quot; /E /NFL /NDL /NJH /NJS&#xD;&#xA;exit 0" />
-  </Target>
+  <ItemGroup>
+    <Content Include="3rdParty_x64\exiftool\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackagePath>3rdParty_x64\exiftool\</PackagePath>
+    </Content>
+  </ItemGroup>
 </Project>

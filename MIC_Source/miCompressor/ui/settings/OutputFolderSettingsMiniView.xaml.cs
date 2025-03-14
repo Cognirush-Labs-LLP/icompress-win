@@ -92,7 +92,7 @@ namespace miCompressor.ui
         }
 
         public string FolderPathError = String.Empty;
-        private void FoderPathTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void FolderPathTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (String.IsNullOrWhiteSpace(FoderPathTextBox.Text))
             {

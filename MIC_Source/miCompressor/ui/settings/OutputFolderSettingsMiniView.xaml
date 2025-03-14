@@ -42,7 +42,7 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <TextBox Grid.Column="0" Grid.Row="0" Margin="0" x:Name="FoderPathTextBox" PlaceholderText="Output Folder Here..."  FontSize="{StaticResource TextSmall}" TextChanged="FoderPathTextBox_TextChanged" TextWrapping="Wrap" VerticalAlignment="Center" />
+            <TextBox Grid.Column="0" Grid.Row="0" Margin="0" x:Name="FoderPathTextBox" PlaceholderText="Output Folder Here..."  FontSize="{StaticResource TextSmall}" TextChanged="FolderPathTextBox_TextChanged" TextWrapping="Wrap" VerticalAlignment="Center" />
 
             <Button Grid.Column="1" Grid.Row="0" x:Name="PickFolderButton"
                     Click="PickFolderButton_Click" Margin="2,5,0,5">
