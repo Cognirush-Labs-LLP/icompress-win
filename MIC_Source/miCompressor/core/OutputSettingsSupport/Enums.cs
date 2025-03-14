@@ -27,10 +27,7 @@ namespace miCompressor.core
         /// PNG format (.png, .PNG)
         /// </summary>
         Png,
-        /// <summary>
-        /// TIFF format (.tiff, .tif, .TIFF, .TIF)
-        /// </summary>
-        Tiff,
+
         /// <summary>
         /// WebP format (.webp, .WEBP)
         /// </summary>
@@ -70,7 +67,7 @@ namespace miCompressor.core
             {
                 OutputFormat.Jpg => IsJpeg(originalExtension) ? originalExtension : ".jpg",
                 OutputFormat.Png => IsPng(originalExtension) ? originalExtension : ".png",
-                OutputFormat.Tiff => IsTiff(originalExtension) ? originalExtension : ".tiff",
+                //OutputFormat.Tiff => IsTiff(originalExtension) ? originalExtension : ".tiff",
                 OutputFormat.Webp => IsWebp(originalExtension) ? originalExtension : ".webp",
                 //OutputFormat.heic => IsHeic(originalExtension) ? originalExtension : ".heic",
                 OutputFormat.avif => IsAvif(originalExtension) ? originalExtension : ".avif",
@@ -106,16 +103,16 @@ namespace miCompressor.core
                 OutputFormat.KeepSame => "Keep Same",
                 OutputFormat.Jpg => "JPEG",
                 OutputFormat.Png => "PNG",
-                OutputFormat.Tiff => "TIFF",
+                //OutputFormat.Tiff => "TIFF", // Not a good format anymore
                 OutputFormat.Webp => "WebP",
-                //OutputFormat.heic => "HEIC",
+                //OutputFormat.heic => "HEIC", //Not supported by Magick.NET
                 OutputFormat.avif => "AVIF",
                 OutputFormat.Gif => "GIF"
             };
         }
 
         /// <summary>
-        /// Returns format that will be actually used. Basically, 'Keep Same' will be converted to one of the actual output format. Others, will be returend as it is.
+        /// Returns format that will be actually used. Basically, 'Keep Same' will be converted to one of the actual output format. Others, will be returned as it is.
         /// </summary>
         /// <param name="format"></param>
         /// <param name="outputPath">Output file path, full or short path, we need this to extract extension</param>
@@ -125,7 +122,7 @@ namespace miCompressor.core
 
             if (IsJpeg(requiredExtension)) return OutputFormat.Jpg;
             if (IsPng(requiredExtension)) return OutputFormat.Png;
-            if (IsTiff(requiredExtension)) return OutputFormat.Tiff;
+            //if (IsTiff(requiredExtension)) return OutputFormat.Tiff;
             if (IsWebp(requiredExtension)) return OutputFormat.Webp;
             //if (IsHeic(requiredExtension)) return OutputFormat.heic;
             if (IsAvif(requiredExtension)) return OutputFormat.avif;

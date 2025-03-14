@@ -75,7 +75,7 @@ namespace miCompressor
             try
             {
                 TempDataManager.CleanUpTempDir();
-                Environment.SetEnvironmentVariable("OMP_NUM_THREADS", "2", EnvironmentVariableTarget.Process);
+                Environment.SetEnvironmentVariable("OMP_NUM_THREADS", "2", EnvironmentVariableTarget.Process); //We set this in code again. This is just insurance if some version of Magick.NET doesn't respect this setting after initialization. 
                 Environment.SetEnvironmentVariable("PATH", ProcessExecutor.ThirdPartyBasePath + Path.PathSeparator + Environment.GetEnvironmentVariable("PATH"), EnvironmentVariableTarget.Process);
             }
             catch

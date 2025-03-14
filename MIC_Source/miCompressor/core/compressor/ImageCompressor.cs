@@ -55,7 +55,19 @@ public class ImageCompressor
         if (files == null) throw new ArgumentNullException(nameof(files));
         // Determine max degree of parallelism (half the CPU core count)
         int maxParallel = Math.Max(1, Environment.ProcessorCount / 2);
+
+        if(forPreview || files.Count() < Environment.ProcessorCount)
+        {
+            int parallelismInUnitOfWork = Math.Max(1, (int) Math.Ceiling(Environment.ProcessorCount / (double) files.Count()));
+            MagickNET.SetEnvironmentVariable("OMP_NUM_THREADS", parallelismInUnitOfWork.ToString());
+        } else
+        {
+            MagickNET.SetEnvironmentVariable("OMP_NUM_THREADS", "2");
+        }
+
+
 #if DEBUG
+        //MagickNET.SetEnvironmentVariable("OMP_NUM_THREADS", "2");
         maxParallel = 1;
 #endif
         int total = files.Count();
@@ -105,7 +117,7 @@ public class ImageCompressor
     }
 
 
-    OutputFormat[] MultiFrameOutputFormats = [OutputFormat.Webp, OutputFormat.Tiff, OutputFormat.Png, 
+    OutputFormat[] MultiFrameOutputFormats = [OutputFormat.Webp, OutputFormat.Png, 
         //OutputFormat.heic, 
         OutputFormat.avif, OutputFormat.Gif];
 
@@ -291,6 +303,7 @@ public class ImageCompressor
                     var writeDefine = MagickHelper.GetWriteDefinesFor(settings.Format, outputPath, false, settings.Quality, mediaInfo);
 
                     image.Strip();
+
                     if (writeDefine != null)
                         image.Write(outputPath, writeDefine);
                     else
@@ -324,7 +337,9 @@ public class ImageCompressor
 
             OptimizeIfPNG(outputPath);
             OptimizeIfGIF(mediaInfo.FilePath, outputPath);
-            (new MetadataCopyHelper()).Copy(mediaInfo.FilePath, outputPath, settings);
+    
+            if(!forPreview)
+                (new MetadataCopyHelper()).Copy(mediaInfo.FilePath, outputPath, settings);
 
             if (stop)
             {

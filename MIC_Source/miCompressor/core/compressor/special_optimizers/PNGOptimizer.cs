@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ImageMagick;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -48,7 +49,18 @@ public class PNGOptimizer
         // - Use one thread (-t 1)
         // - Set optimization level to 4 (-o 4)
         // - Strip safely removable chunks (--strip safe)
-        string arguments = $"-t 1 -o 4 --strip safe \"{imagePath}\"";
+
+        int threadCount = 1;
+
+        try
+        {
+            var threadCountString = MagickNET.GetEnvironmentVariable("OMP_NUM_THREADS");
+            int envThreadCount;
+            if (int.TryParse(threadCountString, out envThreadCount))
+                threadCount = envThreadCount;
+        } catch { }
+
+        string arguments = $"-t {threadCount} -o 4 --strip safe \"{imagePath}\"";
 
         return _executor.Execute(arguments, waitForExit: true);
     }

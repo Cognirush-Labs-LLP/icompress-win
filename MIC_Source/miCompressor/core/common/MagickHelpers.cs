@@ -45,11 +45,12 @@ namespace miCompressor.core
                         Lossless = (targetQuality > 95)
                     };
                     break;
-                case OutputFormat.Tiff:
+                /*case OutputFormat.Tiff:
+                    return null;
                     return new TiffWriteDefines
                     {
                         PreserveCompression = true
-                    };
+                    };*/
             }
             return null;
         }
@@ -63,7 +64,7 @@ namespace miCompressor.core
                 OutputFormat.Jpg => MagickFormat.Jpeg,
                 OutputFormat.Png => isMultiframed ? MagickFormat.APng : MagickFormat.Png,
                 OutputFormat.Webp => MagickFormat.WebP,
-                OutputFormat.Tiff => MagickFormat.Tiff,
+                //OutputFormat.Tiff => MagickFormat.Tiff,
                 //OutputFormat.heic => MagickFormat.Heic,
                 OutputFormat.avif => MagickFormat.Avif,
                 OutputFormat.Gif => MagickFormat.Gif
@@ -78,12 +79,11 @@ namespace miCompressor.core
                 OutputFormat.Jpg => true,
                 OutputFormat.Png => false,
                 OutputFormat.Webp => true,
-                OutputFormat.Tiff => false,
+                //OutputFormat.Tiff => false,
                 //OutputFormat.heic => true,
                 OutputFormat.avif => true,
                 OutputFormat.Gif => false
             };
         }
     }
-
 }
