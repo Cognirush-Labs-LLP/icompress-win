@@ -26,8 +26,13 @@ namespace miCompressor.ui
     public sealed partial class DimensionSettingsView : UserControl, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnPropertyChanged(string propertyName) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        protected void OnPropertyChanged(string propertyName)
+        {
+            UIThreadHelper.RunOnUIThread(() =>
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            });
+        }
 
         /// <summary>
         /// Wrapper class to hold a DimensionReductionStrategy enum value and a user-friendly display name.

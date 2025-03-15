@@ -420,5 +420,39 @@ namespace miCompressor.core
                 OnPropertyChanged(nameof(SelectedPaths));
             }
         }
+
+        public void GeneratePreCompressionWarnings(OutputSettings settings, bool multipleSelectedPath)
+        {
+            WarningHelper.Instance.ClearPreCompressionWarning();
+
+            var filesToCompress = GetAllFiles.Where(file => !file.ExcludeAndHide && !file.ExcludeAndShow).ToList();
+
+            foreach (var file in filesToCompress)
+            {
+                var outputPath = file.GetOutputPath(settings, multipleSelectedPath, false);
+                if (settings.outputLocationSettings != OutputLocationSetting.ReplaceOriginal)
+                {
+                    if (file.IsReplaceOperation)
+                    {
+                        WarningHelper.Instance.AddPreWarning(PreCompressionWarningType.LoosingOriginalImage, file);
+                        continue; //don't want to put more warning for same file.
+                    }
+                }
+
+                if (File.Exists(outputPath))
+                {
+                    WarningHelper.Instance.AddPreWarning(PreCompressionWarningType.FileAlreadyExists, file);
+                    continue; //don't want to put more warning for same file.
+                }
+
+                if (settings.Format == OutputFormat.KeepSame)
+                {
+                    if (!string.Equals(Path.GetExtension(file.FilePath), Path.GetExtension(outputPath), StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        WarningHelper.Instance.AddPreWarning(PreCompressionWarningType.FileFormatChanged, file);
+                    }
+                }
+            }
+        }
     }
 }

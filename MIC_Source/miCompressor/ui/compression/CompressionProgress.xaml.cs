@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows.Input;
 using Windows.System;
 using Windows.UI;
 
@@ -16,6 +17,50 @@ namespace miCompressor.ui
     public sealed partial class CompressionProgress : UserControl
     {
         public CompressionViewModel vm => App.CurrentState.CompressionViewModel;
+        public WarningHelper warningAndError => WarningHelper.Instance;
+
+        [AutoNotify] private bool canShowError = false;
+        [AutoNotify] private bool canShowWarning = false;
+
+        private bool HasPreCompressionWarnings => warningAndError.HasPreCompressionWarnings;
+        
+        private bool _showErrorView = false;
+        public bool ShowErrorView
+        {
+            get => _showErrorView;
+            set
+            {
+                if(_showErrorView != value)
+                {
+                    _showErrorView = value;
+                    OnPropertyChanged(nameof(ShowErrorView));
+                    OnPropertyChanged(nameof(ShowErrorOrWarningView));
+                }
+            }
+        }
+
+        private bool _showWarningView = false;
+        public bool ShowWarningView
+        {
+            get => _showWarningView;
+            set
+            {
+                if (_showWarningView != value)
+                {
+                    _showWarningView = value;
+                    OnPropertyChanged(nameof(ShowWarningView));
+                    OnPropertyChanged(nameof(ShowErrorOrWarningView));
+                }
+            }
+        }
+
+        public bool ShowErrorOrWarningView => ShowErrorView || ShowWarningView || warningAndError.HasPreCompressionWarnings;
+
+        private string ErrorText => $"Errors ({warningAndError.ErrorCount})";
+        private string WarningText => $"Warnings ({warningAndError.WarningCount})";
+
+
+        private bool ShowBackButton => _showErrorView || _showWarningView || !vm.CompressionInProgress;
 
         [AutoNotify] public List<PieChartData> compressionProgressVisuals = new();
 
@@ -33,6 +78,35 @@ namespace miCompressor.ui
             this.InitializeComponent();
 
             vm.PropertyChanged += CompressionVM_PropertyChanged;
+            warningAndError.PropertyChanged += WarningAndError_PropertyChanged;
+            this.PropertyChanged += CompressionProgress_PropertyChanged;
+        }
+
+        private void WarningAndError_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(WarningHelper.HasWarnings))
+                CanShowWarning = WarningHelper.Instance.HasWarnings;
+            if (e.PropertyName == nameof(WarningHelper.HasErrors))
+                CanShowError = WarningHelper.Instance.HasErrors;
+
+            if (e.PropertyName == nameof(WarningHelper.WarningCount))
+                OnPropertyChanged(nameof(WarningText));
+            if (e.PropertyName == nameof(WarningHelper.ErrorCount))
+                OnPropertyChanged(nameof(ErrorText));
+
+            OnPropertyChanged(nameof(ShowBackButton));
+            OnPropertyChanged(nameof(ShowErrorOrWarningView));
+            OnPropertyChanged(nameof(HasPreCompressionWarnings));
+        }
+
+        private void CompressionProgress_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(CompressionProgress.ShowErrorView) || e.PropertyName == nameof(CompressionProgress.ShowWarningView))
+            {
+                OnPropertyChanged(nameof(ShowBackButton));
+                OnPropertyChanged(nameof(ShowErrorOrWarningView));
+                OnPropertyChanged(nameof(HasPreCompressionWarnings));
+            }
         }
 
         private void CompressionVM_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -50,18 +124,48 @@ namespace miCompressor.ui
                 };
 
                 OnPropertyChanged(nameof(ShowOutputFolderLink));
-            }
+                OnPropertyChanged(nameof(ShowBackButton));
+                OnPropertyChanged(nameof(ShowErrorOrWarningView));
+                OnPropertyChanged(nameof(HasPreCompressionWarnings));
+                OnPropertyChanged(nameof(CanShowError));
+                OnPropertyChanged(nameof(CanShowWarning));
+            }         
         }
 
         private async void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            vm.CancelCompression();
-
+            if (ShowErrorView)
+                ShowErrorView = false;
+            else if (ShowWarningView)
+                ShowWarningView = false;
+            else
+                vm.CancelCompression();
         }
 
         private async void BackButton_Click(object sender, RoutedEventArgs e)
         {
+            if(ShowWarningView || ShowErrorView)
+            {
+                ShowWarningView = false;
+                ShowErrorView = false;
+            }
+            else 
+                App.CurrentState.ShowCompressionProgress = false;
+        }
+
+
+        private async void CompressDespiteWarnings_Click(object sender, RoutedEventArgs e)
+        {
+            vm.OverridePreCompressionWarningsAndStartCompression();
+            OnPropertyChanged(nameof(HasPreCompressionWarnings));
+            OnPropertyChanged(nameof(ShowErrorOrWarningView));            
+        }
+
+        private async void CancelCompression_Click(object sender, RoutedEventArgs e)
+        {
+            vm.CancelAsPreCompressionWarnings();
             App.CurrentState.ShowCompressionProgress = false;
+            OnPropertyChanged(nameof(HasPreCompressionWarnings));
         }
 
         private async void OpenOutputFolderButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
@@ -71,5 +175,17 @@ namespace miCompressor.ui
                 await Launcher.LaunchFolderPathAsync(App.OutputSettingsInstance.OutputFolder);
             }
         }
+
+        protected ICommand ShowWarningCommand => new RelayCommand<object>(param =>
+        {
+            ShowWarningView = true;
+            OnPropertyChanged(nameof(ShowBackButton));
+        });
+
+        protected ICommand ShowErrorCommand => new RelayCommand<object>(param =>
+        {
+            ShowErrorView = true;
+            OnPropertyChanged(nameof(ShowBackButton));
+        });
     }
 }

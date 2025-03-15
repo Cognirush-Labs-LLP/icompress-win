@@ -177,6 +177,41 @@ namespace miCompressor.core
             }
             return commonDir?.FullName;
         }
+
+        /// <summary>
+        /// Checks if two paths refer to the same location, handling long paths and normalization.
+        /// </summary>
+        public static bool ArePathsEqual(string path1, string path2)
+        {
+            if (string.IsNullOrWhiteSpace(path1) || string.IsNullOrWhiteSpace(path2))
+                return false;
+
+            try
+            {
+                string fullPath1 = NormalizeLongPath(path1);
+                string fullPath2 = NormalizeLongPath(path2);
+
+                return string.Equals(fullPath1, fullPath2, StringComparison.OrdinalIgnoreCase);
+            }
+            catch (Exception)
+            {
+                return false; // Handle invalid paths gracefully
+            }
+        }
+
+        /// <summary>
+        /// Normalizes a path, handling long paths and ensuring a consistent format.
+        /// </summary>
+        private static string NormalizeLongPath(string path)
+        {
+            string normalizedPath = Path.GetFullPath(path).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+            // Handle long paths by adding \\?\ prefix if needed
+            if (normalizedPath.Length >= 260 && !normalizedPath.StartsWith(@"\\?\"))
+                normalizedPath = @"\\?\" + normalizedPath;
+            
+            return normalizedPath;
+        }
     }
 }
 

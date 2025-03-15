@@ -1,21 +1,19 @@
-﻿using miCompressor.core.common;
-using miCompressor.core;
+﻿using miCompressor.core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace miCompressor.ui.viewmodel
 {
     public class WarningViewModel : INotifyPropertyChanged
     {
         private readonly WarningHelper warningHelper = WarningHelper.Instance;
-        public ObservableCollection<WarningGroup> Warnings { get; private set; } = new ObservableCollection<WarningGroup>();
+        public ObservableCollection<WarningGroup> ErrorsOrWarnings { get; private set; } = new ObservableCollection<WarningGroup>();
 
-        private string _currentWarningType = "Post Compression Warnings";
+        private string _currentWarningType = "Post Compression ErrorsOrWarnings";
         public string CurrentWarningType
         {
             get => _currentWarningType;
@@ -33,6 +31,20 @@ namespace miCompressor.ui.viewmodel
             RefreshWarnings(); // Initial load
         }
 
+        // Get the errors/warning in textual form.
+        public string GetText()
+        {
+            StringBuilder text = new StringBuilder().Append("");
+
+            foreach (var group in ErrorsOrWarnings)
+            {
+                text.AppendLine($"** {group.GroupName} ({group.Items.Count} files) **");
+                foreach (var file in group.Items)
+                    text.AppendLine($"    - {file.FilePath}");
+            }
+            return text.ToString();
+        }
+
         private void WarningHelper_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(WarningHelper.PostCompressionWarnings) ||
@@ -45,7 +57,7 @@ namespace miCompressor.ui.viewmodel
 
         private void RefreshWarnings()
         {
-            Warnings.Clear();
+            ErrorsOrWarnings.Clear();
             Dictionary<Enum, List<MediaFileInfo>> source = CurrentWarningType switch
             {
                 "Pre Compression Warnings" => warningHelper.PreCompressionWarnings.ToDictionary(kvp => (Enum)kvp.Key, kvp => kvp.Value),
@@ -56,13 +68,21 @@ namespace miCompressor.ui.viewmodel
 
             foreach (var group in source)
             {
-                Warnings.Add(new WarningGroup(group.Key.ToString(), group.Value));
+                string description = group.Key switch
+                {
+                    PostCompressionWarningType post => EnumDescriptionProvider<PostCompressionWarningType>.Description(post),
+                    PreCompressionWarningType pre => EnumDescriptionProvider<PreCompressionWarningType>.Description(pre),
+                    CompressionErrorType error => EnumDescriptionProvider<CompressionErrorType>.Description(error),
+                    _ => group.Key.ToString() // Fallback to enum name if no match
+                };
+
+                ErrorsOrWarnings.Add(new WarningGroup(description, group.Value));
             }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            UIThreadHelper.RunOnUIThread(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)));
     }
 
     public class WarningGroup

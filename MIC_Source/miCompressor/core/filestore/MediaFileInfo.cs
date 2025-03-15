@@ -1,4 +1,5 @@
 ﻿using ImageMagick;
+using miCompressor.ui;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -265,6 +266,7 @@ namespace miCompressor.core
         /// </remarks>
         public string GetOutputPath(OutputSettings outputSettings, bool multipleFolderSelected, bool onlyPreview)
         {
+            IsReplaceOperation = false;
             string outputDirectory;
             string originalFileName = Path.GetFileNameWithoutExtension(FileToCompress.Name);
             string fileExtension = outputSettings.format.GetOutputExtension(FileToCompress.Name);
@@ -420,6 +422,9 @@ namespace miCompressor.core
             {
                 File.Move(outputFile.FullName, FileToCompress.FullName, overwrite: true);
             }
+
+            if (outputMeta.FileSize > FileSize)
+                WarningHelper.Instance.AddPostWarning(PostCompressionWarningType.FileSizeIncreased, this);
 
             return (false, false); // Compressed file used successfully
         }

@@ -22,6 +22,8 @@ namespace miCompressor.ui.viewmodel
         [AutoNotify] private int totalFilesFailedToCompress = 0;
         [AutoNotify] private int totalFilesCancelled = 0;
         [AutoNotify] private bool compressionInProgress = false;
+        [AutoNotify] private bool overridePreCompressionWarnings = false;
+
 
         [AutoNotify] private ulong totalOriginalSize = 0;
         [AutoNotify] private ulong totalCompressedSize = 0;
@@ -64,7 +66,6 @@ namespace miCompressor.ui.viewmodel
             compressor.ImageCompressed += Compressor_ImageCompressed;
             compressor.CompressionCompleted += Compressor_CompressionCompleted;
             _timer.Elapsed += (s, e) =>  { TimeToShow = GetElapsedTimeFormatted(); };
-
         }
 
         private void Reset()
@@ -87,7 +88,7 @@ namespace miCompressor.ui.viewmodel
                 return (false, "Output Folder Not Specified.");
 
             if (settings.outputLocationSettings == OutputLocationSetting.SameFolderWithFileNameSuffix && string.IsNullOrWhiteSpace(settings.prefix) && string.IsNullOrWhiteSpace(settings.suffix))
-                return (false, "You must provide Prefix or Suffix for current output setting: " + OutputLocationSetting.SameFolderWithFileNameSuffix.GetDescription());
+                return (false, "You must provide Prefix or Suffix for current output folder setting: " + OutputLocationSetting.SameFolderWithFileNameSuffix.GetDescription());
 
             return (true, "");
         }
@@ -98,7 +99,9 @@ namespace miCompressor.ui.viewmodel
         /// <returns>flags if compression couldn't start.</returns>
         public (bool alreadyInProgress, bool nothingToCompress) StartCompression()
         {
+              
             Reset();
+            StopTimer();
 
             var imagesToCompress = store.GetAllFiles.Where(file => !file.ExcludeAndHide && !file.ExcludeAndShow).ToList();
 
@@ -115,9 +118,36 @@ namespace miCompressor.ui.viewmodel
 
             TotalFilesToCompress = imagesToCompress.Count();
 
-            _ = compressor.CompressImagesAsync(imagesToCompress, store.SelectedPaths.Count > 1, settings, false);
+            if (!overridePreCompressionWarnings)
+                store.GeneratePreCompressionWarnings(settings, store.SelectedPaths.Count > 1);
+
+            if (!WarningHelper.Instance.PreCompressionWarnings.Any() || overridePreCompressionWarnings)
+            {
+                _ = compressor.CompressImagesAsync(imagesToCompress, store.SelectedPaths.Count > 1, settings, false);
+                WarningHelper.Instance.ClearPreCompressionWarning();
+                overridePreCompressionWarnings = false;
+            }
 
             return (false, false);
+        }
+
+        /// <summary>
+        /// Call this when user selected to compress despite pre-compression warning.
+        /// </summary>
+        public void OverridePreCompressionWarningsAndStartCompression()
+        {
+            this.overridePreCompressionWarnings = true;
+            CompressionInProgress = false;
+            StartCompression();
+        }
+
+        /// <summary>
+        /// Call this when user selected to abort compression after looking at pre-compression warnings.
+        /// </summary>
+        public void CancelAsPreCompressionWarnings()
+        {
+            CompressionInProgress = false;
+            this.overridePreCompressionWarnings = false;
         }
 
         /// <summary>

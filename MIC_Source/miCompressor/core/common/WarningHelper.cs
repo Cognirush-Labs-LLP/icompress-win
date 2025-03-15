@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Foundation.Collections;
 
 namespace miCompressor.core;
 
@@ -16,6 +17,11 @@ public enum PostCompressionWarningType
     /// File size increased after compression. Possible reasons: File format changed, dimension changed.
     /// </summary>
     FileSizeIncreased,
+
+    /// <summary>
+    /// As the compressed file was larger, original file was used instead instead.
+    /// </summary>
+    UsedOriginalFile,
 
     /// <summary>
     /// File format changed as user selected to keep original format but it is not supported as output format.
@@ -33,6 +39,7 @@ public enum PostCompressionWarningType
     AnimationLost,
 }
 
+
 /// <summary>
 /// Warning to show before compression starts. User actions can be captured to mitigate the warning - mostly skip the affected file or cancel the operation.
 /// </summary>
@@ -47,6 +54,11 @@ public enum PreCompressionWarningType
     /// File format changed as user selected to keep original format but it is not supported as output format.
     /// </summary>
     FileFormatChanged,
+
+    /// <summary>
+    /// Output location of the file is computed same as input location so user may lose original file. Note that this flag is not applicable if user has selected to Replace Original option.
+    /// </summary>
+    LoosingOriginalImage,
 }
 
 /// <summary>
@@ -72,6 +84,106 @@ public enum CompressionErrorType
     Cancelled
 }
 
+/// <summary>
+/// ViewModel to enable binding Enums with descriptions in XAML.
+/// </summary>
+public class EnumViewModel<T> : INotifyPropertyChanged where T : Enum
+{
+    private readonly Dictionary<T, string> _descriptions;
+
+    private T _value;
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public EnumViewModel(Dictionary<T, string> descriptions)
+    {
+        _descriptions = descriptions;
+    }
+
+    /// <summary>
+    /// Gets or sets the enum value.
+    /// </summary>
+    public T Value
+    {
+        get => _value;
+        set
+        {
+            if (!EqualityComparer<T>.Default.Equals(_value, value))
+            {
+                _value = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Description)));
+            }
+        }
+    }
+
+    /// <summary>
+    /// Gets the user-friendly description for the selected enum value.
+    /// </summary>
+    public string Description => _descriptions.TryGetValue(_value, out var description) ? description : _value.ToString();
+}
+/// <summary>
+/// Generic provider for retrieving descriptions of enums.
+/// </summary>
+/// <typeparam name="T">Enum type</typeparam>
+public static class EnumDescriptionProvider<T> where T : Enum
+{
+    private static readonly Dictionary<T, string> _descriptions = new();
+
+    /// <summary>
+    /// Static constructor to initialize descriptions.
+    /// </summary>
+    static EnumDescriptionProvider()
+    {
+        if (typeof(T) == typeof(PostCompressionWarningType))
+        {
+            var map = new Dictionary<PostCompressionWarningType, string>
+                {
+                    { PostCompressionWarningType.FileSizeIncreased, "File size increased after compression. Cannot use original file as dimension or output format is changed." },
+                    { PostCompressionWarningType.UsedOriginalFile, "Used original file because the compressed file was larger than the original." },
+                    { PostCompressionWarningType.FileFormatChanged, "File format changed as the selected original format is not supported in output." },
+                    { PostCompressionWarningType.FileOverwritten, "Existing file was overwritten, looks unintentional." },
+                    { PostCompressionWarningType.AnimationLost, "Animation lost when converting an animated image to a format that does not support animation." }
+                };
+
+            foreach (var kvp in map)
+                _descriptions[(T)(object)kvp.Key] = kvp.Value;
+        }
+        else if (typeof(T) == typeof(PreCompressionWarningType))
+        {
+            var map = new Dictionary<PreCompressionWarningType, string>
+                {
+                    { PreCompressionWarningType.FileAlreadyExists, "Destination file already exists. You may choose to overwrite or cancel." },
+                    { PreCompressionWarningType.FileFormatChanged, "File format will changed as the selected original format is not supported in output." },
+                    { PreCompressionWarningType.LoosingOriginalImage, "Output location matches input, risking loss of the original file - looks unintentional" }
+                };
+
+            foreach (var kvp in map)
+                _descriptions[(T)(object)kvp.Key] = kvp.Value;
+        }
+        else if (typeof(T) == typeof(CompressionErrorType))
+        {
+            var map = new Dictionary<CompressionErrorType, string>
+                {
+                    { CompressionErrorType.None, "No error occurred during compression." },
+                    { CompressionErrorType.FailedToCompress, "Compression failed due to unsupported format features or file corruption." },
+                    { CompressionErrorType.AccessDenied, "Access denied to the output location." },
+                    { CompressionErrorType.Cancelled, "Compression was canceled." }
+                };
+
+            foreach (var kvp in map)
+                _descriptions[(T)(object)kvp.Key] = kvp.Value;
+        }
+    }
+
+    /// <summary>
+    /// Retrieves the description of the given enum value.
+    /// </summary>
+    public static string Description(T value)
+    {
+        return _descriptions.TryGetValue(value, out var description) ? description : value.ToString();
+    }
+}
+
 
 /// <summary>
 /// Singleton class to show compression warnings to user.
@@ -86,10 +198,22 @@ public partial class WarningHelper : INotifyPropertyChanged
     private Dictionary<PreCompressionWarningType, List<MediaFileInfo>> preCompressionWarnings = new();
     private Dictionary<CompressionErrorType, List<MediaFileInfo>> compressionErrors = new();
 
+    public bool HasWarnings => postCompressionWarnings.Count > 0;
+    public bool HasPreCompressionWarnings => preCompressionWarnings.Count > 0;
+    public bool HasErrors => compressionErrors.Count > 0;
+
+    public int WarningCount => postCompressionWarnings.Values.Sum(list => list.Count);
+    public int ErrorCount => compressionErrors.Values.Sum(list => list.Count);
+
     public event PropertyChangedEventHandler PropertyChanged;
 
-    protected virtual void OnPropertyChanged(string propertyName) =>
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    protected virtual void OnPropertyChanged(string propertyName)
+    {
+        UIThreadHelper.RunOnUIThread(() =>
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        });
+    }
 
     private void AddToDictionary<T>(Dictionary<T, List<MediaFileInfo>> dict, T type, MediaFileInfo info)
     {
@@ -120,6 +244,8 @@ public partial class WarningHelper : INotifyPropertyChanged
     {
         AddToDictionary(postCompressionWarnings, type, info);
         OnPropertyChanged(nameof(PostCompressionWarnings));
+        OnPropertyChanged(nameof(HasWarnings));
+        OnPropertyChanged(nameof(WarningCount));
     }
 
     public void AddPreWarning(PreCompressionWarningType type, MediaFileInfo info)
@@ -132,6 +258,9 @@ public partial class WarningHelper : INotifyPropertyChanged
     {
         AddToDictionary(compressionErrors, type, info);
         OnPropertyChanged(nameof(CompressionErrors));
+        OnPropertyChanged(nameof(HasErrors));
+        OnPropertyChanged(nameof(ErrorCount));
+
     }
 
     public IReadOnlyDictionary<PostCompressionWarningType, List<MediaFileInfo>> PostCompressionWarnings
@@ -158,6 +287,13 @@ public partial class WarningHelper : INotifyPropertyChanged
         }
     }
 
+    public void ClearPreCompressionWarning()
+    {
+        lock (_lock) 
+            preCompressionWarnings.Clear();
+        OnPropertyChanged(nameof(PreCompressionWarnings));
+    }
+
     public void ClearAll()
     {
         lock (_lock)
@@ -170,5 +306,10 @@ public partial class WarningHelper : INotifyPropertyChanged
         OnPropertyChanged(nameof(PostCompressionWarnings));
         OnPropertyChanged(nameof(PreCompressionWarnings));
         OnPropertyChanged(nameof(CompressionErrors));
+
+        OnPropertyChanged(nameof(HasWarnings));
+        OnPropertyChanged(nameof(WarningCount));
+        OnPropertyChanged(nameof(HasErrors));
+        OnPropertyChanged(nameof(ErrorCount));
     }
 }

@@ -78,6 +78,8 @@ public class ImageCompressor
         using SemaphoreSlim sem = new(maxParallel);
         var tasks = new List<Task>();
 
+        WarningHelper.Instance.ClearAll();
+
         foreach (MediaFileInfo file in files)
         {
             await sem.WaitAsync().ConfigureAwait(false);
@@ -362,7 +364,7 @@ public class ImageCompressor
                 {
                     // The original file was kept (output was larger or not beneficial)
                     MicLog.Warning($"Original file kept (no size reduction) for: {mediaInfo.FilePath}");
-                    WarningHelper.Instance.AddPostWarning(PostCompressionWarningType.FileSizeIncreased, mediaInfo);
+                    WarningHelper.Instance.AddPostWarning(PostCompressionWarningType.UsedOriginalFile, mediaInfo);
                 }
             }
 

@@ -79,14 +79,12 @@ namespace miCompressor.core
 
         private static bool isSupportedAsOutput(string originalExtension)
         {
-            return IsJpeg(originalExtension) || IsPng(originalExtension) || IsTiff(originalExtension) || IsWebp(originalExtension) || IsHeic(originalExtension) || IsAvif(originalExtension);
+            return IsJpeg(originalExtension) || IsPng(originalExtension) || IsGif(originalExtension) || IsWebp(originalExtension) || IsAvif(originalExtension);
         }
 
         private static bool IsJpeg(string ext) => ext.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || ext.Equals(".jpeg", StringComparison.OrdinalIgnoreCase);
         private static bool IsPng(string ext) => ext.Equals(".png", StringComparison.OrdinalIgnoreCase);
-        private static bool IsTiff(string ext) => ext.Equals(".tiff", StringComparison.OrdinalIgnoreCase) || ext.Equals(".tif", StringComparison.OrdinalIgnoreCase);
         private static bool IsWebp(string ext) => ext.Equals(".webp", StringComparison.OrdinalIgnoreCase);
-        private static bool IsHeic(string ext) => ext.Equals(".heic", StringComparison.OrdinalIgnoreCase);
         private static bool IsAvif(string ext) => ext.Equals(".avif", StringComparison.OrdinalIgnoreCase);
         private static bool IsGif(string ext) => ext.Equals(".gif", StringComparison.OrdinalIgnoreCase);
 

@@ -1,3 +1,5 @@
+using miCompressor.core;
+using miCompressor.ui.viewmodel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -10,6 +12,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
@@ -23,9 +26,56 @@ namespace miCompressor.ui
     /// </summary>
     public sealed partial class ErrorAndWarnings : UserControl
     {
+        WarningViewModel vm = new WarningViewModel();
+
+        /// <summary>
+        /// Gets or sets the selected path.
+        /// </summary>
+        public string Kind
+        {
+            get => (string)GetValue(KindProperty);
+            set => SetValue(KindProperty, value);
+        }
+
+        private static void OnKindChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var control = (ErrorAndWarnings)d;
+            if (e.NewValue is string newKind)
+            {
+                if (newKind == null)
+                    return;
+                control.vm.CurrentWarningType = newKind;
+            }
+        }
+
+        /// <summary>
+        /// Identifies the <see cref="Kind"/> dependency property.
+        /// Possible Values: 
+        ///  - Pre Compression Warnings
+        ///  - Post Compression Warnings
+        ///  - Compression Errors
+        /// </summary>
+        public static readonly DependencyProperty KindProperty =
+            DependencyProperty.Register("Kind", typeof(string), typeof(ErrorAndWarnings), new PropertyMetadata(null, OnKindChanged));
+
         public ErrorAndWarnings()
         {
             this.InitializeComponent();
+        }
+
+        private void CopyToClipboardButton_Click(object sender, RoutedEventArgs e)
+        {
+            Task.Delay(100).ContinueWith(_ => UIThreadHelper.RunOnUIThread(() =>
+            {
+                CopyToClipboardIcon.Glyph = "\uE930";
+            }));
+
+            Task.Delay(2000).ContinueWith(_ => UIThreadHelper.RunOnUIThread(() =>
+            {
+                CopyToClipboardIcon.Glyph = "\uE8C8";
+            }));
+
+            ClipboardHelper.CopyToClipboard(vm.GetText());
         }
     }
 }

@@ -9,80 +9,48 @@
     mc:Ignorable="d">
 
     <ScrollView>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <Grid.Resources>
-                <Style x:Key="LabelStyle" TargetType="TextBlock">
-                    <Setter Property="Foreground" Value="{StaticResource Primary_50}"/>
-                    <Setter Property="HorizontalAlignment" Value="Right" />
-                    <Setter Property="VerticalAlignment" Value="Center" />
-                </Style>
+        <StackPanel>
+            <StackPanel  Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="3" Visibility="{x:Bind ShowErrorOrWarningView, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" >
+                <CommandBar  Grid.Column="0"  Grid.ColumnSpan="4" Grid.Row="0" IsOpen="False" HorizontalAlignment="Left" DefaultLabelPosition="Right" >
+                    <AppBarButton Name="BackButtonInWarningErrorView" Label="Back" Visibility="{x:Bind ShowBackButton, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" BorderThickness="1" FontSize="{StaticResource TextSmall}" Click="BackButton_Click" >
+                        <AppBarButton.Icon>
+                            <FontIcon Glyph="&#xE72B;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                </CommandBar>
 
-                <!-- Style for values -->
-                <Style x:Key="ValueStyle" TargetType="TextBlock">
-                    <Setter Property="FontWeight" Value="Thin"/>
-                    <Setter Property="FontSize" Value="{StaticResource TextLarge}"/>
-                    <Setter Property="Margin" Value="10"/>
-                    <Setter Property="HorizontalAlignment" Value="Left" />
-                </Style>
+                <StackPanel Visibility="{x:Bind HasPreCompressionWarnings, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" >
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10" Spacing="20" BorderBrush="{StaticResource Acccent_50}" BorderThickness="2" Padding="20"  CornerRadius="20">
+                        <TextBlock Text="I understand, " VerticalAlignment="Center" />
+                        <Button HorizontalContentAlignment="Center" HorizontalAlignment="Center" Background="{StaticResource Acccent_100}" x:Name="CancelCompression" Click="CancelCompression_Click" >
+                            <StackPanel Orientation="Horizontal">
+                                <FontIcon Glyph="&#xE711;" />
+                                <TextBlock HorizontalAlignment="Center" Margin="10,5" Text="Cancel" />
+                            </StackPanel>
+                        </Button>
+                        <Button HorizontalContentAlignment="Center" HorizontalAlignment="Center" x:Name="CompressDespiteWarnings" Click="CompressDespiteWarnings_Click" >
+                            <StackPanel Orientation="Horizontal">
+                                <FontIcon Glyph="&#xE7BA;" />
+                                <TextBlock HorizontalAlignment="Center" Margin="10,5" Text="Compress All, Despite Warnings" />
+                            </StackPanel>
+                        </Button>
+                        <Border BorderThickness="0,1,0,0" BorderBrush="{StaticResource Primary_50}" />
+                    </StackPanel>
+                    <local:ErrorAndWarnings Kind="Pre Compression Warnings" />
+                </StackPanel>
+                
+                <local:ErrorAndWarnings Kind="Compression Errors" Visibility="{x:Bind ShowErrorView, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                <local:ErrorAndWarnings Kind="Post Compression Warnings" Visibility="{x:Bind ShowWarningView, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                
+            </StackPanel>
 
-                <Style TargetType="local:PieChart">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="local:PieChart">
-                                <StackPanel HorizontalAlignment="Center">
-                                    <!-- Pie Chart Canvas -->
-                                    <Canvas x:Name="PART_Canvas"
-                Width="140" Height="140"
-                HorizontalAlignment="Center" />
-                                    <!-- Legends Panel -->
-                                    <StackPanel x:Name="PART_LegendPanel"
-                    Orientation="Vertical"
-                    HorizontalAlignment="Center"
-                    Margin="10,5,10,0">
-                                    </StackPanel>
-                                </StackPanel>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </Grid.Resources>
-            <CommandBar  Grid.Column="0"  Grid.ColumnSpan="4" Grid.Row="0" IsOpen="False" HorizontalAlignment="Left" DefaultLabelPosition="Right" >
-                <AppBarButton Name="CancelButton" Label="Cancel"  Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" Click="CancelButton_Click" >
-                    <AppBarButton.Icon>
-                        <FontIcon Glyph="&#xE711;" />
-                    </AppBarButton.Icon>
-                </AppBarButton>
-                <AppBarButton Name="BackButton" Label="Back" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" BorderThickness="1" FontSize="{StaticResource TextSmall}" Click="BackButton_Click" >
-                    <AppBarButton.Icon>
-                        <FontIcon Glyph="&#xE72B;" />
-                    </AppBarButton.Icon>
-                </AppBarButton>
-            </CommandBar>
-
-            <TextBlock Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="4" HorizontalAlignment="Center" Text="Processing.." Style="{StaticResource TextBlockH2}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
-            <TextBlock Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" Grid.ColumnSpan="4"  Text="Done!" Style="{StaticResource TextBlockH2}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" />
-
-            <local:PieChart Grid.Column="1" Grid.Row="2"  HorizontalAlignment="Center" Margin="40" VerticalAlignment="Center" Data="{x:Bind CompressionProgressVisuals, Mode=OneWay}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
-
-            <Grid Grid.Column="2" Grid.Row="2">
+            <Grid Visibility="{x:Bind ShowErrorOrWarningView, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -92,53 +60,129 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
+                <Grid.Resources>
+                    <Style x:Key="LabelStyle" TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="{StaticResource Primary_50}"/>
+                        <Setter Property="HorizontalAlignment" Value="Right" />
+                        <Setter Property="VerticalAlignment" Value="Center" />
+                    </Style>
+
+                    <!-- Style for values -->
+                    <Style x:Key="ValueStyle" TargetType="TextBlock">
+                        <Setter Property="FontWeight" Value="Thin"/>
+                        <Setter Property="FontSize" Value="{StaticResource TextLarge}"/>
+                        <Setter Property="Margin" Value="10"/>
+                        <Setter Property="HorizontalAlignment" Value="Left" />
+                    </Style>
+
+                    <Style TargetType="local:PieChart">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="local:PieChart">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <!-- Pie Chart Canvas -->
+                                        <Canvas x:Name="PART_Canvas"
+                Width="140" Height="140"
+                HorizontalAlignment="Center" />
+                                        <!-- Legends Panel -->
+                                        <StackPanel x:Name="PART_LegendPanel"
+                    Orientation="Vertical"
+                    HorizontalAlignment="Center"
+                    Margin="10,5,10,0">
+                                        </StackPanel>
+                                    </StackPanel>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Grid.Resources>
+                <CommandBar  Grid.Column="0"  Grid.ColumnSpan="4" Grid.Row="0" IsOpen="False" HorizontalAlignment="Left" DefaultLabelPosition="Right" >
+                    <AppBarButton Name="CancelButton" Label="Cancel"  Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" Click="CancelButton_Click" >
+                        <AppBarButton.Icon>
+                            <FontIcon Glyph="&#xE711;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                    <AppBarButton Name="BackButton" Label="Back" Visibility="{x:Bind ShowBackButton, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" BorderThickness="1" FontSize="{StaticResource TextSmall}" Click="BackButton_Click" >
+                        <AppBarButton.Icon>
+                            <FontIcon Glyph="&#xE72B;" />
+                        </AppBarButton.Icon>
+                    </AppBarButton>
+                </CommandBar>
 
 
-                <TextBlock Grid.Column="0" Grid.Row="1" Text="Took" Style="{StaticResource LabelStyle}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" />
-                <TextBlock Grid.Column="1" Grid.Row="1" VerticalAlignment="Center"  Style="{StaticResource ValueStyle}" FontSize="{StaticResource TextMedium}" Text="{x:Bind vm.TimeToShow, Mode=OneWay}" />
+                <StackPanel  Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="1" Orientation="Horizontal"  HorizontalAlignment="Center" >
+                    <HyperlinkButton Content="{x:Bind WarningText, Mode=OneWay}"  Command="{x:Bind ShowWarningCommand}" CommandParameter=" " Margin="20" Visibility="{x:Bind CanShowWarning, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    <HyperlinkButton Content="{x:Bind ErrorText, Mode=OneWay}" Command="{x:Bind ShowErrorCommand}" CommandParameter=" " Margin="20" Visibility="{x:Bind CanShowError, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                </StackPanel>
 
-                <TextBlock Grid.Column="0" Grid.Row="2" Text="Total" Style="{StaticResource LabelStyle}" />
-                <TextBlock Grid.Column="1" Grid.Row="2"  Style="{StaticResource ValueStyle}" Text="{x:Bind vm.TotalFilesToCompress, Mode=OneWay}" />
+                <StackPanel  Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="4"  HorizontalAlignment="Center" >
+                    <TextBlock Text="Processing.." Style="{StaticResource TextBlockH2}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    <TextBlock Text="Done!" Style="{StaticResource TextBlockH2}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" />
+                </StackPanel >
 
-                <TextBlock Grid.Column="0" Grid.Row="3" Text="Processed" Style="{StaticResource LabelStyle}" />
-                <TextBlock Grid.Column="1" Grid.Row="3" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.TotalFilesCompressed, Mode=OneWay}" />
 
-                <TextBlock Grid.Column="0" Grid.Row="4" Text="Failed" Style="{StaticResource LabelStyle}" />
-                <TextBlock Grid.Column="1" Grid.Row="4" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.TotalFilesFailedToCompress, Mode=OneWay}" />
+                <local:PieChart Grid.Column="1" Grid.Row="4"  HorizontalAlignment="Center" Margin="40" VerticalAlignment="Center" Data="{x:Bind CompressionProgressVisuals, Mode=OneWay}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-                <TextBlock Grid.Column="0" Grid.Row="5" Text="Cancelled" Style="{StaticResource LabelStyle}" />
-                <TextBlock Grid.Column="1" Grid.Row="5" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.TotalFilesCancelled, Mode=OneWay}" />
 
-                <TextBlock Grid.Column="0" Grid.Row="6" Text="Original Size" Style="{StaticResource LabelStyle}" />
-                <TextBlock Grid.Column="1" Grid.Row="6" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.OriginalSize, Mode=OneWay}" MinWidth="120" />
+                <Grid Grid.Column="2" Grid.Row="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="0" Grid.Row="7" Text="Compressed Size" Style="{StaticResource LabelStyle}" />
-                <TextBlock Grid.Column="1" Grid.Row="7" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.CompressedSize, Mode=OneWay}" />
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-                <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="8" CornerRadius="20"  BorderThickness="1" BorderBrush="{StaticResource Acccent_20}" Background="{StaticResource Acccent_05}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" />
-                <TextBlock Grid.Column="0" Grid.Row="8" Text="Reduced" Style="{StaticResource LabelStyle}" />
-                <TextBlock Grid.Column="1" Grid.Row="8" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.PercentageReduction, Mode=OneWay}" />
 
-                
-                <Button Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="9" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Margin="20" x:Name="OpenOutputFolderButton" Click="OpenOutputFolderButton_Click" 
+                    <TextBlock Grid.Column="0" Grid.Row="1" Text="Took" Style="{StaticResource LabelStyle}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" />
+                    <TextBlock Grid.Column="1" Grid.Row="1" VerticalAlignment="Center"  Style="{StaticResource ValueStyle}" FontSize="{StaticResource TextMedium}" Text="{x:Bind vm.TimeToShow, Mode=OneWay}" />
+
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="Total" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Grid.Column="1" Grid.Row="2"  Style="{StaticResource ValueStyle}" Text="{x:Bind vm.TotalFilesToCompress, Mode=OneWay}" />
+
+                    <TextBlock Grid.Column="0" Grid.Row="3" Text="Processed" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Grid.Column="1" Grid.Row="3" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.TotalFilesCompressed, Mode=OneWay}" />
+
+                    <TextBlock Grid.Column="0" Grid.Row="4" Text="Failed" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Grid.Column="1" Grid.Row="4" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.TotalFilesFailedToCompress, Mode=OneWay}" />
+
+                    <TextBlock Grid.Column="0" Grid.Row="5" Text="Cancelled" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Grid.Column="1" Grid.Row="5" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.TotalFilesCancelled, Mode=OneWay}" />
+
+                    <TextBlock Grid.Column="0" Grid.Row="6" Text="Original Size" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Grid.Column="1" Grid.Row="6" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.OriginalSize, Mode=OneWay}" MinWidth="120" />
+
+                    <TextBlock Grid.Column="0" Grid.Row="7" Text="Compressed Size" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Grid.Column="1" Grid.Row="7" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.CompressedSize, Mode=OneWay}" />
+
+                    <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="8" CornerRadius="20"  BorderThickness="1" BorderBrush="{StaticResource Acccent_20}" Background="{StaticResource Acccent_05}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" />
+                    <TextBlock Grid.Column="0" Grid.Row="8" Text="Reduced" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Grid.Column="1" Grid.Row="8" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.PercentageReduction, Mode=OneWay}" />
+
+
+                    <Button Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="9" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Margin="20" x:Name="OpenOutputFolderButton" Click="OpenOutputFolderButton_Click" 
                         Visibility="{x:Bind ShowOutputFolderLink, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <StackPanel Orientation="Horizontal">
-                        <FontIcon Glyph="&#xE838;" />
-                        <TextBlock HorizontalAlignment="Center" Margin="10,5" Text="Open Output Foder" />
-                    </StackPanel>
-                </Button>
-
+                        <StackPanel Orientation="Horizontal">
+                            <FontIcon Glyph="&#xE838;" />
+                            <TextBlock HorizontalAlignment="Center" Margin="10,5" Text="Open Output Foder" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
             </Grid>
-
-        </Grid>
-        
+        </StackPanel>
     </ScrollView>
-    
-    
 </UserControl>
