@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Security.Authentication.Web.Core;
 
 namespace miCompressor.core
 {
@@ -69,14 +67,24 @@ namespace miCompressor.core
         /// <summary>
         /// A read-only list of media files found in the selected path.
         /// </summary>
-        public IReadOnlyList<MediaFileInfo> Files
+        public IEnumerable<MediaFileInfo> Files
         {
             get
             {
                 using (_lockForFiles.ReadLock())
-                    return _files.ToList().AsReadOnly();
+                    return _files.ToList().AsEnumerable();
             }
         }
+
+        public int FileCount
+        {
+            get
+            {
+                using (_lockForFiles.ReadLock())
+                    return _files.Count;
+            }
+        }
+
 
         /// <summary>
         /// Useful in UI when selected path is a file and not a directory.
@@ -156,6 +164,7 @@ namespace miCompressor.core
                         _files.Add(new MediaFileInfo(basePath, new FileInfo(basePath)));
                     }
                     OnPropertyChanged(nameof(Files));
+                    OnPropertyChanged(nameof(FileCount));
                     OnPropertyChanged(nameof(FirstFile));
                 }
                 else
@@ -169,6 +178,7 @@ namespace miCompressor.core
                                 ClearFiles();
                             }
                             OnPropertyChanged(nameof(Files));
+                            OnPropertyChanged(nameof(FileCount));
                             PopulateAllFilesForSupportedExtension(CodeConsts.SupportedInputExtensionsWithDot, Path, Path, IncludeSubDirectories, cancellationToken);
                         }
                     }, cancellationToken);
@@ -182,6 +192,7 @@ namespace miCompressor.core
             {
                 ScanningForFiles = false;
                 OnPropertyChanged(nameof(Files));
+                OnPropertyChanged(nameof(FileCount));
             }
         }
 
@@ -225,6 +236,7 @@ namespace miCompressor.core
                         _files.AddRange(newFiles);
                     }
                     OnPropertyChanged(nameof(Files));
+                    OnPropertyChanged(nameof(FileCount));
                 }
 
                 if (includeSubDir)
@@ -272,7 +284,7 @@ namespace miCompressor.core
     /// <summary>
     /// Manages a thread-safe collection of selected file paths.
     /// </summary>
-    public class FileStore : ObservableBase
+    public partial class FileStore : ObservableBase
     {
         private readonly List<SelectedPath> _store = new();
         private readonly ObservableCollection<SelectedPath> _uiStore = new(); // UI-friendly ObservableCollection
@@ -298,7 +310,7 @@ namespace miCompressor.core
         /// Retrieves all unique media files across selected paths.
         /// </summary>
         /// <remarks>This is dynamically created list, be mindful and cache for multiple access. </remarks>
-        public IReadOnlyCollection<MediaFileInfo> GetAllFiles
+        public IEnumerable<MediaFileInfo> GetAllFiles
         {
             get
             {
@@ -315,7 +327,32 @@ namespace miCompressor.core
                 }
 
                 using (_lock.ReadLock())
-                    return _store.SelectMany(sp => sp.Files).DistinctBy(media => media.FileToCompress.FullName).ToList().AsReadOnly();
+                    return _store.SelectMany(sp => sp.Files).DistinctBy(media => media.FileToCompress.FullName).ToList().AsEnumerable();
+            }
+        }
+
+        /// <summary>
+        /// Retrieves all unique media files across selected paths.
+        /// </summary>
+        /// <remarks>This is dynamically created list, be mindful and cache for multiple access. </remarks>
+        public IEnumerable<MediaFileInfo> GetAllFilesIncludingDuplicates
+        {
+            get
+            {
+                int totalWaitMs = 0;
+
+                IReadOnlyCollection<SelectedPath> tempSelectedPathList;
+                using (_lock.ReadLock())
+                    tempSelectedPathList = _store.AsReadOnly();
+
+                while (tempSelectedPathList.Any(selection => selection.ScanningForFiles) && totalWaitMs < 10 * 1000) //wait for scanning to finish, max 10 seconds
+                {
+                    Thread.Sleep(10);
+                    totalWaitMs += 10;
+                }
+
+                using (_lock.ReadLock())
+                    return _store.SelectMany(sp => sp.Files).ToList().AsEnumerable();
             }
         }
 
@@ -341,7 +378,16 @@ namespace miCompressor.core
                     UIThreadHelper.RunOnUIThread(() =>
                     {
                         lock (_uiStoreLock)
-                            if (!_uiStore.Contains(selectedPath)) _uiStore.Add(selectedPath);
+                        {
+                            if (_store.Count != _uiStore.Count) //UI thread was not running earlier, now recreate ui_Store
+                            {
+                                _uiStore.Clear();
+                                foreach(var sp in _store)
+                                    _uiStore.Add(sp);
+                            }
+                            else if (!_uiStore.Contains(selectedPath)) 
+                                _uiStore.Add(selectedPath);
+                        }
                         OnPropertyChanged(nameof(SelectedPaths));
                     });
 

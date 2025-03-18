@@ -14,6 +14,8 @@
     <UserControl.Resources>
         <!-- Set the proxy Data to the FileTreeSelectionView instance -->
         <local:BindingProxy x:Key="CurrentState" Data="{x:Bind CurrentState, Mode=OneWay}" />
+        <local:BindingProxy x:Key="ThisObj" Data="{x:Bind ThisObj, Mode=OneWay}" />
+
     </UserControl.Resources>
     
     <Grid>
@@ -80,8 +82,8 @@
 
                             <TextBlock Text="{x:Bind FileSize, Mode=OneWay}" VerticalAlignment="Center" Style="{StaticResource TextBlockSmall}" Foreground="{StaticResource Acccent_70}" Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}"/>
                             <!-- "Preview" Link (Only for Files) -->
-                            <HyperlinkButton Content="Preview" NavigateUri="{x:Bind FileInfo.FileToCompress.FullName}" FontSize="12" Padding="4"
-                                     Margin="20,-4,0,-4" Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            <HyperlinkButton Content="Preview" FontSize="12" Padding="4"
+                                     Margin="20,-4,0,-4" Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding Data.ShowPreviewCommand, Source={StaticResource ThisObj}}" CommandParameter="{x:Bind FileInfo}" />
 
                             <StackPanel.ContextFlyout>
                                 <MenuFlyout>

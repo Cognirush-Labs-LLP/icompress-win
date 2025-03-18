@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using System;
 using System.IO;
+using System.Windows.Input;
 using Windows.System;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -18,6 +19,7 @@ namespace miCompressor.ui
     {
         public GroupedImageGalleryViewModel ViewModel { get; } = new GroupedImageGalleryViewModel();
         public MasterState CurrentState => App.CurrentState;
+        public FileTreeSelectionView ThisObj => this;
 
 
         /// <summary>
@@ -142,8 +144,16 @@ namespace miCompressor.ui
         {
             e.Handled = true;
         }
+
         #endregion
 
+        public ICommand ShowPreviewCommand => new RelayCommand<object>(param =>
+        {
+            if (param as MediaFileInfo == null)
+                return;
 
+            CurrentState.SelectedImageForPreview = param as MediaFileInfo;
+            CurrentState.ShowPreview = true;
+        });
     }
 }

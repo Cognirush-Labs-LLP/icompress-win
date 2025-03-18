@@ -74,7 +74,7 @@ public class MetadataCopyHelper
             if (String.IsNullOrEmpty(options)) //nothing to copy
                 return 0;
 
-            arguments = $" -tagsFromFile \"{copyFromImagePath}\" {options} -overwrite_original \"{copyToImagePath}\" ";
+            arguments = $" -tagsFromFile \"{copyFromImagePath}\" {options} -Orientation#=0  -overwrite_original \"{copyToImagePath}\" ";
         }
         else
         {

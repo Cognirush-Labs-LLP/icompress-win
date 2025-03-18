@@ -116,14 +116,14 @@ namespace miCompressor.ui.viewmodel
                 StartTimer();
             }
 
-            TotalFilesToCompress = imagesToCompress.Count();
+            TotalFilesToCompress = imagesToCompress.Count;
 
             if (!overridePreCompressionWarnings)
                 store.GeneratePreCompressionWarnings(settings, store.SelectedPaths.Count > 1);
 
             if (!WarningHelper.Instance.PreCompressionWarnings.Any() || overridePreCompressionWarnings)
             {
-                _ = compressor.CompressImagesAsync(imagesToCompress, store.SelectedPaths.Count > 1, settings, false);
+                _ = compressor.CompressImagesAsync(imagesToCompress.AsEnumerable(), store.SelectedPaths.Count > 1, settings, false);
                 WarningHelper.Instance.ClearPreCompressionWarning();
                 overridePreCompressionWarnings = false;
             }

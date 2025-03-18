@@ -5,10 +5,80 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:miCompressor.ui"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    mc:Ignorable="d" Loaded="UserControl_Loaded" >
 
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <CommandBar Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" DefaultLabelPosition="Right" >
+            <AppBarButton Name="BackButton" Label="Back"   Click="BackButton_Click" >
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xE72B;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+
+            <AppBarSeparator Margin="20,0,0,0" />
+
+            <AppBarButton Name="PrevButton" Label=""  >
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xE892;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+
+            <AppBarButton Name="NextButton" Label=""  >
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xE893;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+
+            <AppBarSeparator Margin="0,0,10,0"/>
+
+            <AppBarElementContainer VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <Button Name="OriginalImageButton" Content="Original" CornerRadius="10,0,0,10" Background="{StaticResource Acccent_100}" Click="OriginalButton_Click" />
+                    <Button Name="CompressedImageButton" Content="Compressed" CornerRadius="0,10,10,0" Click="CompressedImageButton_Click" />
+                </StackPanel>
+            </AppBarElementContainer>
+
+            <AppBarSeparator Margin="10,0,10,0"/>
+
+            <AppBarButton Name="ZoomInButton" Label="" Click="ZoomInButton_Click">
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xE8A3;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarButton Name="ZoomOutButton" Label="" Click="ZoomOutButton_Click" >
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xE71F;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarButton Name="Zoom100Button" Label="100%"  Click="Zoom100Button_Click">
+
+            </AppBarButton>
+            <AppBarButton Name="ZoomFitButton" Label="Fit" VerticalContentAlignment="Center" Click="ZoomFitButton_Click" >
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xE9A6;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+        </CommandBar>
+        <TextBlock Grid.Column="0" Grid.Row="1" Text="{x:Bind CurrentState.SelectedImageForPreview.ShortName}" TextWrapping="Wrap" />
+        <ScrollView Name="ImageGridScrollViewArea" Grid.Column="0"  Grid.Row="2" HorizontalScrollMode="Auto" VerticalScrollMode="Auto" >
+            <Grid Name="ImageContainerGrid" PointerPressed="PannableImage_PointerPressed"
+           PointerMoved="PannableImage_PointerMoved"
+           PointerReleased="PannableImage_PointerReleased">
+               
+                <Image Name="OriginalImage" VerticalAlignment="Center" Visibility="{x:Bind ShowCompressed, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" Stretch="Uniform" />
+                <Image Name="CompressedImage" VerticalAlignment="Center" Visibility="{x:Bind ShowCompressed, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"  Stretch="Uniform" />
+            </Grid>
+        </ScrollView>
+        <ProgressRing Name="ImageProgressRing"  Grid.Column="0"  Grid.Row="2" IsActive="False" Visibility="Visible" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
     </Grid>
 </UserControl>

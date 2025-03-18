@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using miCompressor.core.common;
+using System;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Windows.Storage;
 
 namespace miCompressor.core
@@ -110,6 +107,18 @@ namespace miCompressor.core
         /// Key to store settings in local settings.
         /// </summary>
         private const string SettingsKey = "SavedOutputSettings";
+
+
+        public string GetHashForImagePreviewRegeneration()
+        {
+            return HashHelper.ComputeStableHash(
+                quality,
+                format,
+                dimensionStrategy, percentageOfLongEdge, primaryEdgeLength,
+                PrintDimension,
+                copyMetadata, skipSensitiveMetadata, copyIPTC, copyXMP               
+                );
+        }
 
         /// <summary>
         /// Save the current instance to local settings.

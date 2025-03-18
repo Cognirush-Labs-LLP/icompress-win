@@ -1,11 +1,6 @@
 ﻿using miCompressor.core;
-using System.ComponentModel;
-using miCompressor.ui;
-using System.Linq;
-using Microsoft.UI.Xaml.Controls;
-using System;
 using miCompressor.ui.viewmodel;
-using Windows.ApplicationModel.UserDataTasks;
+using System.ComponentModel;
 
 namespace miCompressor.viewmodel
 {
@@ -35,6 +30,12 @@ namespace miCompressor.viewmodel
 
         [AutoNotify]
         public bool showCompressionProgress = false;
+
+        [AutoNotify]
+        public bool showPreview = false;
+
+        [AutoNotify]
+        public MediaFileInfo? selectedImageForPreview = null;
 
         public Filter SelectionFilter = new();
 
@@ -71,7 +72,7 @@ namespace miCompressor.viewmodel
         {
             if(e.PropertyName == nameof(SelectedPath.Files))
             {
-                var selectedPath = sender as SelectedPath;
+                SelectedPath? selectedPath = sender as SelectedPath;
                 if (selectedPath == null) return;
 
                 foreach (var file in selectedPath.Files)

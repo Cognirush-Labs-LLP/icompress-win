@@ -1,13 +1,11 @@
-﻿using System;
+﻿using ImageMagick;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using ImageMagick;
-using ImageMagick.Formats;
-using Serilog.Core;
-using Windows.Security.EnterpriseData;
 
 namespace miCompressor.core;
 
@@ -59,16 +57,16 @@ public class ImageCompressor
         if(forPreview || files.Count() < Environment.ProcessorCount)
         {
             int parallelismInUnitOfWork = Math.Max(1, (int) Math.Ceiling(Environment.ProcessorCount / (double) files.Count()));
-            MagickNET.SetEnvironmentVariable("OMP_NUM_THREADS", parallelismInUnitOfWork.ToString());
+            //MagickNET.SetEnvironmentVariable("OMP_NUM_THREADS", parallelismInUnitOfWork.ToString());
         } else
         {
-            MagickNET.SetEnvironmentVariable("OMP_NUM_THREADS", "2");
+            //MagickNET.SetEnvironmentVariable("OMP_NUM_THREADS", "2");
         }
 
 
 #if DEBUG
         //MagickNET.SetEnvironmentVariable("OMP_NUM_THREADS", "2");
-        maxParallel = 1;
+        //maxParallel = 1;
 #endif
         int total = files.Count();
         int errorCount = 0;
@@ -134,18 +132,17 @@ public class ImageCompressor
     /// Process a single image file: compress, convert format, handle metadata and animation.
     /// multipleSelectPaths helps determine whether to create parent folder in specific output folder or not. 
     /// </summary>
-    private async Task ProcessSingleFileAsync(MediaFileInfo mediaInfo, bool multipleSelectPaths, OutputSettings settings, bool forPreview)
+    /// <returns>Return output path where compressed image is created, this can be temporary path and image may NOT exist if it is is a replace operation.</returns>
+    public async Task<string> ProcessSingleFileAsync(MediaFileInfo mediaInfo, bool multipleSelectPaths, OutputSettings settings, bool forPreview)
     {
         if (stop)
         {
             RaiseCancellationEvent(mediaInfo);
-            return;
+            return null;
         }
 
         string sourcePath = mediaInfo.FilePath;
         string outputPath = mediaInfo.GetOutputPath(settings, multipleSelectPaths, forPreview);
-
-
 
         if (IsGIFToPNG(mediaInfo, outputPath))
         {
@@ -214,13 +211,32 @@ public class ImageCompressor
                 else
                 {
                     // Single-frame input, load normally
-                    image = new MagickImage(sourcePath);
+                    if (new[] { ".dng", ".nef", ".cr2", ".cr3" }.Contains(Path.GetExtension(sourcePath).ToLower()))
+                    {
+                        try
+                        {
+                            image = await WindowsImageDecoder.LoadImageWithDefaultDecoderAsync(mediaInfo);
+                            if (image == null)
+                            {
+                                image = new MagickImage(sourcePath);
+                            }
+                            else
+                                MicLog.Info($"Used Windows Decoder for {Path.GetFileName(sourcePath)}");
+                        }
+                        catch(Exception ex)
+                        {
+                            MicLog.Info($"Windows Decoder crashed, so using fallback. {mediaInfo.ShortName}. No big deal, this happens. Error: {ex.Message}");
+                            image = new MagickImage(sourcePath);
+                        }
+                    }
+                    else
+                        image = new MagickImage(sourcePath);
                 }
 
                 if (stop)
                 {
                     RaiseCancellationEvent(mediaInfo);
-                    return;
+                    return null;
                 }
 
                 // Determine actual output format by file extension
@@ -242,9 +258,11 @@ public class ImageCompressor
                 // If using collection (multiple frames) and preserving animation:
                 if (collection != null)
                 {
+                    ImageOrientationHelper.CorrectOrientation(collection);
                     // Resize all frames according to settings
                     ResizeHelper.ResizeFrames(collection, settings);
 
+                    
                     foreach (var frame in collection)
                     {
                         frame.Strip();
@@ -262,7 +280,7 @@ public class ImageCompressor
                     if (stop)
                     {
                         RaiseCancellationEvent(mediaInfo);
-                        return;
+                        return null;
                     }
 
                     // Write all frames to output file
@@ -283,6 +301,8 @@ public class ImageCompressor
                 }
                 else if (image != null)
                 {
+                    ImageOrientationHelper.CorrectOrientation(image);
+                   
                     // Single frame image processing
                     // Apply resizing
                     ResizeHelper.ResizeImage(image, settings);
@@ -296,7 +316,7 @@ public class ImageCompressor
                     if (stop)
                     {
                         RaiseCancellationEvent(mediaInfo);
-                        return;
+                        return null;
                     }
 
                     // Write image to output file (format is determined by outputPath extension)
@@ -334,7 +354,7 @@ public class ImageCompressor
             if (stop)
             {
                 RaiseCancellationEvent(mediaInfo);
-                return;
+                return null;
             }
 
             OptimizeIfPNG(outputPath);
@@ -346,7 +366,7 @@ public class ImageCompressor
             if (stop)
             {
                 RaiseCancellationEvent(mediaInfo);
-                return;
+                return null;
             }
 
             var freezeResult = await mediaInfo.FreezeOutputAsync(outputPath, settings).ConfigureAwait(false);
@@ -371,6 +391,7 @@ public class ImageCompressor
             // Emit event for this file's completion
             ImageCompressedEventArgs evtArgs = new(mediaInfo, outputPath, success);
             ImageCompressed?.Invoke(this, evtArgs);
+            return outputPath;
         }
         catch (Exception ex)
         {

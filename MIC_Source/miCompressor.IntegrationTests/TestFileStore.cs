@@ -36,12 +36,12 @@ public class TestFileStore
             Thread.Sleep(10);
         
         Assert.True(store.SelectedPaths.Count == 1, $"Failed: Expected 1 selected path, actual {store.SelectedPaths.Count} after adding dir without sub-dir");
-        Assert.True(store.GetAllFiles.Count == 0, $"Failed: Expected 1 media info, actual {store.GetAllFiles.Count} after adding dir without sub-dir ");
+        Assert.True(store.GetAllFiles.Count() == 0, $"Failed: Expected 1 media info, actual {store.GetAllFiles.Count()} after adding dir without sub-dir ");
 
         store.RemoveAll();
 
         Assert.True(store.SelectedPaths.Count == 0, "Failed: Not removing all selected path after RemoveAll");
-        Assert.True(store.GetAllFiles.Count == 0, "Failed: Not removing all selected path after RemoveAll");
+        Assert.True(store.GetAllFiles.Count() == 0, "Failed: Not removing all selected path after RemoveAll");
 
         store.Enqueue(testDir, true);
         while (store.SelectedPaths.Any(path => path.ScanningForFiles))
@@ -49,12 +49,12 @@ public class TestFileStore
         //await TestFileHelper.WaitUntil(() => store.GetAllFiles.Count > 0, TimeSpan.FromSeconds(5));
 
         Assert.True(store.SelectedPaths.Count == 1, $"Failed: Expected 1 selected path, actual {store.SelectedPaths.Count} after adding dir with sub-dir");        
-        Assert.True(store.GetAllFiles.Count == 3, $"Failed: Expected 3 media info, actual {store.GetAllFiles.Count} after adding dir with sub-dir ");
+        Assert.True(store.GetAllFiles.Count() == 3, $"Failed: Expected 3 media info, actual {store.GetAllFiles.Count()} after adding dir with sub-dir ");
 
         store.Remove(testDir);
 
         Assert.True(store.SelectedPaths.Count == 0, "Failed: Not removing all selected path after Remove by path");
-        Assert.True(store.GetAllFiles.Count == 0, "Failed: Not removing all selected path after Remove by path");
+        Assert.True(store.GetAllFiles.Count() == 0, "Failed: Not removing all selected path after Remove by path");
 
         // Cleanup
         //Directory.Delete(testDir, true); //love thy ssd. Let's keep all the test dirs created till OS decides to clear.

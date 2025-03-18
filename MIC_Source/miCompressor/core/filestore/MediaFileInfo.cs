@@ -1,14 +1,10 @@
 ﻿using ImageMagick;
-using miCompressor.ui;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
-using Windows.Storage.Pickers;
-using Windows.UI.Input.Inking;
-using Windows.UI.StartScreen;
 
 namespace miCompressor.core
 {
@@ -187,17 +183,31 @@ namespace miCompressor.core
             if (!force && IsMetadataLoaded)
                 return;
 
-            ImageMetadata? outputMeta = await LoadImageMetadataAsync(FileToCompress.FullName, loadFileSize: false);
-            Width = outputMeta?.Width ?? 0;
-            Height = outputMeta?.Height ?? 0;
-
+            if (!CodeConsts.SupportedCameraExtensionsWithDot.Contains(Path.GetExtension(FileToCompress.FullName).ToLower()))
+            {
+                ImageMetadata? outputMeta = await LoadImageMetadataAsync(FileToCompress.FullName, loadFileSize: false);
+                Width = outputMeta?.Width ?? 0;
+                Height = outputMeta?.Height ?? 0;
+            }
             if( Height == 0 || Width == 0 )
             {
                 try
                 {
                     MagickImageInfo imageInfo = new MagickImageInfo(FileToCompress.FullName);
-                    Width = imageInfo.Width;
-                    Height = imageInfo.Height;
+                    switch (imageInfo.Orientation)
+                    {
+                        case OrientationType.LeftTop:  // Rotated 90° CW, horizontal flip
+                        case OrientationType.RightTop:  // Rotated 90° CW
+                        case OrientationType.RightBottom:  // Rotated 90° CCW, horizontal flip
+                        case OrientationType.LeftBottom:  // Rotated 90° CCW, 
+                            Width = imageInfo.Height;
+                            Height = imageInfo.Width;
+                            break;
+                        default:
+                            Width = imageInfo.Width;
+                            Height = imageInfo.Height;
+                            break;
+                    }
                 }
                 catch
                 {
@@ -334,6 +344,12 @@ namespace miCompressor.core
             {
                 outputDirectory = TempDataManager.GetTempStorageDirPath(RelativeImageDirPath);
                 IsReplaceOperation = true;
+            }
+
+            if (onlyPreview)
+            {
+                IsReplaceOperation = false;
+                modifiedFileName = Path.GetTempFileName() + Path.GetExtension(modifiedFileName);
             }
 
             return Path.Combine(outputDirectory, modifiedFileName);

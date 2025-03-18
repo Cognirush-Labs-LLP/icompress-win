@@ -22,7 +22,7 @@
                         <!-- Icon before file count -->
                         <TextBlock FontFamily="{StaticResource FontAwesomeRegular}" Text="&#xf302;" Margin="0,0,6,0" VerticalAlignment="Center" />
                         <!-- File count -->
-                        <TextBlock Text="{x:Bind SelectedPath.Files.Count, Mode=OneWay}" VerticalAlignment="Center" MinWidth="25" />
+                        <TextBlock Text="{x:Bind SelectedPath.FileCount, Mode=OneWay}" VerticalAlignment="Center" MinWidth="25" />
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" Visibility="{x:Bind SelectedPath.IsDirectory, Converter={StaticResource ReverseBoolToVisibilityConverter}, Mode=OneWay}" Opacity="0.6">
