@@ -1,5 +1,6 @@
 ﻿using ImageMagick;
 using miCompressor.core;
+using miCompressor.viewmodel;
 using Microsoft.UI.Composition;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
@@ -20,22 +21,25 @@ namespace miCompressor.ui
     /// </summary>
     public partial class PreviewViewModel
     {
-        private FileStore store;
+        private FileStore Store;
+        private MasterState MasterState;
+        private OutputSettings Settings;
 
         #region State Variables
-        private List<MediaFileInfo> images;
+        private List<MediaFileInfo> Images;
         private string LastSettingHash = "";
         private ImageSource? OriginalImage_cached = null;
         private ImageSource? CompressedImage_cached = null;
-        public uint CompressedImageHeight { get; private set; }
-        public uint CompressedImageWidth { get; private set; }
+        [AutoNotify] private uint compressedImageHeight;
+        [AutoNotify] private uint compressedImageWidth;
 
         #endregion
         private object imagesLock = new();
-        private ImageCompressor compressor;
+        private ImageCompressor Compressor;
         [AutoNotify] private bool compressionInProgress = false;
         [AutoNotify] private bool compressionFailed = false;
-
+        [AutoNotify] private bool hasPrev = false;
+        [AutoNotify] private bool hasNext = false;
 
         private int _do_not_access_currentIndex = 0;
 
@@ -44,27 +48,35 @@ namespace miCompressor.ui
             get => _do_not_access_currentIndex;
             set
             {
-                if(_do_not_access_currentIndex != value)
+                if (_do_not_access_currentIndex != value)
                 {
                     RemoveCached();
                 }
                 _do_not_access_currentIndex = value;
                 HasPrev = _do_not_access_currentIndex > 0;
-                HasNext = images.Count > _do_not_access_currentIndex + 1;
+                HasNext = Images.Count > _do_not_access_currentIndex + 1;
+                try
+                {
+                    MasterState.SelectedImageForPreview = Images[CurrentIndex];
+                }
+                catch
+                { } // never crash.. 
             }
         }
 
-        public PreviewViewModel(FileStore store)
+        public PreviewViewModel(MasterState master)
         {
-            this.store = store;
-            store.PropertyChanged += Store_PropertyChanged;
+            this.Store = master.FileStore;
+            this.Settings = master.OutputSettings;
+            this.MasterState = master;
+            Store.PropertyChanged += Store_PropertyChanged;
         }
 
         ~PreviewViewModel()
         {
-            store.PropertyChanged -= Store_PropertyChanged;
-            compressor.ImageCompressed -= Compressor_ImageCompressed;
-            compressor.CompressionCompleted -= Compressor_CompressionCompleted;
+            Store.PropertyChanged -= Store_PropertyChanged;
+            Compressor.ImageCompressed -= Compressor_ImageCompressed;
+            Compressor.CompressionCompleted -= Compressor_CompressionCompleted;
         }
 
         public void RemoveCached()
@@ -77,22 +89,22 @@ namespace miCompressor.ui
 
         private void Store_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if(e.PropertyName == nameof(FileStore.SelectedPaths))
+            if (e.PropertyName == nameof(FileStore.SelectedPaths))
                 lock (imagesLock)
-                    images = new List<MediaFileInfo>(store.GetAllFilesIncludingDuplicates);
+                    Images = new List<MediaFileInfo>(Store.GetAllFilesIncludingDuplicates);
         }
 
         private void RefreshCompressor()
         {
-            if(compressor != null)
+            if (Compressor != null)
             {
-                compressor.CancelCompression();
-                compressor.ImageCompressed -= Compressor_ImageCompressed;
-                compressor.CompressionCompleted -= Compressor_CompressionCompleted;
+                Compressor.CancelCompression();
+                Compressor.ImageCompressed -= Compressor_ImageCompressed;
+                Compressor.CompressionCompleted -= Compressor_CompressionCompleted;
             }
-            compressor = new();
-            compressor.ImageCompressed += Compressor_ImageCompressed;
-            compressor.CompressionCompleted += Compressor_CompressionCompleted;
+            Compressor = new();
+            Compressor.ImageCompressed += Compressor_ImageCompressed;
+            Compressor.CompressionCompleted += Compressor_CompressionCompleted;
         }
 
         private void Compressor_CompressionCompleted(object? sender, CompressionCompletedEventArgs e)
@@ -119,14 +131,14 @@ namespace miCompressor.ui
                 return OriginalImage_cached;
 
             string imagePath = "";
-            lock(imagesLock)
+            lock (imagesLock)
             {
-                if (images[CurrentIndex] == null || images[CurrentIndex].FilePath == null) return null;
+                if (Images[CurrentIndex] == null || Images[CurrentIndex].FilePath == null) return null;
             }
 
             try
             {
-                OriginalImage_cached = await GetImage(images[CurrentIndex], false);
+                OriginalImage_cached = await GetImage(Images[CurrentIndex], false);
             }
             catch
             {
@@ -162,7 +174,8 @@ namespace miCompressor.ui
                 {
                     BitmapDecoder decoder = await BitmapDecoder.CreateAsync(stream);
 
-                    if (isCompressed) {
+                    if (isCompressed)
+                    {
                         CompressedImageHeight = decoder.OrientedPixelHeight;
                         CompressedImageWidth = decoder.OrientedPixelWidth;
                     }
@@ -184,7 +197,7 @@ namespace miCompressor.ui
             }
         }
 
-        private async Task<ImageSource>  GetImageFromImageMagic(string imagePath, bool isCompressed)
+        private async Task<ImageSource> GetImageFromImageMagic(string imagePath, bool isCompressed)
         {
             SoftwareBitmap softwareBitmap = await GetBitmapFromImageMagick(imagePath, isCompressed);
             SoftwareBitmapSource bitmapSource = new SoftwareBitmapSource();
@@ -244,35 +257,20 @@ namespace miCompressor.ui
             return await GetOriginal();
         }
 
-        /// <summary>
-        /// Sets the current index to given image. Required for  proper Next/Previous travel.  
-        /// </summary>
-        /// <param name="media"></param>
-        /// <returns></returns>
-        public bool SetImage(MediaFileInfo media)
-        {
-            lock (imagesLock)
-                images = new List<MediaFileInfo>(store.GetAllFilesIncludingDuplicates);
 
-            int indexOfMedia = images.IndexOf(media);
-            if (indexOfMedia < 0) return false;
+        
 
-            CurrentIndex = indexOfMedia;
-            return true;
-        }
-
-
-        public async Task<(ImageSource, bool noChange)> GetCompressed(MediaFileInfo media, OutputSettings settings)
+        public async Task<(ImageSource, bool noChange)> GetCompressed(MediaFileInfo media)
         {
             if (!SetImage(media))
                 return (null, false); //cannot find image in the store. 
 
-            return await GetCompressed(settings);
+            return await GetCompressed();
         }
 
-        public async Task<(ImageSource, bool noChange)> GetCompressed(OutputSettings settings)
+        public async Task<(ImageSource, bool noChange)> GetCompressed()
         {
-            var newSettingHash = settings.GetHashForImagePreviewRegeneration();
+            var newSettingHash = Settings.GetHashForImagePreviewRegeneration();
 
             if (CompressedImage_cached != null && LastSettingHash == newSettingHash)
                 return (CompressedImage_cached, true);
@@ -284,15 +282,15 @@ namespace miCompressor.ui
             MediaFileInfo mediaFile = null;
             lock (imagesLock)
             {
-                if (images[CurrentIndex] == null)
+                if (Images[CurrentIndex] == null)
                     return (null, false);
-                mediaFile = images[CurrentIndex];
+                mediaFile = Images[CurrentIndex];
             }
             //string outputPath = await compressor.ProcessSingleFileAsync(mediaFile, multipleSelectPaths: false, settings, forPreview: true);
 
             string outputPath = await Task.Run(async () =>
             {
-                return await compressor.ProcessSingleFileAsync(mediaFile, multipleSelectPaths: false, settings, forPreview: true);
+                return await Compressor.ProcessSingleFileAsync(mediaFile, multipleSelectPaths: false, Settings, forPreview: true);
             });
 
             CompressedImage_cached = await GetImage(outputPath, true);
@@ -300,8 +298,65 @@ namespace miCompressor.ui
             return (CompressedImage_cached, false);
         }
 
-        [AutoNotify] private bool hasPrev = false;
-        [AutoNotify] private bool hasNext = false;
+        #region Previous/Next Logic
+        
+        public async Task<ImageSource> GetNextOriginal()
+        {
+            if (!HasNext)
+                return null;
+
+            RemoveCached();
+            CurrentIndex++;
+            return await GetOriginal();
+        }
+
+        public async Task<ImageSource> GetPrevOriginal()
+        {
+            if (!HasPrev)
+                return null;
+
+            RemoveCached();
+            CurrentIndex--;
+            return await GetOriginal();
+        }
+
+        public async Task<(ImageSource, bool noChange)> GetNextCompressed()
+        {
+            if (!HasNext)
+                return (null, true);
+
+            RemoveCached();
+            CurrentIndex++;
+            return await GetCompressed();
+        }
+
+        public async Task<(ImageSource, bool noChange)> GetPrevCompressed()
+        {
+            if (!HasPrev)
+                return (null, true);
+
+            RemoveCached();
+            CurrentIndex--;
+            return await GetCompressed();
+        }
+
+        /// <summary>
+        /// Sets the current index to given image. Required for  proper Next/Previous travel.  
+        /// </summary>
+        /// <param name="media"></param>
+        /// <returns></returns>
+        public bool SetImage(MediaFileInfo media)
+        {
+            lock (imagesLock)
+                Images = new List<MediaFileInfo>(Store.GetAllFilesIncludingDuplicates);
+
+            int indexOfMedia = Images.IndexOf(media);
+            if (indexOfMedia < 0) return false;
+
+            CurrentIndex = indexOfMedia;
+            return true;
+        }
+        #endregion
 
     }
 }

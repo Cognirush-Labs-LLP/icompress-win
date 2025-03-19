@@ -19,7 +19,7 @@
     </UserControl.Resources>
     
     <Grid>
-        <TreeView x:Name="SelectedPathTreeView" ItemsSource="{x:Bind ViewModel.ImageTree, Mode=OneWay}" SelectionMode="None"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AllowDrop="False"
+        <TreeView x:Name="SelectedPathTreeView" ItemsSource="{x:Bind ViewModel.ImageTree, Mode=OneWay}" SelectionMode="None"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AllowDrop="False" 
                   RightTapped="FolderTreeView_RightTapped">
             <TreeView.ItemContainerStyle>
                 <Style TargetType="TreeViewItem">
@@ -68,8 +68,8 @@
                                             <local:ImageThumbnailView FileInfo="{x:Bind FileInfo}" Show="{Binding Data.ShowImageIconInFileSelectionTreeView, Source={StaticResource CurrentState}, Mode=OneWay}" AutoLoadOnVisible="True" />
                                             </Grid>
                                         </Border>
-                                        
-                                        <TextBlock Text="{x:Bind ShortName}" MinWidth="150" VerticalAlignment="Center" Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                                        <TextBlock Text="{x:Bind ShortName}" MinWidth="150" VerticalAlignment="Center" TextWrapping="Wrap" FontSize="12" Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     </StackPanel>
                                 </CheckBox>
                             </Border>
@@ -87,12 +87,14 @@
 
                             <StackPanel.ContextFlyout>
                                 <MenuFlyout>
-                                    <MenuFlyoutItem Text="Open"
+                                    <MenuFlyoutItem Text="Open File Location"
                                         Click="OpenFile_Click"
                                         Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     <MenuFlyoutItem Text="Open in Explorer"
                                         Click="OpenFolderInExplorer_Click"
                                         Visibility="{x:Bind IsFolder, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    <MenuFlyoutItem Text="Show Compression Preview"
+                                        Click="OpenCompressionPreview"/>
                                 </MenuFlyout>
                             </StackPanel.ContextFlyout>
                         </StackPanel>

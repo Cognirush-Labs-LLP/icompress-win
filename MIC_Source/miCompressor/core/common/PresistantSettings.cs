@@ -94,8 +94,8 @@ namespace miCompressor.core
                     int maxHeight = displayArea.WorkArea.Height;
 
                     // Clamp window size to screen size
-                    int finalWidth = Math.Max(Math.Min((int)(double)width, maxWidth), 800); // smaller than screen, bigger than 800.
-                    int finalHeight = Math.Max(Math.Min((int)(double)height, maxHeight), 600);
+                    int finalWidth = Math.Max(Math.Min((int)(double)width, maxWidth), 920); // smaller than screen, bigger than 800.
+                    int finalHeight = Math.Max(Math.Min((int)(double)height, maxHeight), 700);
 
                     if (finalWidth > 0 && finalHeight > 0)
                     {

@@ -6,7 +6,7 @@
     xmlns:local="using:miCompressor.ui"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-    mc:Ignorable="d" Loaded="UserControl_Loaded" >
+    mc:Ignorable="d">
 
     <Grid>
         <Grid.ColumnDefinitions>
@@ -22,25 +22,34 @@
                 <AppBarButton.Icon>
                     <FontIcon Glyph="&#xE72B;" />
                 </AppBarButton.Icon>
+                <AppBarButton.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="Escape"/>
+                </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
 
             <AppBarSeparator Margin="20,0,0,0" />
 
-            <AppBarButton Name="PrevButton" Label=""  >
+            <AppBarButton Name="PrevButton" Label="" Click="PrevButton_Click"  >
                 <AppBarButton.Icon>
                     <FontIcon Glyph="&#xE892;" />
                 </AppBarButton.Icon>
+                <AppBarButton.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="P" Modifiers="Control"/>
+                </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
 
-            <AppBarButton Name="NextButton" Label=""  >
+            <AppBarButton Name="NextButton" Label=""  Click="NextButton_Click" >
                 <AppBarButton.Icon>
                     <FontIcon Glyph="&#xE893;" />
                 </AppBarButton.Icon>
+                <AppBarButton.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="N" Modifiers="Control"/>
+                </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
 
             <AppBarSeparator Margin="0,0,10,0"/>
 
-            <AppBarElementContainer VerticalAlignment="Center">
+            <AppBarElementContainer VerticalAlignment="Center" ToolTipService.ToolTip="(Ctrl + T)">
                 <StackPanel Orientation="Horizontal">
                     <Button Name="OriginalImageButton" Content="Original" CornerRadius="10,0,0,10" Background="{StaticResource Acccent_100}" Click="OriginalButton_Click" />
                     <Button Name="CompressedImageButton" Content="Compressed" CornerRadius="0,10,10,0" Click="CompressedImageButton_Click" />
@@ -48,32 +57,55 @@
             </AppBarElementContainer>
 
             <AppBarSeparator Margin="10,0,10,0"/>
-
-            <AppBarButton Name="ZoomInButton" Label="" Click="ZoomInButton_Click">
-                <AppBarButton.Icon>
-                    <FontIcon Glyph="&#xE8A3;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton Name="ZoomOutButton" Label="" Click="ZoomOutButton_Click" >
-                <AppBarButton.Icon>
-                    <FontIcon Glyph="&#xE71F;" />
-                </AppBarButton.Icon>
-            </AppBarButton>
             <AppBarButton Name="Zoom100Button" Label="100%"  Click="Zoom100Button_Click">
-
             </AppBarButton>
             <AppBarButton Name="ZoomFitButton" Label="Fit" VerticalContentAlignment="Center" Click="ZoomFitButton_Click" >
                 <AppBarButton.Icon>
                     <FontIcon Glyph="&#xE9A6;" />
                 </AppBarButton.Icon>
+                <AppBarButton.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="F" Modifiers="Control"/>
+                </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
+            <AppBarButton Name="ZoomInButton" Label="" Click="ZoomInButton_Click">
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xE8A3;" />
+                </AppBarButton.Icon>
+                <AppBarButton.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="I" Modifiers="Control"/>
+                </AppBarButton.KeyboardAccelerators>
+            </AppBarButton>
+            <AppBarButton Name="ZoomOutButton" Label="" Click="ZoomOutButton_Click" >
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xE71F;" />
+                </AppBarButton.Icon>
+                <AppBarButton.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="O" Modifiers="Control"/>
+                </AppBarButton.KeyboardAccelerators>
+            </AppBarButton>
+
         </CommandBar>
-        <TextBlock Grid.Column="0" Grid.Row="1" Text="{x:Bind CurrentState.SelectedImageForPreview.ShortName}" TextWrapping="Wrap" />
+        <StackPanel Grid.Column="0" Grid.Row="1" Margin="6" >
+            <StackPanel Orientation="Horizontal" Margin="3" Spacing="6" VerticalAlignment="Center">
+                <TextBlock Text="{x:Bind CurrentState.SelectedImageForPreview.ShortName, Mode=OneWay}" TextWrapping="Wrap" />
+                <TextBlock Text="{x:Bind CurrentZoomLevel, Mode=OneWay}" Foreground="{StaticResource Primary_50}"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="3" Spacing="6" VerticalAlignment="Center">
+                <TextBlock Text="{x:Bind CurrentState.SelectedImageForPreview.DimensionsToShow, Mode=OneWay}" Foreground="{StaticResource Primary_50}" VerticalAlignment="Center" />
+                <TextBlock Text="{x:Bind CurrentState.SelectedImageForPreview.FileSizeToShow, Mode=OneWay}" Foreground="{StaticResource Acccent_100}" VerticalAlignment="Center" />
+                <TextBlock Text="🡆" FontSize="18" Margin="10,0" VerticalAlignment="Center"/>
+                <TextBlock Text="{x:Bind CurrentState.SelectedImageForPreview.LastCompressedFileExt, Mode=OneWay}" VerticalAlignment="Center" />
+                <TextBlock Text="{x:Bind CurrentState.SelectedImageForPreview.CompressedFileDimensionToShow, Mode=OneWay}" Foreground="{StaticResource Primary_50}" VerticalAlignment="Center" />
+                <TextBlock Text="{x:Bind CurrentState.SelectedImageForPreview.CompressedFileSizeToShow, Mode=OneWay}" Foreground="{StaticResource Acccent_100}" VerticalAlignment="Center" />
+                <TextBlock Text="{x:Bind CurrentState.SelectedImageForPreview.CompressedFileSizeReduction, Mode=OneWay}"  FontSize="18" VerticalAlignment="Center" />
+            </StackPanel>
+
+        </StackPanel>
+
         <ScrollView Name="ImageGridScrollViewArea" Grid.Column="0"  Grid.Row="2" HorizontalScrollMode="Auto" VerticalScrollMode="Auto" >
             <Grid Name="ImageContainerGrid" PointerPressed="PannableImage_PointerPressed"
            PointerMoved="PannableImage_PointerMoved"
            PointerReleased="PannableImage_PointerReleased">
-               
                 <Image Name="OriginalImage" VerticalAlignment="Center" Visibility="{x:Bind ShowCompressed, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" Stretch="Uniform" />
                 <Image Name="CompressedImage" VerticalAlignment="Center" Visibility="{x:Bind ShowCompressed, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"  Stretch="Uniform" />
             </Grid>

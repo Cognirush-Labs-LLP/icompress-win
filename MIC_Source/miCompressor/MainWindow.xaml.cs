@@ -28,7 +28,7 @@ namespace miCompressor
 
 
 #if DEBUG
-            AppWindow.Resize(new Windows.Graphics.SizeInt32(900, 700));
+            AppWindow.Resize(new Windows.Graphics.SizeInt32(1024, 768));
 #endif
         }
                 

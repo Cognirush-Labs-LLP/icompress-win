@@ -49,7 +49,7 @@ public sealed partial class RightPanelView : UserControl
         ContentDialog dialog = new()
         {
             Title = "Nothing to Compress.",
-            Content = "You have not selected any image for compression. Happens if you, \n 1. Unchecked all selected images. \n 2. Forget to add images for compression. \n 3. Forgot to check Sub-Folders option.",
+            Content = "You have not selected any image for compression. Happens if you, \n 1. Unchecked all selected Images. \n 2. Forget to add Images for compression. \n 3. Forgot to check Sub-Folders option.",
             CloseButtonText = "OK",
             XamlRoot = App.MainWindow!.Content.XamlRoot 
         };

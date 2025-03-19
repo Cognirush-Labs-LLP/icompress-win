@@ -91,8 +91,21 @@ namespace miCompressor.ui
             }
         }
 
+        private void OpenCompressionPreview(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            if (_selectedNode != null)
+            {
+                var mediaInfo = _selectedNode.GetAnyMediaInfo(_selectedNode);
+                if(mediaInfo != null)
+                {
+                    App.CurrentState.SelectedImageForPreview = mediaInfo;
+                    App.CurrentState.ShowPreview = true;
+                }
+            }
+        }
+
         #region Image Flyout
-        
+
         private void Image_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
             if (!CurrentState.ShowImageIconInFileSelectionTreeViewWhenMouseHovers)

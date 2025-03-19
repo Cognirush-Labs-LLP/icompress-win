@@ -42,13 +42,13 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <TextBox Grid.Column="0" Grid.Row="0" Margin="0" x:Name="FoderPathTextBox" PlaceholderText="Output Folder Here..."  FontSize="{StaticResource TextSmall}" TextChanged="FolderPathTextBox_TextChanged" TextWrapping="Wrap" VerticalAlignment="Center" />
+            <TextBox Grid.Column="0" Grid.Row="1" Margin="0" x:Name="FoderPathTextBox" PlaceholderText="Output Folder Here..."  FontSize="{StaticResource TextSmall}" TextChanged="FolderPathTextBox_TextChanged" TextWrapping="Wrap" VerticalAlignment="Center" />
 
-            <Button Grid.Column="1" Grid.Row="0" x:Name="PickFolderButton"
+            <Button Grid.Column="1" Grid.Row="1" x:Name="PickFolderButton"
                     Click="PickFolderButton_Click" Margin="2,5,0,5">
                 <FontIcon Glyph="&#xE838;" />
             </Button>
-            <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Text="{x:Bind FolderPathError,  Mode=OneWay}" Visibility="{x:Bind FolderPathError,  Mode=OneWay, Converter={StaticResource StringEmptyToVisibilityConverter}}" FontSize="{StaticResource TextSmall}" TextWrapping="WrapWholeWords" Foreground="{StaticResource SystemErrorTextColor}" />
+            <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Text="{x:Bind FolderPathError,  Mode=OneWay}" Visibility="{x:Bind FolderPathError,  Mode=OneWay, Converter={StaticResource StringEmptyToVisibilityConverter}}" FontSize="{StaticResource TextSmall}" TextWrapping="WrapWholeWords" Foreground="{StaticResource SystemErrorTextColor}" />
         </Grid>
     </Grid>
 </UserControl>

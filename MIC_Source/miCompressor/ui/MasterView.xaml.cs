@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,6 +39,12 @@ namespace miCompressor.ui
             isEmptyViewVisible = !FileStore.SelectedPaths.Any();
 
             FileStore.PropertyChanged += masterState_PropertyChanged;
+            this.ProcessKeyboardAccelerators += MasterView_ProcessKeyboardAccelerators;
+        }
+
+        private void MasterView_ProcessKeyboardAccelerators(UIElement sender, Microsoft.UI.Xaml.Input.ProcessKeyboardAcceleratorEventArgs args)
+        {
+            ShortcutKeyManager.Handle(args);
         }
 
         private void masterState_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

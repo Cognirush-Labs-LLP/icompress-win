@@ -68,7 +68,7 @@
     <Style x:Key="SettingsHeading" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextMedium}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="{StaticResource Acccent_70}" />
+        <Setter Property="Foreground" Value="{StaticResource Acccent_100}" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Margin" Value="10" />
     </Style>

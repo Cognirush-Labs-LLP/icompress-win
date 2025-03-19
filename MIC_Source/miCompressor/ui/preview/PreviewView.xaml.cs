@@ -10,15 +10,19 @@ using Microsoft.UI.Xaml.Input;
 using static System.Net.Mime.MediaTypeNames;
 using Windows.UI.Core;
 using System.Threading.Tasks;
+using System.ComponentModel.Design;
+using System.Diagnostics;
+using Windows.System;
 
 namespace miCompressor.ui;
 
 public sealed partial class PreviewView : UserControl
 {
     MasterState CurrentState = App.CurrentState;
-    PreviewViewModel vm = new PreviewViewModel(App.CurrentState.FileStore);
+    PreviewViewModel vm = new PreviewViewModel(App.CurrentState);
 
     [AutoNotify] public bool showCompressed = false;
+    [AutoNotify] public string currentZoomLevel = "";
 
     uint OriginalHeight;
     uint OriginalWidth;
@@ -27,9 +31,9 @@ public sealed partial class PreviewView : UserControl
     uint VisibleAreaHeight;
     uint VisibleAreaWidth;
 
-    bool show100PercentSizeByDefault = false; //True = 100%, False = Fit the image in visible area.
+    bool show100PercentSizeByDefault = false; //True = 100%, False = Fit the image in visible area (if FitVisibleArea = false)
 
-    bool _do_not_use_fitVisibleArea = false;
+    bool _do_not_use_fitVisibleArea = true;
     bool FitVisibleArea
     {
         get => _do_not_use_fitVisibleArea;
@@ -49,22 +53,46 @@ public sealed partial class PreviewView : UserControl
         set
         {
             _do_not_use_set100pcZoom = value;
-            FitVisibleArea = false;
             if (value == true)
                 FitVisibleArea = false;
         }
     }
 
+    bool initialized = false;
     public PreviewView()
     {
         this.InitializeComponent();
 
+        initialized = true;
+
+        App.CurrentState.PropertyChanged -= CurrentState_PropertyChanged;
+        ImageGridScrollViewArea.SizeChanged -= ImageGridScrollViewArea_SizeChanged;
+        App.OutputSettingsInstance.PropertyChanged -= OutputSettings_PropertyChanged;
+        vm.PropertyChanged -= ViewModel_PropertyChanged;
+        ShortcutKeyManager.KeyPressed -= ShortcutKeyManager_KeyPressed;
+
         App.CurrentState.PropertyChanged += CurrentState_PropertyChanged;
         ImageGridScrollViewArea.SizeChanged += ImageGridScrollViewArea_SizeChanged;
         App.OutputSettingsInstance.PropertyChanged += OutputSettings_PropertyChanged;
+        this.RegisterPropertyChangedCallback(UIElement.VisibilityProperty, VisibilityChanged);
+        vm.PropertyChanged += ViewModel_PropertyChanged;
+        ShortcutKeyManager.KeyPressed += ShortcutKeyManager_KeyPressed;
+
         VisibleAreaHeight = (uint)ImageGridScrollViewArea.ActualHeight;
         VisibleAreaWidth = (uint)ImageGridScrollViewArea.ActualWidth;
-        this.RegisterPropertyChangedCallback(UIElement.VisibilityProperty, VisibilityChanged);
+    }
+
+    private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (ShowCompressed && this.Visibility == Visibility.Visible && Set100pcZoomOfCompressedImage)
+        {
+            if (e.PropertyName == nameof(PreviewViewModel.CompressedImageWidth))
+            {
+                Width = vm.CompressedImageWidth;
+                Height = vm.CompressedImageHeight;
+                AdjustImageSize();
+            }
+        }
     }
 
     private void OutputSettings_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -94,25 +122,32 @@ public sealed partial class PreviewView : UserControl
         if (e.PropertyName == nameof(MasterState.SelectedImageForPreview))
             UIThreadHelper.RunOnUIThread(() =>
             {
-                ShowOriginalImage(CurrentState.SelectedImageForPreview);
+                //ShowOriginalImage(CurrentState.SelectedImageForPreview);
             });
     }
 
-
+    /// <summary>
+    /// Called when the user control is loaded (made visible) with Original Image to show. 
+    /// </summary>
+    /// <param name="file"></param>
     private async void ShowOriginalImage(MediaFileInfo? file = null)
     {
+        CurrentZoomLevel = "";
+
         if (this.Visibility != Visibility.Visible)
             return;
-
+        OriginalImage.Source = null;
+        OriginalImage.Opacity = 0.3;
         ImageProgressRing.IsActive = true;
         if (file != null)
         {
             OriginalImage.Source = await vm.GetOriginal(file);
-            UIThreadHelper.RunOnUIThread(async () => {
+            UIThreadHelper.RunOnUIThread(async () =>
+            {
                 await Task.Delay(300);
                 ResetImageSize();
                 await Task.Delay(300);
-                ResetImageSize();
+                ResetImageSize();//hack.
             });
         }
         else
@@ -120,38 +155,77 @@ public sealed partial class PreviewView : UserControl
             OriginalImage.Source = await vm.GetOriginal();
         }
         ImageProgressRing.IsActive = false;
+        OriginalImage.Opacity = 1;
     }
 
+    
+
+    /// <summary>
+    /// Should be called once per image load
+    /// </summary>
     private void ResetImageSize()
     {
+        FitVisibleArea = true; //default behavior 
+
         var image = CurrentState.selectedImageForPreview;
         if (image == null)
-            return; // God knows what happened. Let that knowledge be with him and only him! Praise the lord!
+            return;
+
         OriginalHeight = image.Height;
         OriginalWidth = image.Width;
-        if (show100PercentSizeByDefault)
+
+        if (ImageGridScrollViewArea.ActualHeight != 0)
+        {
+            VisibleAreaHeight = (uint)ImageGridScrollViewArea.ActualHeight;
+            VisibleAreaWidth = (uint)ImageGridScrollViewArea.ActualWidth;
+        }
+        else
+        {
+            (int height, int width) = GetWindowDimension();
+
+            VisibleAreaHeight = (uint)Math.Max(200, height - 100);
+            VisibleAreaWidth = (uint)Math.Max(200, width - 300); ;
+        }
+
+        if (FitVisibleArea)
         {
             FitImageInVisibleArea(true);
         }
         else
         {
-            FitVisibleArea = true;
-            //if (ImageGridScrollViewArea.ActualHeight != 0)
-            {
-                VisibleAreaHeight = (uint)ImageGridScrollViewArea.ActualHeight;
-                VisibleAreaWidth = (uint)ImageGridScrollViewArea.ActualWidth;
-            }
-            /*else
-            {
-                (int height, int width) = GetWindowDimension();
-
-                VisibleAreaHeight = (uint) Math.Max(200, height - 100);
-                VisibleAreaWidth = (uint)Math.Max(200, width - 300); ;
-            }*/
             Height = VisibleAreaHeight;
             Width = VisibleAreaWidth;
+            AdjustImageSize();
         }
-        AdjustImageSize();
+    }
+
+    private string GetCurrentZoomLevel()
+    {
+        try
+        {
+            if (CurrentState.SelectedImageForPreview == null)
+                return "";
+
+            double imageWidth = (double)CurrentState.SelectedImageForPreview.Width; ;
+            double imageHeight = (double)CurrentState.SelectedImageForPreview.Height;
+            double containerHeight = OriginalImage.ActualHeight;
+            double containerWidth = OriginalImage.ActualWidth;
+
+            if (ShowCompressed)
+            {
+                imageWidth = (double)CurrentState.SelectedImageForPreview.CompressedWidth;
+                imageHeight = (double)CurrentState.SelectedImageForPreview.CompressedHeight;
+                containerWidth = CompressedImage.ActualWidth;
+                containerHeight = CompressedImage.ActualHeight;
+            }
+
+            var widthPercentage = 100 * containerWidth / imageWidth;
+            var heightPercentage = 100 * containerHeight / imageHeight;
+
+            return " at Zoom Level " + (widthPercentage > heightPercentage ? widthPercentage : heightPercentage).ToString("0.##") + " %";
+        }
+        catch {  }
+        return "";
     }
 
     private (int height, int width) GetWindowDimension()
@@ -167,6 +241,11 @@ public sealed partial class PreviewView : UserControl
         CompressedImage.Height = Height;
         CompressedImage.Width = Width;
         ImageContainerGrid.Width = Width; //required for adding scrollbar.
+
+        /*UIThreadHelper.RunOnUIThreadAsync( async () => {
+                await Task.Delay(300);
+                CurrentZoomLevel = GetCurrentZoomLevel();
+        });*/
     }
 
     private void BackButton_Click(object sender, RoutedEventArgs e)
@@ -198,6 +277,7 @@ public sealed partial class PreviewView : UserControl
 
     private async void RefreshCompressedImage(MediaFileInfo file = null)
     {
+        CurrentZoomLevel = "";
         if (this.Visibility != Visibility.Visible)
             return;
         ImageProgressRing.IsActive = true;
@@ -205,16 +285,16 @@ public sealed partial class PreviewView : UserControl
         ImageSource source = null;
         bool isSameAsPrevious = false;
         if (file == null) //no chagne in image
-            (source, isSameAsPrevious) = await vm.GetCompressed(App.OutputSettingsInstance);
+            (source, isSameAsPrevious) = await vm.GetCompressed();
         else
-            (source, isSameAsPrevious) = await vm.GetCompressed(file, App.OutputSettingsInstance);
+            (source, isSameAsPrevious) = await vm.GetCompressed(file);
         if (!isSameAsPrevious)
         {
             CompressedImage.Source = source;
         }
         ImageProgressRing.IsActive = false;
         CompressedImage.Opacity = 1;
-        if(Set100pcZoomOfCompressedImage)
+        if (Set100pcZoomOfCompressedImage)
         {
             Zoom100Button_Click(this, new RoutedEventArgs());
         }
@@ -259,11 +339,11 @@ public sealed partial class PreviewView : UserControl
 
     private void Zoom100Button_Click(object sender, RoutedEventArgs e)
     {
-        FitVisibleArea = false;        
+        FitVisibleArea = false;
 
         if (ShowCompressed)
         {
-            if(vm.CompressedImageWidth == 0)
+            if (vm.CompressedImageWidth == 0)
             {
                 Height = OriginalHeight;
                 Width = OriginalWidth;
@@ -287,7 +367,6 @@ public sealed partial class PreviewView : UserControl
     private void ZoomFitButton_Click(object sender, RoutedEventArgs e)
     {
         FitVisibleArea = true;
-
         FitImageInVisibleArea(immediate: true);
     }
 
@@ -299,21 +378,8 @@ public sealed partial class PreviewView : UserControl
             Height = Math.Min(VisibleAreaHeight - 10, OriginalHeight);
             AdjustImageSize();
         }, shouldRunInUI: true);
-
     }
 
-    private void UserControl_Loaded(object sender, RoutedEventArgs e)
-    {
-        if (ShowCompressed)
-        {
-            RefreshCompressedImage(CurrentState.selectedImageForPreview);
-        }
-        else
-        {
-            ShowOriginalImage(CurrentState.selectedImageForPreview);
-        }
-
-    }
 
     private void VisibilityChanged(DependencyObject sender, DependencyProperty dp)
     {
@@ -336,46 +402,174 @@ public sealed partial class PreviewView : UserControl
             OriginalImage.Source = null;
         }
     }
+
     #region Mouse Pan
 
     private bool isDragging = false;
     private Windows.Foundation.Point lastPointerPosition;
-    private CoreCursor panCursor = new CoreCursor(CoreCursorType.Hand, 1); // Hand cursor
-    private CoreCursor defaultCursor = new CoreCursor(CoreCursorType.Arrow, 1); // Default arrow
-
 
     private void PannableImage_PointerPressed(object sender, PointerRoutedEventArgs e)
     {
-        isDragging = true;
-        lastPointerPosition = e.GetCurrentPoint(ImageGridScrollViewArea).Position;
-        defaultCursor = Window.Current.CoreWindow.PointerCursor;
-        Window.Current.CoreWindow.PointerCursor = panCursor;
+        try
+        {
+            isDragging = true;
+            lastPointerPosition = e.GetCurrentPoint(ImageGridScrollViewArea).Position;
+            ImageContainerGrid.CapturePointer(e.Pointer);
+        }
+        catch
+        {
 
-
-        ImageContainerGrid.CapturePointer(e.Pointer);
+        }
     }
 
     private void PannableImage_PointerMoved(object sender, PointerRoutedEventArgs e)
     {
-        if (!isDragging) return;
+        try
+        {
+            if (!isDragging) return;
 
-        var currentPosition = e.GetCurrentPoint(ImageGridScrollViewArea).Position;
+            var currentPosition = e.GetCurrentPoint(ImageGridScrollViewArea).Position;
 
-        // Calculate drag distance
-        double deltaX = lastPointerPosition.X - currentPosition.X;
-        double deltaY = lastPointerPosition.Y - currentPosition.Y;
+            // Calculate drag distance
+            double deltaX = lastPointerPosition.X - currentPosition.X;
+            double deltaY = lastPointerPosition.Y - currentPosition.Y;
 
-        // Update ScrollViewer position (inverse to move the image in expected direction)
-        ImageGridScrollViewArea.ScrollBy(deltaX, deltaY);
+            // Update ScrollViewer position (inverse to move the image in expected direction)
+            ImageGridScrollViewArea.ScrollBy(deltaX, deltaY);
 
-        lastPointerPosition = currentPosition; // Update last pointer position
+            lastPointerPosition = currentPosition; // Update last pointer position
+        }
+        catch
+        {
+
+        }
     }
 
     private void PannableImage_PointerReleased(object sender, PointerRoutedEventArgs e)
     {
-        isDragging = false;
-        ImageContainerGrid.ReleasePointerCapture(e.Pointer);
-        Window.Current.CoreWindow.PointerCursor = defaultCursor;
+        try
+        {
+            isDragging = false;
+            ImageContainerGrid.ReleasePointerCapture(e.Pointer);
+        }
+        catch
+        {
+
+        }
     }
     #endregion
+
+    #region Previous Next navigation 
+
+    private bool PrevNextImageLoadInProgress = false;
+
+    private async void PrevButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (vm.HasPrev == false || PrevNextImageLoadInProgress)
+            return;
+
+        PrevNextImageLoadInProgress = true;
+        PrevButton.IsEnabled = false;
+        NextButton.IsEnabled = false;
+        CurrentZoomLevel = "";
+
+        if (ShowCompressed)
+        {
+            ImageProgressRing.IsActive = true;
+            CompressedImage.Opacity = 0.1;
+            ImageSource source = null;
+            bool isSameAsPrevious = false;
+            (source, isSameAsPrevious) = await vm.GetPrevCompressed();
+            if (!isSameAsPrevious)
+            {
+                CompressedImage.Source = source;
+            }
+            ImageProgressRing.IsActive = false;
+            CompressedImage.Opacity = 1;
+        }
+        else
+        {
+            ImageProgressRing.IsActive = true;
+            OriginalImage.Opacity = 0.1;
+            OriginalImage.Source = await vm.GetPrevOriginal();
+            ImageProgressRing.IsActive = false;
+            OriginalImage.Opacity = 1;
+        }
+
+        PrevButton.IsEnabled = vm.HasPrev;
+        NextButton.IsEnabled = vm.HasNext;
+        PrevNextImageLoadInProgress = false;
+    }
+
+    private async void NextButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (vm.HasNext == false || PrevNextImageLoadInProgress) //when calling next button with keyboard accelerator, we should reject the keystroke while next image is loading. 
+            return;
+        PrevNextImageLoadInProgress = true;
+        PrevButton.IsEnabled = false;
+        NextButton.IsEnabled = false;
+        CurrentZoomLevel = "";
+        if (ShowCompressed)
+        {
+            ImageProgressRing.IsActive = true;
+            CompressedImage.Opacity = 0.1;
+            ImageSource source = null;
+            bool isSameAsPrevious = false;
+            (source, isSameAsPrevious) = await vm.GetNextCompressed();
+            if (!isSameAsPrevious)
+            {
+                CompressedImage.Source = source;
+            }
+            ImageProgressRing.IsActive = false;
+            CompressedImage.Opacity = 1;
+        }
+        else
+        {
+            ImageProgressRing.IsActive = true;
+            OriginalImage.Opacity = 0.1;
+            OriginalImage.Source = await vm.GetNextOriginal();
+            ImageProgressRing.IsActive = false;
+            OriginalImage.Opacity = 1;
+        }
+
+        PrevButton.IsEnabled = vm.HasPrev;
+        NextButton.IsEnabled = vm.HasNext;
+        PrevNextImageLoadInProgress = false;
+    }
+
+    private void ToggleImages()
+    {
+        if (ShowCompressed)
+            OriginalButton_Click(this, new RoutedEventArgs());
+        else
+            CompressedImageButton_Click(this, new RoutedEventArgs());
+    }
+
+    #endregion
+
+    private void ShortcutKeyManager_KeyPressed(object? sender, ProcessKeyboardAcceleratorEventArgs e)
+    {
+        if (this.Visibility != Visibility.Visible)
+            return;
+
+        if (e.Key == VirtualKey.F && e.Modifiers == VirtualKeyModifiers.Control)
+        {
+            if (!FitVisibleArea)
+                ZoomFitButton_Click(sender, new RoutedEventArgs());
+            else
+                Zoom100Button_Click(sender, new RoutedEventArgs());
+        }
+        else if (e.Key == VirtualKey.I && e.Modifiers == VirtualKeyModifiers.Control)
+            ZoomInButton_Click(sender, new RoutedEventArgs());
+        else if (e.Key == VirtualKey.O && e.Modifiers == VirtualKeyModifiers.Control)
+            ZoomOutButton_Click(sender, new RoutedEventArgs());
+        else if (e.Key == VirtualKey.P && e.Modifiers == VirtualKeyModifiers.Control)
+            PrevButton_Click(sender, new RoutedEventArgs());
+        else if (e.Key == VirtualKey.N && e.Modifiers == VirtualKeyModifiers.Control)
+            NextButton_Click(sender, new RoutedEventArgs());
+        else if (e.Key == VirtualKey.T && e.Modifiers == VirtualKeyModifiers.Control)
+            ToggleImages();
+        else if (e.Key == VirtualKey.Escape)
+            BackButton_Click(sender, new RoutedEventArgs());
+    }
 }

@@ -106,10 +106,38 @@ namespace miCompressor.core
                 _compressedFileSize = value;
                 OnPropertyChanged(nameof(CompressedFileSize));
                 OnPropertyChanged(nameof(CompressedFileSizeToShow));
+                OnPropertyChanged(nameof(CompressedFileSizeReduction));
             }
         }
 
-        public string CompressedFileSizeToShow => HumanReadable.FileSize(fileSize: CompressedFileSize);
+        [AutoNotify]  public string lastCompressedFileExt = "";
+
+        public string CompressedFileSizeToShow => CompressedFileSize == 0 ? " - " : HumanReadable.FileSize(fileSize: CompressedFileSize);
+        public string CompressedFileSizeReduction {
+            get
+            {
+                if (FileSize == 0)
+                    return " -- ";
+                if (CompressedFileSize == 0)
+                    return "Click \"Compressed\" (Ctrl + T) To Estimate/Toggle";
+                
+                var reducedPercentage = 100.0 - (100.0 * (double)CompressedFileSize / (double)FileSize);
+
+                string upOrdown;
+                if (reducedPercentage == 0)
+                    upOrdown = "↓ 😐";
+                else if (reducedPercentage > 0)
+                    upOrdown = "↓ 🙂";
+                else
+                    upOrdown = "↑ 😢";
+                return reducedPercentage.ToString("0.##") + $"% {upOrdown}";
+            }
+        }
+
+        [AutoNotify] public string compressedFileDimensionToShow = "";
+        [AutoNotify] public uint compressedWidth = 0;
+        [AutoNotify] public uint compressedHeight = 0;
+
 
         [AutoNotify]
         private string? cameraModel;
@@ -150,7 +178,7 @@ namespace miCompressor.core
         {
             get
             {
-                return $"{width}x{height}";
+                return $"{width} x {height}";
             }
         }
 
@@ -378,6 +406,7 @@ namespace miCompressor.core
             {
                 outputFile.Refresh();
                 CompressedFileSize = (ulong)outputFile.Length;
+                LastCompressedFileExt = Path.GetExtension(outputPath).Replace(".","").ToUpper();
             }
             catch
             {
@@ -398,11 +427,20 @@ namespace miCompressor.core
 
             // Load metadata for the compressed file
             ImageMetadata? outputMeta = await LoadImageMetadataAsync(outputPath, loadFileSize: false);
-            if(outputMeta != null)
+            if (outputMeta != null)
+            {
                 outputMeta.FileSize = (uint)outputFile.Length;
+                CompressedWidth = outputMeta.Width;
+                CompressedHeight = outputMeta.Height;
+                CompressedFileDimensionToShow = $"{outputMeta.Width} x {outputMeta.Height}";
+            }
+
+
 
             if (outputMeta == null)
             {
+                CompressedFileDimensionToShow = $" - Compression Failed - ";
+
                 // The output file might be corrupt
                 if (ShouldCopyOriginal(expectedWidth, expectedHeight, outputPath))
                 {

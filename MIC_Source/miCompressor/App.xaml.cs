@@ -1,4 +1,5 @@
-﻿using miCompressor.core;
+﻿using ImageMagick;
+using miCompressor.core;
 using miCompressor.viewmodel;
 using Microsoft.UI.Xaml;
 using System;

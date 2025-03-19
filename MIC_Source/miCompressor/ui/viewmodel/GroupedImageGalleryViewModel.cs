@@ -425,6 +425,7 @@ namespace miCompressor.ui.viewmodel
                     return $"{HumanReadable.FileSize(fileSize: FileSizeInBytes)}";
             }
         }
+
         public string DisplayText
         {
             get
@@ -593,6 +594,18 @@ namespace miCompressor.ui.viewmodel
             }
             node.ImageFileCount = count;
             return count;
+        }
+
+        public MediaFileInfo GetAnyMediaInfo(ImageTreeNode node)
+        {
+            if (node.IsImage)
+                return node.FileInfo;
+
+            foreach (var child in node.AllChildren)
+            {
+                return GetAnyMediaInfo(child);
+            }
+            return null;
         }
 
         private void CalculateSelectedImageFileCount()
