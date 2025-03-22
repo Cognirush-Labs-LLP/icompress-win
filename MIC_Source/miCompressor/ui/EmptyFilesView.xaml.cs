@@ -13,6 +13,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using miCompressor.core;
+using Windows.ApplicationModel;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -24,6 +25,7 @@ namespace miCompressor.ui
     /// </summary>
     public sealed partial class EmptyFilesView : UserControl
     {
+        public string AppVersion => GetAppVersion();
         /// <summary>
         /// Supported extensions to show in UI.
         /// </summary>
@@ -32,6 +34,23 @@ namespace miCompressor.ui
         public EmptyFilesView()
         {
             this.InitializeComponent();
+        }
+
+        public static string GetAppVersion()
+        {
+            try
+            {
+                if (Package.Current != null)
+                {
+                    PackageVersion version = Package.Current.Id.Version;
+                    return $"{version.Major}.{version.Minor}.{version.Build}.{version.Revision}";
+                }
+            }
+            catch
+            {
+
+            }
+            return "Unknown"; // Default for unpackaged apps
         }
     }
 }

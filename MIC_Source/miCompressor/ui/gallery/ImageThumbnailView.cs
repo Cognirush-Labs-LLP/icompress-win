@@ -18,9 +18,9 @@ namespace miCompressor.ui
     /// Conditions: Can be specified as in 'Show' property. Removed Bitmap source if not in view. 
     /// </summary>
     public class ImageThumbnailView : ContentControl
-   {
+    {
 
-        private bool debugThisClass = false;
+        private bool debugThisClass = true;
 
 #if DEBUG
         /// <summary>
@@ -130,14 +130,14 @@ namespace miCompressor.ui
         {
             try
             {
-                if(this.ActualWidth == 0 || this.ActualHeight == 0)
+                if (this.ActualWidth == 0 || this.ActualHeight == 0)
                 {
                     VisibleInLastCheck = false;
                     return false;
                 }
 #if DEBUG
                 if (FileInfo != null)
-                    fileName = FileInfo.ShortName; //for debug
+                    fileName = FileInfo.ShortName; //for debug (breakpoint)
 #endif
                 // Transform element bounds to window coordinates.
                 GeneralTransform elementTransform = this.TransformToVisual(App.MainWindow.Content);
@@ -151,7 +151,11 @@ namespace miCompressor.ui
 
                 Debug.WriteLineIf(debugThisClass, $"{FileInfo.ShortName} is at {CurrentYLocation} so will be visible: {isInView}");
 
-               VisibleInLastCheck = isInView;
+                VisibleInLastCheck = isInView;
+
+                if(isInView)
+                    UpdateContent();
+
                 return isInView;
             }
             catch (Exception)
@@ -227,12 +231,13 @@ namespace miCompressor.ui
                         };
 
                         _image.SetBinding(Image.SourceProperty, binding);
+                        Debug.WriteLineIf(debugThisClass, $"{FileInfo.ShortName} is is assigned with Binding.");
 
                     }
-                    else if(this.FileInfo.Thumbnail != null && _image.Source != this.FileInfo.Thumbnail) // to reduce UI updates
+                    else if (this.FileInfo.Thumbnail != null && _image.Source != this.FileInfo.Thumbnail) // to reduce UI updates
                     {
                         _image.Source = this.FileInfo.Thumbnail;
-
+                        Debug.WriteLineIf(debugThisClass, $"{FileInfo.ShortName} is is assigned with Thumb (without Binding).");
                     }
                 }
                 else

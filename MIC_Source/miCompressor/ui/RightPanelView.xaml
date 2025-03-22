@@ -14,7 +14,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <CommandBar Grid.Row="0" IsOpen="False" DefaultLabelPosition="Right" Margin="5,5,0,5">
-            <AppBarButton Name="CompressAllButton" Label="Compress All" Background="{StaticResource Acccent_100}" Click="CompressAllButton_Click" >
+            <AppBarButton Name="CompressAllButton" Label="Compress All" Background="{StaticResource Acccent_70}" Click="CompressAllButton_Click" >
                 <AppBarButton.Icon>
                     <FontIcon Glyph="&#xE768;" />
                 </AppBarButton.Icon>

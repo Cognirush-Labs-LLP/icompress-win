@@ -1,5 +1,6 @@
 using miCompressor.core;
 using miCompressor.ui.viewmodel;
+using miCompressor.viewmodel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
@@ -18,9 +19,11 @@ namespace miCompressor.ui
     {
         public CompressionViewModel vm => App.CurrentState.CompressionViewModel;
         public WarningHelper warningAndError => WarningHelper.Instance;
+        public MasterState CurrentState => App.CurrentState;
 
         [AutoNotify] private bool canShowError = false;
         [AutoNotify] private bool canShowWarning = false;
+        public bool CanShowGeneralInfo => !vm.CompressionInProgress && vm.TotalFilesFailedToCompress == 0 && vm.TotalFilesCancelled == 0 && vm.TotalFilesCompressed > 1;
 
         private bool HasPreCompressionWarnings => warningAndError.HasPreCompressionWarnings;
         
@@ -106,6 +109,7 @@ namespace miCompressor.ui
                 OnPropertyChanged(nameof(ShowBackButton));
                 OnPropertyChanged(nameof(ShowErrorOrWarningView));
                 OnPropertyChanged(nameof(HasPreCompressionWarnings));
+                OnPropertyChanged(nameof(CanShowGeneralInfo));
             }
         }
 
@@ -129,6 +133,7 @@ namespace miCompressor.ui
                 OnPropertyChanged(nameof(HasPreCompressionWarnings));
                 OnPropertyChanged(nameof(CanShowError));
                 OnPropertyChanged(nameof(CanShowWarning));
+                OnPropertyChanged(nameof(CanShowGeneralInfo));
             }         
         }
 

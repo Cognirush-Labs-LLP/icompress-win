@@ -130,6 +130,7 @@ namespace miCompressor.ui
         {
             FilterOptions.Visibility = Visibility.Visible; // Make it render
             FadeInAnimation.Begin(); // Start fade-in effect
+            CurrentState.ShowFilterOptions = true;
         }
 
         private void HideFilterOptions()
@@ -139,6 +140,7 @@ namespace miCompressor.ui
                 FilterOptions.Visibility = Visibility.Collapsed; // Hide after animation ends
             };
             FadeOutAnimation.Begin();
+            CurrentState.ShowFilterOptions = false;
         }
 
         private async void AddFolderKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)

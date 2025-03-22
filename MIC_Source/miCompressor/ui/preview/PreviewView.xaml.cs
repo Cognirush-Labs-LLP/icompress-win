@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 using System.ComponentModel.Design;
 using System.Diagnostics;
 using Windows.System;
+using System.Threading;
+using Windows.Web.Http;
 
 namespace miCompressor.ui;
 
@@ -80,6 +82,9 @@ public sealed partial class PreviewView : UserControl
 
         VisibleAreaHeight = (uint)ImageGridScrollViewArea.ActualHeight;
         VisibleAreaWidth = (uint)ImageGridScrollViewArea.ActualWidth;
+
+        _zoomLevelUpdateTimer = new Timer(ZoomLevelTimerCallback, null, 0, 1000); // Recalculate zoom level periodically every 1000ms (1 second)
+
     }
 
     private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -158,7 +163,6 @@ public sealed partial class PreviewView : UserControl
         OriginalImage.Opacity = 1;
     }
 
-    
 
     /// <summary>
     /// Should be called once per image load
@@ -199,6 +203,27 @@ public sealed partial class PreviewView : UserControl
         }
     }
 
+    #region Zoom Level Thread
+
+    //  We need to find zoom level periodically. This is the only simple 
+    // and most accurate way to get zoom level with minimum code. 
+    private static Timer? _zoomLevelUpdateTimer;
+    private static bool _isZoomLevelUpdatePaused = false;
+    private static readonly object _zoomLevelUpdateLock = new();
+
+    private void ZoomLevelTimerCallback(object? state)
+    {
+        lock (_zoomLevelUpdateLock)
+        {
+            if (_isZoomLevelUpdatePaused) return;
+            UIThreadHelper.RunOnUIThread(() =>
+                {
+                    if (this.Visibility != Visibility.Visible) return;
+                    CurrentZoomLevel = GetCurrentZoomLevel();
+                });
+        }
+    }
+
     private string GetCurrentZoomLevel()
     {
         try
@@ -222,11 +247,13 @@ public sealed partial class PreviewView : UserControl
             var widthPercentage = 100 * containerWidth / imageWidth;
             var heightPercentage = 100 * containerHeight / imageHeight;
 
-            return " at Zoom Level " + (widthPercentage > heightPercentage ? widthPercentage : heightPercentage).ToString("0.##") + " %";
+            //return " at Zoom Level " + (widthPercentage > heightPercentage ? widthPercentage : heightPercentage).ToString("0.##") + " %";
+            return (widthPercentage > heightPercentage ? widthPercentage : heightPercentage).ToString("0.##") + "%";
         }
-        catch {  }
+        catch { }
         return "";
     }
+    #endregion
 
     private (int height, int width) GetWindowDimension()
     {
@@ -236,6 +263,7 @@ public sealed partial class PreviewView : UserControl
     }
     private void AdjustImageSize()
     {
+        CurrentZoomLevel = "";
         OriginalImage.Height = Height;
         OriginalImage.Width = Width;
         CompressedImage.Height = Height;
@@ -314,7 +342,7 @@ public sealed partial class PreviewView : UserControl
         }
     }
 
-    private SolidColorBrush accentBrush = (SolidColorBrush)App.Current.Resources["Acccent_100"];
+    private SolidColorBrush accentBrush = (SolidColorBrush)App.Current.Resources["Acccent_70"];
     private SolidColorBrush defaultBrush = new SolidColorBrush(Microsoft.UI.Colors.Transparent);
 
     private void ZoomInButton_Click(object sender, RoutedEventArgs e)
@@ -385,6 +413,7 @@ public sealed partial class PreviewView : UserControl
     {
         if (((UIElement)sender).Visibility == Visibility.Visible)
         {
+            _isZoomLevelUpdatePaused = false;
             vm.RemoveCached();
             ResetImageSize();
             if (ShowCompressed)
@@ -398,6 +427,7 @@ public sealed partial class PreviewView : UserControl
         }
         else
         {
+            _isZoomLevelUpdatePaused = true;
             CompressedImage.Source = null;
             OriginalImage.Source = null;
         }

@@ -113,8 +113,8 @@
             </AppBarButton>
             
         </CommandBar>
-        
-        <local:FiltersView x:Name="FilterOptions" Grid.Row="2" />
+
+        <local:FiltersView x:Name="FilterOptions" Grid.Row="2" Visibility="{x:Bind CurrentState.ShowFilterOptions, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
         
         <ListView Grid.Row="3" ItemsSource="{x:Bind FileStore.SelectedPaths}"
                       VerticalAlignment="Stretch" SelectionMode="None"

@@ -51,11 +51,11 @@
 
             <AppBarElementContainer VerticalAlignment="Center" ToolTipService.ToolTip="(Ctrl + T)">
                 <StackPanel Orientation="Horizontal">
-                    <Button Name="OriginalImageButton" Content="Original" CornerRadius="10,0,0,10" Background="{StaticResource Acccent_100}" Click="OriginalButton_Click" />
+                    <Button Name="OriginalImageButton" Content="Original" CornerRadius="10,0,0,10" Background="{StaticResource Acccent_70}" Click="OriginalButton_Click" />
                     <Button Name="CompressedImageButton" Content="Compressed" CornerRadius="0,10,10,0" Click="CompressedImageButton_Click" />
                 </StackPanel>
             </AppBarElementContainer>
-
+            
             <AppBarSeparator Margin="10,0,10,0"/>
             <AppBarButton Name="Zoom100Button" Label="100%"  Click="Zoom100Button_Click">
             </AppBarButton>
@@ -83,12 +83,14 @@
                     <KeyboardAccelerator Key="O" Modifiers="Control"/>
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
+            <AppBarElementContainer VerticalAlignment="Center">
+                <TextBlock Text="{x:Bind CurrentZoomLevel, Mode=OneWay}" Foreground="{StaticResource Primary_50}"/>
+            </AppBarElementContainer>
 
         </CommandBar>
         <StackPanel Grid.Column="0" Grid.Row="1" Margin="6" >
             <StackPanel Orientation="Horizontal" Margin="3" Spacing="6" VerticalAlignment="Center">
                 <TextBlock Text="{x:Bind CurrentState.SelectedImageForPreview.ShortName, Mode=OneWay}" TextWrapping="Wrap" />
-                <TextBlock Text="{x:Bind CurrentZoomLevel, Mode=OneWay}" Foreground="{StaticResource Primary_50}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="3" Spacing="6" VerticalAlignment="Center">
                 <TextBlock Text="{x:Bind CurrentState.SelectedImageForPreview.DimensionsToShow, Mode=OneWay}" Foreground="{StaticResource Primary_50}" VerticalAlignment="Center" />

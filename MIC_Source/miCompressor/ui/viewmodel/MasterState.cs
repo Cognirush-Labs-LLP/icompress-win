@@ -35,9 +35,19 @@ namespace miCompressor.viewmodel
         public bool showPreview = false;
 
         [AutoNotify]
+        public bool showFilterOptions = true;
+
+        [AutoNotify]
         public MediaFileInfo? selectedImageForPreview = null;
 
         public Filter SelectionFilter = new();
+
+        #region Microsoft Store Related Settings
+        public bool IsOnMicrosoftStore = true;
+
+        public string SoftwareRatingLink => IsOnMicrosoftStore ? "https://mic.cognirush.com/mass-image-compressor-for-windows/" : "https://sourceforge.net/projects/icompress/reviews/new";
+
+        #endregion
 
         /// <summary>
         /// Constructor initializes with `EmptyFilesView`
@@ -48,8 +58,9 @@ namespace miCompressor.viewmodel
             OutputSettings = new();
             CompressionViewModel = new(FileStore, OutputSettings);
 
-            showImageIconInFileSelectionTreeView = AppSettingsManager.Get<bool>("Visuals." + nameof(ShowImageIconInFileSelectionTreeView));
+            ShowImageIconInFileSelectionTreeView = AppSettingsManager.Get<bool>("Visuals." + nameof(ShowImageIconInFileSelectionTreeView));
             ShowImageIconInFileSelectionTreeViewWhenMouseHovers = AppSettingsManager.Get<bool>("Visuals." + nameof(ShowImageIconInFileSelectionTreeViewWhenMouseHovers));
+            showFilterOptions = AppSettingsManager.Get<bool>("Visuals." + nameof(ShowFilterOptions), true);
 
             this.PropertyChanged += MasterState_PropertyChanged;
             this.CompressionViewModel.PropertyChanged += CompressionViewModel_PropertyChanged;
@@ -95,6 +106,8 @@ namespace miCompressor.viewmodel
                 AppSettingsManager.Set("Visuals." + nameof(ShowImageIconInFileSelectionTreeView), showImageIconInFileSelectionTreeView);
             if (e.PropertyName == nameof(ShowImageIconInFileSelectionTreeViewWhenMouseHovers))
                 AppSettingsManager.Set("Visuals." + nameof(ShowImageIconInFileSelectionTreeViewWhenMouseHovers), ShowImageIconInFileSelectionTreeViewWhenMouseHovers);
+            if (e.PropertyName == nameof(ShowFilterOptions))
+                AppSettingsManager.Set("Visuals." + nameof(ShowFilterOptions), ShowFilterOptions);
         }
     }
 }

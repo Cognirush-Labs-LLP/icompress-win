@@ -13,6 +13,8 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <Border BorderThickness="2" BorderBrush="Gray" CornerRadius="10" Padding="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="0"  Opacity="0.3">
@@ -32,9 +34,16 @@
             </StackPanel>
         </Border>
         <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Grid.Row="1" Margin="10" Spacing="5">
-            <TextBlock HorizontalAlignment="Center" FontWeight="SemiBold" Opacity="0.5">Supported Extensions</TextBlock>
+            <TextBlock HorizontalAlignment="Center" FontWeight="SemiBold" Opacity="0.5">Supported Input Images</TextBlock>
             <TextBlock Text="{x:Bind SupportedExtensionsInCaps}" HorizontalAlignment="Center" FontWeight="Normal" Opacity="0.8" TextWrapping="Wrap" />
         </StackPanel>
-
+        <Border Grid.Row="2" Style="{StaticResource LineSeparatorStyle}" />
+        <StackPanel  Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
+            <TextBlock Text="Software Version: " VerticalAlignment="Center" FontSize="{StaticResource TextSmall}" Foreground="{StaticResource Primary_50}" />
+            <TextBlock Text="{x:Bind AppVersion}" VerticalAlignment="Center" Margin="5,0,20,0" FontSize="{StaticResource TextSmall}" Foreground="{StaticResource Primary_50}"/>
+            <!--<TextBlock Text="Need Help?" VerticalAlignment="Center" />
+            <HyperlinkButton NavigateUri="https://mic.cognirush.com">Contact Us</HyperlinkButton>
+            <HyperlinkButton NavigateUri="https://mic.cognirush.com">Ask ChatGPT</HyperlinkButton>-->
+        </StackPanel>
     </Grid>
 </UserControl>

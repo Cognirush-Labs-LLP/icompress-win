@@ -79,6 +79,46 @@ namespace miCompressor.core
         }
 
         /// <summary>
+        /// Retrieves a value from ApplicationData.Current.LocalSettings.
+        /// If the key does not exist, the default value passed to this method of T is returned.
+        /// </summary>
+        /// <typeparam name="T">The type of the value to retrieve.</typeparam>
+        /// <param name="key">The key used to retrieve the value.</param>
+        /// <param name="valueToReturnIfSettingsDoesNotExist">This value is return if key is not found in settings</param>
+        /// <returns>The retrieved value or <![CDATA[valueToReturnIfSettingsDoesNotExist]]> if not found.</returns>
+        public static T? Get<T>(string key, T valueToReturnIfSettingsDoesNotExist)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(key))
+                    throw new ArgumentException("Key cannot be null or empty.", nameof(key));
+
+                if (ApplicationData.Current.LocalSettings.Values.TryGetValue(key, out object? storedValue))
+                {
+                    if (storedValue is T typedValue)
+                    {
+                        return typedValue;
+                    }
+
+                    if (storedValue is string jsonString && typeof(T) != typeof(string))
+                    {
+                        try
+                        {
+                            return System.Text.Json.JsonSerializer.Deserialize<T>(jsonString);
+                        }
+                        catch (Exception)
+                        {
+                            return valueToReturnIfSettingsDoesNotExist;
+                        }
+                    }
+                }
+                return valueToReturnIfSettingsDoesNotExist;
+            }
+            catch { }
+            return valueToReturnIfSettingsDoesNotExist;
+        }
+
+        /// <summary>
         /// Checks if a key exists in the local settings.
         /// </summary>
         /// <param name="key">The key to check.</param>
