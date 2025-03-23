@@ -163,7 +163,7 @@ namespace miCompressor.ui.common
                     CurrentScrollLooker.KeepLookingForScrollEven();
                 } else if(CurrentScrollLooker == null)
                 {
-                    //Debug.WriteLine("**** No Scroll Looker ****");
+                    Debug.WriteLineIf(debugThisClass, "**** No Scroll Looker ****");
                 }
             }
         }

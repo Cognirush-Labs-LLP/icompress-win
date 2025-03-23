@@ -35,7 +35,7 @@
         </Border>
         <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Grid.Row="1" Margin="10" Spacing="5">
             <TextBlock HorizontalAlignment="Center" FontWeight="SemiBold" Opacity="0.5">Supported Input Images</TextBlock>
-            <TextBlock Text="{x:Bind SupportedExtensionsInCaps}" HorizontalAlignment="Center" FontWeight="Normal" Opacity="0.8" TextWrapping="Wrap" />
+            <TextBlock Text="{x:Bind SupportedExtensionsInCaps}" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Normal" Opacity="0.8" TextWrapping="Wrap" />
         </StackPanel>
         <Border Grid.Row="2" Style="{StaticResource LineSeparatorStyle}" />
         <StackPanel  Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
@@ -44,6 +44,9 @@
             <!--<TextBlock Text="Need Help?" VerticalAlignment="Center" />
             <HyperlinkButton NavigateUri="https://mic.cognirush.com">Contact Us</HyperlinkButton>
             <HyperlinkButton NavigateUri="https://mic.cognirush.com">Ask ChatGPT</HyperlinkButton>-->
+            <HyperlinkButton NavigateUri="https://mic.cognirush.com/terms-and-condition-for-windows-version/" FontSize="{StaticResource TextXSmall}" Opacity="0.5">T&amp;C</HyperlinkButton>
+            <HyperlinkButton NavigateUri="https://mic.cognirush.com/privacy-policy-mic-windows-os/" FontSize="{StaticResource TextXSmall}" Opacity="0.5">Privacy</HyperlinkButton>
+            <HyperlinkButton NavigateUri="https://github.com/Cognirush-Labs-LLP/icompress-win" FontSize="{StaticResource TextXSmall}" Opacity="0.5">Source Code</HyperlinkButton>
         </StackPanel>
     </Grid>
 </UserControl>

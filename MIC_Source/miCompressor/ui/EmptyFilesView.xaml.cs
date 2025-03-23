@@ -50,7 +50,7 @@ namespace miCompressor.ui
             {
 
             }
-            return "Unknown"; // Default for unpackaged apps
+            return "4.0.0"; // Default for unpackaged apps
         }
     }
 }

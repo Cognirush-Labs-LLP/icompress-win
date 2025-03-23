@@ -45,10 +45,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Assets - Copy\**" />
     <Compile Remove="Assets\Icons\source\output\**" />
     <Content Remove="Assets\Icons\source\output\**" />
+    <EmbeddedResource Remove="Assets - Copy\**" />
     <EmbeddedResource Remove="Assets\Icons\source\output\**" />
+    <None Remove="Assets - Copy\**" />
     <None Remove="Assets\Icons\source\output\**" />
+    <Page Remove="Assets - Copy\**" />
     <Page Remove="Assets\Icons\source\output\**" />
   </ItemGroup>
 
@@ -115,7 +119,6 @@
     <Content Include="Assets\Square150x150Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
-    <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
     <Content Include="LICENSE.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -272,12 +275,23 @@
     <IncludeSymbols>False</IncludeSymbols>
     <PackageCertificateThumbprint>72A4096BA3BAA7BCA65333DA890909F661BD42D6</PackageCertificateThumbprint>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+    <AssemblyName>Mass Image Compressor</AssemblyName>
+    <Version>4.0.0</Version>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <PRIResource Remove="Assets\Icons\source\output\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Assets\Icons\source\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="3rdParty_x64\oxipng.exe">
@@ -334,13 +348,12 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Update="Assets\StoreLogo.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
     <None Update="LICENSE.txt">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PRIResource Remove="Assets - Copy\**" />
   </ItemGroup>
 </Project>
