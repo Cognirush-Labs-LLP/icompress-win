@@ -50,11 +50,8 @@ Pre-built binaries will be made available once public testing is complete. For n
 
 ## 👥 Community & Feedback
 
-We're collecting feedback during this rewrite phase. Join the discussion or report issues to help stabilize the new generation of Mass Image Compressor.
+We're collecting feedback during this rewrite phase. Join the discussion or report issues to help stabilize the new generation of Mass Image Compressor. Ifi you have a functional feedback, provide it [here](https://mic.cognirush.com/mass-image-compressor-for-windows/).
 
 ---
 
-## 📜 License
-
-– See [LICENSE](./LICENSE) for details.
 
