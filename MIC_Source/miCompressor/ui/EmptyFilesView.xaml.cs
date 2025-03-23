@@ -29,7 +29,7 @@ namespace miCompressor.ui
         /// <summary>
         /// Supported extensions to show in UI.
         /// </summary>
-        protected string SupportedExtensionsInCaps => string.Join(", ", CodeConsts.SupportedInputExtensions).ToUpperInvariant();
+        public string SupportedExtensionsInCaps => string.Join(", ", CodeConsts.SupportedInputExtensions).ToUpperInvariant();
 
         public EmptyFilesView()
         {

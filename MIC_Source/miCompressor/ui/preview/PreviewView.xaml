@@ -16,6 +16,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <CommandBar Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" DefaultLabelPosition="Right" >
             <AppBarButton Name="BackButton" Label="Back"   Click="BackButton_Click" >
@@ -113,6 +114,7 @@
             </Grid>
         </ScrollView>
         <ProgressRing Name="ImageProgressRing"  Grid.Column="0"  Grid.Row="2" IsActive="False" Visibility="Visible" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        <TextBlock Grid.Column="0"  Grid.Row="3" Text="Preview may not show animated WebP and PNG." FontSize="{StaticResource TextSmall}" Opacity="0.3" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0" />
 
     </Grid>
 </UserControl>

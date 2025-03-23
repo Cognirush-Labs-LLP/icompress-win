@@ -17,6 +17,7 @@ public sealed partial class RightPanelView : UserControl
     }
     private async void CompressAllButton_Click(object sender, RoutedEventArgs e)
     {
+        CurrentState.ShowPreview = false;
         (bool good, string error) = CurrentState.CompressionViewModel.CheckSettingsCondition();
         if (!good)
         {

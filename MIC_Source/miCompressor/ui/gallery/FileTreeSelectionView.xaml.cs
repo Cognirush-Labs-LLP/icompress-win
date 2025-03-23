@@ -76,9 +76,9 @@ namespace miCompressor.ui
 
         private async void OpenFolderInExplorer_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            if (_selectedNode != null && Directory.Exists(_selectedNode.FullPath))
+            if (_selectedNode != null)
             {
-                await Launcher.LaunchFolderPathAsync(_selectedNode.FullPath);
+                await Launcher.LaunchFolderPathAsync(PathHelper.GetFolderPath(_selectedNode.FullPath));
             }
         }
 
@@ -87,7 +87,7 @@ namespace miCompressor.ui
         {
             if (_selectedNode != null && File.Exists(_selectedNode.Name))
             {
-                await Launcher.LaunchFileAsync(await Windows.Storage.StorageFile.GetFileFromPathAsync(_selectedNode.Name));
+                await Launcher.LaunchFolderPathAsync(PathHelper.GetFolderPath(_selectedNode.FullPath));
             }
         }
 
@@ -96,7 +96,7 @@ namespace miCompressor.ui
             if (_selectedNode != null)
             {
                 var mediaInfo = _selectedNode.GetAnyMediaInfo(_selectedNode);
-                if(mediaInfo != null)
+                if (mediaInfo != null)
                 {
                     App.CurrentState.SelectedImageForPreview = mediaInfo;
                     App.CurrentState.ShowPreview = true;
@@ -149,7 +149,7 @@ namespace miCompressor.ui
                 }, shouldRunInUI: true);
             }
             e.Handled = true;
-            
+
             System.Diagnostics.Debug.WriteLine("Pinter EXITED");
         }
 
@@ -167,6 +167,20 @@ namespace miCompressor.ui
 
             CurrentState.SelectedImageForPreview = param as MediaFileInfo;
             CurrentState.ShowPreview = true;
+        });
+
+        public ICommand ShowAnyPreviewCommand => new RelayCommand<object>(param =>
+        {
+            if (param as ImageTreeNode != null)
+            {
+                var node = param as ImageTreeNode;
+                var mediaInfo = node.GetAnyMediaInfo(node);
+                if (mediaInfo != null)
+                {
+                    App.CurrentState.SelectedImageForPreview = mediaInfo;
+                    App.CurrentState.ShowPreview = true;
+                }
+            }
         });
     }
 }

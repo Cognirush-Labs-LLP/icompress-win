@@ -1,0 +1,16 @@
+Mass Image Compressor (Windows version)
+Copyright © 2025 Cognirush Labs LLP
+
+Licensed under the GNU Affero General Public License v3.0 (AGPL-3.0)
+
+Special Notices:
+- You may redistribute and/or modify this application under the terms of the AGPL v3.0.
+- Any redistributed version must clearly state all modifications made to the original, including new features or changes.
+- You must not use the name, logo, support email, or website of Cognirush Labs LLP without prior written permission.
+- Do not link redistributed versions to our support channels (e.g., website, contact form, etc.).
+- You must credit Cognirush Labs LLP as the original author but must not represent or imply any official affiliation or endorsement.
+- Cognirush Labs LLP reserves the exclusive right to distribute this software or its derivatives under alternative licensing terms, including but not limited to commercial or proprietary licenses. No third party is authorized to relicense, sublicense, or distribute this software under any license other than AGPL v3.0, without written permission from Cognirush Labs LLP.
+
+This NOTICE is provided in addition to, and does not modify, the terms of the AGPL v3.0.
+
+

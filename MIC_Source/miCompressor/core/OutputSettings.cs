@@ -20,7 +20,7 @@ namespace miCompressor.core
         /// Output Image Format. Defaults to JPEG if the output image format is not supported.
         /// </summary>
         [AutoNotify]
-        public OutputFormat format = OutputFormat.Jpg;
+        public OutputFormat format = OutputFormat.KeepSame;
 
         #region Dimension
         /// <summary>
@@ -68,7 +68,7 @@ namespace miCompressor.core
         /// Output Location strategy
         /// </summary>
         [AutoNotify]
-        public OutputLocationSetting outputLocationSettings = OutputLocationSetting.UserSpecificFolder;
+        public OutputLocationSetting outputLocationSettings = OutputLocationSetting.InCompressedFolder;
 
         /// <summary>
         /// Path of user specified output folder.

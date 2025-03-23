@@ -212,6 +212,32 @@ namespace miCompressor.core
             
             return normalizedPath;
         }
+
+        /// <summary>
+        /// Gets folder path of the give path. Path may or may not exists.
+        /// </summary>
+        /// <param name="fileOrFolderPath">A valid path, not-null.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static string GetFolderPath(string fileOrFolderPath)
+        {
+            // Check if the path is an existing directory or ends with a separator.
+            if (Directory.Exists(fileOrFolderPath) ||
+                fileOrFolderPath.EndsWith(Path.DirectorySeparatorChar) ||
+                fileOrFolderPath.EndsWith(Path.AltDirectorySeparatorChar))
+            {
+                return fileOrFolderPath;
+            }
+
+            // Otherwise, treat it as a file path and get its parent folder.
+            string? parentFolder = Path.GetDirectoryName(fileOrFolderPath);
+            if (string.IsNullOrEmpty(parentFolder))
+            {
+                return fileOrFolderPath;
+            }
+
+            return parentFolder;
+        }
     }
 }
 

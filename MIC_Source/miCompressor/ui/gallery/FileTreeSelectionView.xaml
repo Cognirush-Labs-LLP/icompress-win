@@ -82,8 +82,11 @@
 
                             <TextBlock Text="{x:Bind FileSize, Mode=OneWay}" VerticalAlignment="Center" Style="{StaticResource TextBlockSmall}" Foreground="{StaticResource Acccent_70}" Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}"/>
                             <!-- "Preview" Link (Only for Files) -->
+                            <!--<HyperlinkButton Content="Preview" FontSize="12" Padding="4"
+                                     Margin="20,-4,0,-4" Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding Data.ShowPreviewCommand, Source={StaticResource ThisObj}}" CommandParameter="{x:Bind FileInfo}" />-->
+
                             <HyperlinkButton Content="Preview" FontSize="12" Padding="4"
-                                     Margin="20,-4,0,-4" Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding Data.ShowPreviewCommand, Source={StaticResource ThisObj}}" CommandParameter="{x:Bind FileInfo}" />
+         Margin="20,-4,0,-4" Command="{Binding Data.ShowAnyPreviewCommand, Source={StaticResource ThisObj}}" CommandParameter="{Binding}" />
 
                             <StackPanel.ContextFlyout>
                                 <MenuFlyout>

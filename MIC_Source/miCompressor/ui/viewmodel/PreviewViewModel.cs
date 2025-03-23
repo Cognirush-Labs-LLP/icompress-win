@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml.Media.Imaging;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,6 +41,9 @@ namespace miCompressor.ui
         [AutoNotify] private bool compressionFailed = false;
         [AutoNotify] private bool hasPrev = false;
         [AutoNotify] private bool hasNext = false;
+
+        // We try to support animated preview if the image is guaranteed to be supported by Windows Image Decoder.
+        string[] MultiFrameSupportedFormats = [".gif", ".webp", ".png"];
 
         private int _do_not_access_currentIndex = 0;
 
@@ -167,6 +171,11 @@ namespace miCompressor.ui
                 {
                     MicLog.Info($"File doesn't exists. {Path.GetFileName(imagePath == null ? "<Image Path Null>" : imagePath)}");
                     return null;
+                }
+
+                if(MultiFrameSupportedFormats.Contains(Path.GetExtension(imagePath).ToLower()))
+                {
+                    return new BitmapImage(new Uri(imagePath));
                 }
 
                 var file = await StorageFile.GetFileFromPathAsync(imagePath);
