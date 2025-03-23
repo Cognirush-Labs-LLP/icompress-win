@@ -9,7 +9,7 @@ Mass Image Compressor is a lightweight, fast, and powerful batch image compressi
 ## 🔧 Features
 
 - Compress multiple folders and files in one go (including optional subfolders)
-- Seamless Windows Explorer integration via the “Send To” menu
+- Seamless Windows Explorer integration via the "Send To" menu
 - Advanced metadata copy settings (EXIF, XMP, IPTC) with filtering (e.g., strip GPS, serial numbers)
 - Full support for **Animated Images** (GIF, PNG, WebP)
 - Output to modern formats like **WebP** and **AVIF**
@@ -33,24 +33,24 @@ Mass Image Compressor is a lightweight, fast, and powerful batch image compressi
 
 This project makes use of the following libraries and tools:
 
-- [Magick.NET](https://github.com/dlemstra/Magick.NET) – Image conversion & manipulation
-- [ExifTool](https://exiftool.org) – Metadata reading and writing
-- [APNG Optimizer](https://sourceforge.net/projects/apng/files/APNG_Optimizer/) – Optimization for animated PNGs
-- [FFmpeg](https://ffmpeg.org) – Underlying video and animation encoding/decoding via Magick.NET
-- [OptiPNG](http://optipng.sourceforge.net/) – PNG compression
-- [Serilog](https://github.com/serilog/serilog) – Flexible logging infrastructure
-
+- [Magick.NET](https://github.com/dlemstra/Magick.NET) - Image conversion & manipulation
+- [ExifTool](https://exiftool.org) - Metadata reading and writing
+- [APNG Optimizer](https://sourceforge.net/projects/apng/files/APNG_Optimizer/) - Optimization for animated PNGs
+- [FFmpeg](https://ffmpeg.org) - Underlying video and animation encoding/decoding via Magick.NET
+- [OxiPNG](https://github.com/shssoichiro/oxipng) - PNG compression
+- [Serilog](https://github.com/serilog/serilog) - Flexible logging infrastructure
+- [Gifsicle](https://www.lcdf.org/gifsicle/) - Editing and creating GIF images
 ---
 
 ## 📥 Download
 
-Pre-built binaries will be made available once public testing is complete. For now, clone the repo and build with Visual Studio 2022+ using .NET 8 SDK. Please read [LICENSE](./LICENSE) and [NOTICE.txt](./NOTICE.txt). If you're sharing a custom build, just make sure to remove the Cognirush Labs support email or contact links, otherwise folks might email/contact me about something I didn’t build, and I won’t be able to help (or worse, give them the wrong advice). Appreciate the understanding!
+Pre-built binaries will be made available once public testing is complete. For now, clone the repo and build with Visual Studio 2022+ using .NET 8 SDK. Please read [LICENSE](./LICENSE) and [NOTICE.txt](./NOTICE.txt). If you're sharing a custom build, just make sure to remove the Cognirush Labs support email or contact links, otherwise folks might email/contact me about something I didn't build, and I won't be able to help (or worse, give them the wrong advice). Appreciate the understanding!
 
 ---
 
 ## 👥 Community & Feedback
 
-We're collecting feedback during this rewrite phase. Join the discussion or report issues to help stabilize the new generation of Mass Image Compressor. Ifi you have a functional feedback, provide it [here](https://mic.cognirush.com/mass-image-compressor-for-windows/).
+We're collecting feedback during this rewrite phase. Join the discussion or report issues to help stabilize the new generation of Mass Image Compressor. If you have a functional feedback, provide it [here](https://mic.cognirush.com/mass-image-compressor-for-windows/).
 
 ---
 
