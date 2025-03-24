@@ -1,10 +1,5 @@
-﻿using System;
-using System.Diagnostics;
+﻿using ImageMagick;
 using System.Linq;
-using ImageMagick;
-using ImageMagick.Factories;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.Web.WebView2.Core;
 
 namespace miCompressor.core
 {

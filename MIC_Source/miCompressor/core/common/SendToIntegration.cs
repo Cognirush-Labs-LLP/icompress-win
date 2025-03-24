@@ -8,7 +8,7 @@ public static class SendToIntegration
 {
 
     /// <summary>
-    /// Add Shortcut to "Send To" list (folder) for current user. If shortcut already exsits with same name, we don't change anything. 
+    /// Add Shortcut to "Send To" list (folder) for current user. If shortcut already exists with same name, we don't change anything. 
     /// </summary>
     public static void AddToSendTo()
     {

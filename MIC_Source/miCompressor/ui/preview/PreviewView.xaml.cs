@@ -1,20 +1,15 @@
 using miCompressor.core;
 using miCompressor.viewmodel;
-using Microsoft.UI.Windowing;
 using Microsoft.UI;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using System;
-using Microsoft.UI.Xaml.Input;
-using static System.Net.Mime.MediaTypeNames;
-using Windows.UI.Core;
-using System.Threading.Tasks;
-using System.ComponentModel.Design;
-using System.Diagnostics;
-using Windows.System;
 using System.Threading;
-using Windows.Web.Http;
+using System.Threading.Tasks;
+using Windows.System;
 
 namespace miCompressor.ui;
 

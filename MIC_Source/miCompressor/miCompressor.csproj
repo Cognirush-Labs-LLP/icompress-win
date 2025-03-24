@@ -59,6 +59,11 @@
   <ItemGroup>
     <Content Remove="Assets\Icons\source\createFrom256Png.bat" />
     <Content Remove="Assets\Icons\source\mic_256.png" />
+    <Content Remove="Assets\StoreLogo.scale-100.png" />
+    <Content Remove="Assets\StoreLogo.scale-125.png" />
+    <Content Remove="Assets\StoreLogo.scale-150.png" />
+    <Content Remove="Assets\StoreLogo.scale-200.png" />
+    <Content Remove="Assets\StoreLogo.scale-400.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -273,10 +278,17 @@
     <Product>Mass Image Compressor</Product>
     <Description>Compress, Convert &amp; Resize Photos in batch with Mass Image Compressor</Description>
     <IncludeSymbols>False</IncludeSymbols>
-    <PackageCertificateThumbprint>72A4096BA3BAA7BCA65333DA890909F661BD42D6</PackageCertificateThumbprint>
-    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+    <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
     <AssemblyName>Mass Image Compressor</AssemblyName>
     <Version>4.0.0</Version>
+    <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+    <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
+    <GenerateTestArtifacts>True</GenerateTestArtifacts>
+    <AppxBundle>Never</AppxBundle>
+    <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
+    <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <NoWarn>1591</NoWarn>
