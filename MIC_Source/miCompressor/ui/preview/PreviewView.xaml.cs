@@ -23,6 +23,7 @@ public sealed partial class PreviewView : UserControl
 
     uint OriginalHeight;
     uint OriginalWidth;
+
     uint Height; //set to adjust the zoom
     uint Width;  //set to adjust the zoom
     uint VisibleAreaHeight;
@@ -145,9 +146,9 @@ public sealed partial class PreviewView : UserControl
             UIThreadHelper.RunOnUIThread(async () =>
             {
                 await Task.Delay(300);
-                ResetImageSize();
+                //ResetImageSize();
                 await Task.Delay(300);
-                ResetImageSize();//hack.
+                //ResetImageSize();//hack.
             });
         }
         else
@@ -189,6 +190,11 @@ public sealed partial class PreviewView : UserControl
         if (FitVisibleArea)
         {
             FitImageInVisibleArea(true);
+        }
+        else if (Set100pcZoomOfCompressedImage)
+        {
+            Height = (uint)Math.Max(5, OriginalHeight);
+            Width = (uint)Math.Max(5, OriginalWidth);
         }
         else
         {
@@ -345,8 +351,17 @@ public sealed partial class PreviewView : UserControl
         FitVisibleArea = false;
         Set100pcZoomOfCompressedImage = false;
 
-        Height = (uint)Math.Min(OriginalHeight, Height + Height * 0.1);
-        Width = Height * OriginalWidth / OriginalHeight;
+        if (OriginalHeight > OriginalWidth)
+        {
+            Height = (uint)Math.Min(OriginalHeight * 2, Height + Height * 0.1);
+            Width = Height * OriginalWidth / OriginalHeight;
+        }
+        else
+        {
+            Width = (uint)Math.Min(OriginalWidth * 2, Width + Width * 0.1);
+            Height = Width * OriginalHeight / OriginalWidth;
+        }
+
         AdjustImageSize();
     }
 
@@ -355,8 +370,16 @@ public sealed partial class PreviewView : UserControl
         FitVisibleArea = false;
         Set100pcZoomOfCompressedImage = false;
 
-        Height = (uint)Math.Max(Math.Min(100, OriginalHeight), Height - Height * 0.1);
-        Width = Height * OriginalWidth / OriginalHeight;
+        if (OriginalHeight > OriginalWidth)
+        {
+            Height = (uint)Math.Max(Math.Min(100, OriginalHeight), Height - Height * 0.1);
+            Width = Height * OriginalWidth / OriginalHeight;
+        }
+        else
+        {
+            Width = (uint)Math.Max(Math.Min(100, OriginalWidth), Width - Width * 0.1);
+            Height = Width * OriginalHeight / OriginalWidth;
+        }
         AdjustImageSize();
     }
 
@@ -410,7 +433,7 @@ public sealed partial class PreviewView : UserControl
         {
             _isZoomLevelUpdatePaused = false;
             vm.RemoveCached();
-            ResetImageSize();
+
             if (ShowCompressed)
             {
                 RefreshCompressedImage(CurrentState.selectedImageForPreview);
@@ -419,6 +442,7 @@ public sealed partial class PreviewView : UserControl
             {
                 ShowOriginalImage(CurrentState.selectedImageForPreview);
             }
+            ResetImageSize();
         }
         else
         {
@@ -524,6 +548,7 @@ public sealed partial class PreviewView : UserControl
         PrevButton.IsEnabled = vm.HasPrev;
         NextButton.IsEnabled = vm.HasNext;
         PrevNextImageLoadInProgress = false;
+        ResetImageSize();
     }
 
     private async void NextButton_Click(object sender, RoutedEventArgs e)
@@ -560,6 +585,7 @@ public sealed partial class PreviewView : UserControl
         PrevButton.IsEnabled = vm.HasPrev;
         NextButton.IsEnabled = vm.HasNext;
         PrevNextImageLoadInProgress = false;
+        ResetImageSize();
     }
 
     private void ToggleImages()

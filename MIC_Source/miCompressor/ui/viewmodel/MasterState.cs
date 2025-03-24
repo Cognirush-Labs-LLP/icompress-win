@@ -45,7 +45,7 @@ namespace miCompressor.viewmodel
         #region Microsoft Store Related Settings
         public bool IsOnMicrosoftStore = true;
 
-        public string SoftwareRatingLink => IsOnMicrosoftStore ? "https://mic.cognirush.com/mass-image-compressor-for-windows/" : "https://sourceforge.net/projects/icompress/reviews/new";
+        public string SoftwareRatingLink => IsOnMicrosoftStore ? "ms-windows-store://review/?ProductId=9NF6R54S63L3" : "https://sourceforge.net/projects/icompress/reviews/new";
 
         #endregion
 

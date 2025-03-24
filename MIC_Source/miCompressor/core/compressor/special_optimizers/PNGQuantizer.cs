@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace miCompressor.core.compressor
+namespace miCompressor.core
 {
     /// <summary>
     /// This uses PNGQuant to reduce PNG Size. PNGQuant reduces image size by reducing the quality. If done carefully, pngquant doesn't 

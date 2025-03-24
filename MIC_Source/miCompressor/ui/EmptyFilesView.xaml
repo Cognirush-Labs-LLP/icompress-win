@@ -42,7 +42,7 @@
             <TextBlock Text="Software Version: " VerticalAlignment="Center" FontSize="{StaticResource TextSmall}" Foreground="{StaticResource Primary_50}" />
             <TextBlock Text="{x:Bind AppVersion}" VerticalAlignment="Center" Margin="5,0,20,0" FontSize="{StaticResource TextSmall}" Foreground="{StaticResource Primary_50}"/>
             <!--<TextBlock Text="Need Help?" VerticalAlignment="Center" />
-            <HyperlinkButton NavigateUri="https://mic.cognirush.com">Contact Us</HyperlinkButton>
+            <HyperlinkButton NavigateUri="https://mic.cognirush.com/contact-us/?operating-system=Windows">Contact Us</HyperlinkButton>
             <HyperlinkButton NavigateUri="https://mic.cognirush.com">Ask ChatGPT</HyperlinkButton>-->
             <HyperlinkButton NavigateUri="https://mic.cognirush.com/terms-and-condition-for-windows-version/" FontSize="{StaticResource TextXSmall}" Opacity="0.5">T&amp;C</HyperlinkButton>
             <HyperlinkButton NavigateUri="https://mic.cognirush.com/privacy-policy-mic-windows-os/" FontSize="{StaticResource TextXSmall}" Opacity="0.5">Privacy</HyperlinkButton>
