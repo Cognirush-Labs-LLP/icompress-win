@@ -21,5 +21,7 @@
     <SolidColorBrush x:Key="Acccent_05" Color="{ThemeResource SystemAccentColor}" Opacity="0.05"/>
 
     <SolidColorBrush x:Key="Red_80" Color="Red" Opacity="0.80"/>
+    <SolidColorBrush x:Key="Red_20" Color="Red" Opacity="0.20"/>
+
 
 </ResourceDictionary>

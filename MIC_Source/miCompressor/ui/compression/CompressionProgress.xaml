@@ -212,7 +212,7 @@
                                 </Paragraph>
                                 <Paragraph>
                                     <Run Text=" or " Foreground="{StaticResource Primary_70}" />
-                                    <Hyperlink NavigateUri="https://www.paypal.com/paypalme/Yogendrasinh">Purchase.</Hyperlink>
+                                    <Hyperlink NavigateUri="ms-windows-store://pdp/?productid=9NF6R54S63L3">Purchase.</Hyperlink>
                                     <Run Text=" (same features but with auto-update from Microsoft Store.)" Foreground="{StaticResource Primary_70}" />
                                 </Paragraph>
                             </RichTextBlock>

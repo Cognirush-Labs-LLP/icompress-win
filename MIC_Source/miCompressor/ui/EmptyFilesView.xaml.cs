@@ -14,6 +14,7 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using miCompressor.core;
 using Windows.ApplicationModel;
+using System.Threading.Tasks;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -31,12 +32,24 @@ namespace miCompressor.ui
         /// </summary>
         public string SupportedExtensionsInCaps => string.Join(", ", CodeConsts.SupportedInputExtensions).ToUpperInvariant();
 
+        /// <summary>
+        /// Checks if latest version is available. Returns false for Store users as that update path is via Microsoft Store. 
+        /// </summary>
+        /// <returns></returns>
+        [AutoNotify] public bool updateAvailable = false;
+
+
         public EmptyFilesView()
         {
             this.InitializeComponent();
+
+            _ = UIThreadHelper.RunOnUIThreadAsync(async () =>
+            {
+                UpdateAvailable = await IsUpdateAvailable();
+            });
         }
 
-        public static string GetAppVersion()
+        public string GetAppVersion()
         {
             try
             {
@@ -51,6 +64,14 @@ namespace miCompressor.ui
 
             }
             return "4.0.0"; // Default for unpackaged apps
+        }
+
+        private async Task<bool> IsUpdateAvailable()
+        {
+            if (App.CurrentState.IsOnMicrosoftStore)
+                return false;
+
+            return await VersionChecker.CheckIfNewVersionAvailableAsync(GetAppVersion());
         }
     }
 }

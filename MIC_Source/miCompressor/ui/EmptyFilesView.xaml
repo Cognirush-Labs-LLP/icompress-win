@@ -15,6 +15,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <Border BorderThickness="2" BorderBrush="Gray" CornerRadius="10" Padding="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="0"  Opacity="0.3">
@@ -39,14 +40,18 @@
         </StackPanel>
         <Border Grid.Row="2" Style="{StaticResource LineSeparatorStyle}" />
         <StackPanel  Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
-            <TextBlock Text="Software Version: " VerticalAlignment="Center" FontSize="{StaticResource TextSmall}" Foreground="{StaticResource Primary_50}" />
-            <TextBlock Text="{x:Bind AppVersion}" VerticalAlignment="Center" Margin="5,0,20,0" FontSize="{StaticResource TextSmall}" Foreground="{StaticResource Primary_50}"/>
-            <!--<TextBlock Text="Need Help?" VerticalAlignment="Center" />
+            <TextBlock Text="Need Help?" VerticalAlignment="Center" />
             <HyperlinkButton NavigateUri="https://mic.cognirush.com/contact-us/?operating-system=Windows">Contact Us</HyperlinkButton>
-            <HyperlinkButton NavigateUri="https://mic.cognirush.com">Ask ChatGPT</HyperlinkButton>-->
+            <HyperlinkButton NavigateUri="https://chatgpt.com/g/g-67e1cb51197081919275342ce9c697c8-mass-image-compressor-windows">Ask ChatGPT</HyperlinkButton>
+
+        </StackPanel>
+        <StackPanel  Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
+            <TextBlock Text="Software Version: " VerticalAlignment="Center" FontSize="{StaticResource TextSmall}" Foreground="{StaticResource Primary_50}" />            
+            <TextBlock Text="{x:Bind AppVersion}" VerticalAlignment="Center" Margin="5,0,20,0" FontSize="{StaticResource TextSmall}" Foreground="{StaticResource Primary_50}"/>
+            <HyperlinkButton NavigateUri="https://sourceforge.net/projects/icompress/" Visibility="{x:Bind UpdateAvailable, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" Background="{StaticResource Red_20}" >Update Now!</HyperlinkButton>
             <HyperlinkButton NavigateUri="https://mic.cognirush.com/terms-and-condition-for-windows-version/" FontSize="{StaticResource TextXSmall}" Opacity="0.5">T&amp;C</HyperlinkButton>
             <HyperlinkButton NavigateUri="https://mic.cognirush.com/privacy-policy-mic-windows-os/" FontSize="{StaticResource TextXSmall}" Opacity="0.5">Privacy</HyperlinkButton>
-            <HyperlinkButton NavigateUri="https://github.com/Cognirush-Labs-LLP/icompress-win" FontSize="{StaticResource TextXSmall}" Opacity="0.5">Source Code</HyperlinkButton>
+            <!--<HyperlinkButton NavigateUri="https://github.com/Cognirush-Labs-LLP/icompress-win" FontSize="{StaticResource TextXSmall}" Opacity="0.5">Code</HyperlinkButton>-->
         </StackPanel>
     </Grid>
 </UserControl>
