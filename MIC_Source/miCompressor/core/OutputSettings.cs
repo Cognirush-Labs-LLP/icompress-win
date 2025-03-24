@@ -17,6 +17,12 @@ namespace miCompressor.core
         public uint quality = 80;
 
         /// <summary>
+        /// If enabled, PNG color table is quantized and dithering is enabled. 
+        /// </summary>
+        [AutoNotify]
+        public bool allowLossyPNG = true;
+
+        /// <summary>
         /// Output Image Format. Defaults to JPEG if the output image format is not supported.
         /// </summary>
         [AutoNotify]
@@ -113,6 +119,7 @@ namespace miCompressor.core
         {
             return HashHelper.ComputeStableHash(
                 quality,
+                allowLossyPNG,
                 format,
                 dimensionStrategy, percentageOfLongEdge, primaryEdgeLength,
                 PrintDimension,
@@ -165,7 +172,7 @@ namespace miCompressor.core
         private void CopyFrom(OutputSettings other)
         {
             Quality = other.quality;
-            
+            AllowLossyPNG = other.allowLossyPNG;
             Format = other.format;
             
             DimensionStrategy = other.dimensionStrategy;

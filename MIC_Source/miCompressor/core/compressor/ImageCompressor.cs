@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -330,6 +329,8 @@ public class ImageCompressor
                         image.Write(outputPath, writeDefine);
                     else
                         image.Write(outputPath, MagickHelper.GetMagickFormat(settings.Format, outputPath, isMultiframed: false));
+
+                    QuantizeIfPNGAndAllowedToReduceColors(outputPath, settings);
                 }
             }
             catch (Exception ex)
@@ -476,6 +477,19 @@ public class ImageCompressor
         catch (Exception ex)
         {
             MicLog.Error($" *** Failed to Optimize PNG as {ex.Message}, {ex.StackTrace}");
+        }
+    }
+
+    private void QuantizeIfPNGAndAllowedToReduceColors(string outputFilePath, OutputSettings settings)
+    {
+        try
+        {
+            if (IsPNG(outputFilePath) && settings.allowLossyPNG)
+                (new PNGQuantizer()).Optimize(outputFilePath, settings);
+        }
+        catch (Exception ex)
+        {
+            MicLog.Error($" *** Failed to Quantize PNG as {ex.Message}, {ex.StackTrace}");
         }
     }
 

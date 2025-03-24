@@ -50,36 +50,42 @@ public class ProcessExecutor
     /// <returns>Exit code if waited; otherwise, 0.</returns>
     public int Execute(string arguments, bool waitForExit = true)
     {
-        using (var process = new Process())
+        try
         {
-            process.StartInfo.FileName = ExePath;
-            process.StartInfo.Arguments = arguments;
-            process.StartInfo.CreateNoWindow = true;
-            process.StartInfo.UseShellExecute = false;
-
-            // Only redirect output when waiting for exit, so we can capture messages.
-            if (waitForExit)
+            using (var process = new Process())
             {
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.RedirectStandardError = true;
-            }
+                process.StartInfo.FileName = ExePath;
+                process.StartInfo.Arguments = arguments;
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.UseShellExecute = false;
 
-            process.Start();
+                // Only redirect output when waiting for exit, so we can capture messages.
+                if (waitForExit)
+                {
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.RedirectStandardError = true;
+                }
 
-            if (waitForExit)
-            {
-                // Optionally, you can capture output for logging or error handling.
-                string output = process.StandardOutput.ReadToEnd();
-                string error = process.StandardError.ReadToEnd();
-                process.WaitForExit();
+                process.Start();
 
-                return process.ExitCode;
+                if (waitForExit)
+                {
+                    // Optionally, you can capture output for logging or error handling.
+                    string output = process.StandardOutput.ReadToEnd();
+                    string error = process.StandardError.ReadToEnd();
+                    process.WaitForExit();
+
+                    return process.ExitCode;
+                }
+                else
+                {
+                    // Fire-and-forget: return immediately.
+                    return 0;
+                }
             }
-            else
-            {
-                // Fire-and-forget: return immediately.
-                return 0;
-            }
+        } catch 
+        {
+            return -1;
         }
     }
 

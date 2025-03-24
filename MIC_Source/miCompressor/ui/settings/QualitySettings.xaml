@@ -18,6 +18,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
             <TextBlock Grid.Column="0" Grid.Row="0" Text="QUALITY" Style="{StaticResource SettingsHeading}"/>
         <Slider Grid.Column="1" Grid.Row="0"  Minimum="5" Maximum="100" StepFrequency="5" HorizontalAlignment="Stretch" Margin="5,0,0,0"
@@ -29,5 +30,7 @@
             <HyperlinkButton Content="Medium" Command="{x:Bind SetQualityCommand}" CommandParameter="60" FontSize="{StaticResource TextXSmall}"/>
             <HyperlinkButton Content="High" Command="{x:Bind SetQualityCommand}" CommandParameter="80" FontSize="{StaticResource TextXSmall}"/>
         </StackPanel>
+
+        <CheckBox Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="2" Content="Allow Quality Loss in PNG" VerticalContentAlignment="Center" IsChecked="{x:Bind CurrentState.OutputSettings.AllowLossyPNG, Mode=TwoWay}" />
     </Grid>
 </UserControl>
