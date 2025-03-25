@@ -118,7 +118,7 @@ namespace miCompressor.core
         /// This is used for non-Store users. Store users use ApplicationData.Current.LocalSettings.
         /// </summary>
         /// <returns>
-        /// Fully qualified path to the user config directory under %LOCALAPPDATA%\miCompressor\config.
+        /// Fully qualified path to the user config directory under %LOCALAPPDATA%\miCompressor\user_config.
         /// Ensures the directory exists before returning.
         /// </returns>
         public static string GetUserConfigDir()

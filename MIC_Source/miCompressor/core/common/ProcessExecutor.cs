@@ -85,6 +85,7 @@ public class ProcessExecutor
             }
         } catch 
         {
+            MicLog.Error($"Error executing {ExePath} with arguments: {arguments}");
             return -1;
         }
     }

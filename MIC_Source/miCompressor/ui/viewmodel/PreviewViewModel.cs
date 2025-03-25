@@ -173,11 +173,6 @@ namespace miCompressor.ui
                     return null;
                 }
 
-                if(MultiFrameSupportedFormats.Contains(Path.GetExtension(imagePath).ToLower()))
-                {
-                    return new BitmapImage(new Uri(imagePath));
-                }
-
                 var file = await StorageFile.GetFileFromPathAsync(imagePath);
                 using (IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.Read))
                 {
@@ -187,6 +182,11 @@ namespace miCompressor.ui
                     {
                         CompressedImageHeight = decoder.OrientedPixelHeight;
                         CompressedImageWidth = decoder.OrientedPixelWidth;
+                    }
+
+                    if (MultiFrameSupportedFormats.Contains(Path.GetExtension(imagePath).ToLower()))
+                    {
+                        return new BitmapImage(new Uri(imagePath));
                     }
 
                     if (OriginalHeight == 0 || OriginalWidth == 0 || WindowsImageDecoder.IsHeightAndWidthWithinVariance(decoder, OriginalHeight, OriginalWidth))

@@ -404,3 +404,8 @@ MIC_Source/miCompressor/Assets/Icons/source/output/
 MIC_Source/miCompressor.IntegrationTests/test_imgs/output/
 MIC_Source/miCompressor.IntegrationTests/test_imgs/
 MIC_Source/miCompressor/Assets/New folder/
+Art/*.ico
+Art/Icon/setup_output/
+MIC_Source/miCompressor/Assets/Icons/source/setup_output/
+MIC_Source/miCompressorSetup/dist/
+MIC_Source/miCompressorSetup/Output/

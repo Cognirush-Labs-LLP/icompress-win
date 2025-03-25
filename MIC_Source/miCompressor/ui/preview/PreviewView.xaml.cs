@@ -98,9 +98,9 @@ public sealed partial class PreviewView : UserControl
 
     private void OutputSettings_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        if (ShowCompressed && this.Visibility == Visibility.Visible)
+        if (this.Visibility == Visibility.Visible)
         {
-            DebounceTask.Add(200, "OutputSettings_PropertyChanged_in_PreviewView_UserControl", () =>
+            DebounceTask.Add(1000, "OutputSettings_PropertyChanged_in_PreviewView_UserControl", () =>
             {
                 RefreshCompressedImage();
             }, shouldRunInUI: true);
@@ -309,6 +309,10 @@ public sealed partial class PreviewView : UserControl
         CurrentZoomLevel = "";
         if (this.Visibility != Visibility.Visible)
             return;
+
+        ShowCompressed = true;
+        SetOriginalCompressedButtonBG();
+
         ImageProgressRing.IsActive = true;
         CompressedImage.Opacity = 0.5;
         ImageSource source = null;
