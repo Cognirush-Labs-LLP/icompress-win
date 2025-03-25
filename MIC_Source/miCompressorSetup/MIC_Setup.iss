@@ -31,6 +31,7 @@ OutputBaseFilename=MassImageCompressorInstallerV4_0_0
 SetupIconFile=.\assets\mic_win_4_setup.ico
 SolidCompression=yes
 WizardStyle=modern
+CreateUninstallRegKey=yes
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{localappdata}\Mass Image Compressor V4"

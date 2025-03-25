@@ -40,11 +40,15 @@ This project makes use of the following libraries and tools:
 - [OxiPNG](https://github.com/shssoichiro/oxipng) - PNG compression
 - [Serilog](https://github.com/serilog/serilog) - Flexible logging infrastructure
 - [Gifsicle](https://www.lcdf.org/gifsicle/) - Editing and creating GIF images
+- [pngquant](https://pngquant.org/) - For compressing PNGs with lesser colors
+- [Inno Setup](https://jrsoftware.org/isinfo.php) - For install setup binary
 ---
 
 ## 📥 Download
 
-Pre-built binaries will be made available once public testing is complete. For now, clone the repo and build with Visual Studio 2022+ using .NET 8 SDK. Please read [LICENSE](./LICENSE) and [NOTICE.txt](./NOTICE.txt). If you're sharing a custom build, just make sure to remove the Cognirush Labs support email or contact links, otherwise folks might email/contact me about something I didn't build, and I won't be able to help (or worse, give them the wrong advice). Appreciate the understanding!
+Pre-built binary is available [here](https://sourceforge.net/projects/icompress/files/icompress/Mass%20Image%20Compressor/MassImageCompressorInstallerV4_0_0.exe/download) as a beta release. 
+
+Please read [LICENSE](./LICENSE) and [NOTICE.txt](./NOTICE.txt). If you're sharing a custom build, just make sure to remove the Cognirush Labs support email or contact links, otherwise folks might email/contact me about something I didn't build, and I won't be able to help (or worse, give them the wrong advice). Appreciate the understanding!
 
 ---
 
@@ -53,5 +57,11 @@ Pre-built binaries will be made available once public testing is complete. For n
 We're collecting feedback during this rewrite phase. Join the discussion or report issues to help stabilize the new generation of Mass Image Compressor. If you have a functional feedback, provide it [here](https://mic.cognirush.com/mass-image-compressor-for-windows/).
 
 ---
+## 💖 Support Development
 
+If you find this project helpful, consider supporting its development. Test, Report Bugs, or just share it with friends!
 
+Also, your donation helps keep the project active and maintained.  
+[☕ Donate via PayPal](https://www.paypal.com/paypalme/Yogendrasinh)
+
+Wishing you a great image compression today! 
