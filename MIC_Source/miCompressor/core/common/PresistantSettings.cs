@@ -47,9 +47,8 @@ namespace miCompressor.core
                         return;
                     }
 
-                    var localSettings = ApplicationData.Current.LocalSettings;
-                    localSettings.Values[PS_WindowWidth_Key] = window.Bounds.Width;
-                    localSettings.Values[PS_WindowHeight_Key] = window.Bounds.Height;
+                    AppSettingsManager.Set(PS_WindowWidth_Key, window.Bounds.Width);
+                    AppSettingsManager.Set(PS_WindowHeight_Key, window.Bounds.Height);
                 }
                 catch
                 {
@@ -77,14 +76,9 @@ namespace miCompressor.core
         {
             try
             {
-                var localSettings = ApplicationData.Current.LocalSettings;
-
-                if (localSettings.Values.TryGetValue(PS_WindowWidth_Key, out object width) &&
-                    localSettings.Values.TryGetValue(PS_WindowHeight_Key, out object height))
+                if (AppSettingsManager.TryGet(PS_WindowWidth_Key, out double width) &&
+                    AppSettingsManager.TryGet(PS_WindowHeight_Key, out double height))
                 {
-                    if (width is not double || height is not double)
-                        return;
-
                     var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
                     var appWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(hwnd));
 

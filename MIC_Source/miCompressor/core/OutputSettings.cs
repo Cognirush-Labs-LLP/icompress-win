@@ -130,12 +130,11 @@ namespace miCompressor.core
         /// <summary>
         /// Save the current instance to local settings.
         /// </summary>
-        public void saveForFuture()
+        public void SaveForFuture()
         {
             try
             {
-                string json = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
-                ApplicationData.Current.LocalSettings.Values[SettingsKey] = json;
+                AppSettingsManager.Set(SettingsKey, this);
             }
             catch (Exception ex)
             {
@@ -146,13 +145,13 @@ namespace miCompressor.core
         /// <summary>
         /// Restore the last saved instance from local settings.
         /// </summary>
-        public void restoreFromLastSaved()
+        public void RestoreFromLastSaved()
         {
             try
             {
-                if (ApplicationData.Current.LocalSettings.Values.TryGetValue(SettingsKey, out object? jsonObj) && jsonObj is string json)
+                OutputSettings restoredSettings;
+                if (AppSettingsManager.TryGet(SettingsKey, out restoredSettings))
                 {
-                    OutputSettings? restoredSettings = JsonSerializer.Deserialize<OutputSettings>(json);
                     if (restoredSettings != null)
                     {
                         CopyFrom(restoredSettings);

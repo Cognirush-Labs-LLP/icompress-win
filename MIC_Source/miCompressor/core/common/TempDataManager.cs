@@ -39,6 +39,11 @@ namespace miCompressor.core
         private static readonly string commonTempDirName = "temp_data";
 
         /// <summary>
+        /// To store temporary data such as log file zip before sending/copying to email. 
+        /// </summary>
+        private static readonly string config = "user_config";
+
+        /// <summary>
         /// Temporary directory of the application. All temporary files are stored here.
         /// This only returns the path, does not guarantee the directory exists.
         /// </summary>
@@ -79,7 +84,7 @@ namespace miCompressor.core
         /// <returns></returns>
         public static string GetTempStorageFilePath(string dirPath, string fileName)
         {
-            return Path.Combine(tempAppDir, cacheDirName, dirPath, fileName); 
+            return Path.Combine(tempAppDir, cacheDirName, dirPath, fileName);
         }
 
         /// <summary>
@@ -106,6 +111,23 @@ namespace miCompressor.core
             }
 
             return path;
+        }
+
+        /// <summary>
+        /// Get the temp storage path for any user configuration data. Such as last used window size, compression settings etc.
+        /// This is used for non-Store users. Store users use ApplicationData.Current.LocalSettings.
+        /// </summary>
+        /// <returns>
+        /// Fully qualified path to the user config directory under %LOCALAPPDATA%\miCompressor\config.
+        /// Ensures the directory exists before returning.
+        /// </returns>
+        public static string GetUserConfigDir()
+        {
+            string settingsDir = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "miCompressor", config);
+            Directory.CreateDirectory(settingsDir); 
+            return settingsDir;
         }
 
         /// <summary>
@@ -165,7 +187,7 @@ namespace miCompressor.core
                 try
                 {
                     var fileInfo = new FileInfo(file);
-                    if (fileInfo.LastWriteTime < DateTime.Now.AddHours(-1.0*staleIfOlderThanHours))
+                    if (fileInfo.LastWriteTime < DateTime.Now.AddHours(-1.0 * staleIfOlderThanHours))
                     {
                         fileInfo.Delete();
                         //System.Diagnostics.Debug.WriteLine($"Deleted file: {fileInfo.FullName}");

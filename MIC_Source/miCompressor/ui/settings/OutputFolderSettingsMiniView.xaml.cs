@@ -25,6 +25,8 @@ namespace miCompressor.ui
             });
         }
 
+        public bool ShowOutputFolderUI => OutputSettings.OutputLocationSettings == OutputLocationSetting.UserSpecificFolder;
+
         public class OutputLocationSettingsItem
         {
             public OutputLocationSetting Value { get; }
@@ -80,6 +82,8 @@ namespace miCompressor.ui
             {
                 FoderPathTextBox.Text = OutputSettings.OutputFolder;
             }
+
+            OnPropertyChanged(nameof(ShowOutputFolderUI));
         }
 
         private async void PickFolderButton_Click(object sender, RoutedEventArgs e)

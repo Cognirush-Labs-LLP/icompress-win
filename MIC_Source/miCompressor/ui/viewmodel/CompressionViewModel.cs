@@ -14,7 +14,7 @@ namespace miCompressor.ui.viewmodel
 
         private readonly Stopwatch _stopwatch;
         private readonly Timer _timer;
-        
+
         [AutoNotify] private string timeToShow = "";
 
         [AutoNotify] private int totalFilesToCompress = 0;
@@ -40,14 +40,14 @@ namespace miCompressor.ui.viewmodel
                 var reducedPercentage = 100.0 - (100.0 * (double)totalCompressedSize / (double)totalOriginalSize);
 
                 string upOrdown;
-                if(reducedPercentage == 0)
+                if (reducedPercentage == 0)
                     upOrdown = "↓ 😐";
                 else if (reducedPercentage > 70)
                     upOrdown = "↓ 🤗";
                 else if (reducedPercentage > 30)
                     upOrdown = "↓ 😏";
                 else if (reducedPercentage > 0)
-                   upOrdown = "↓ 🙂"; 
+                    upOrdown = "↓ 🙂";
                 else
                     upOrdown = "↑ 😢";
                 return reducedPercentage.ToString("0.##") + $"% {upOrdown}";
@@ -65,7 +65,7 @@ namespace miCompressor.ui.viewmodel
 
             compressor.ImageCompressed += Compressor_ImageCompressed;
             compressor.CompressionCompleted += Compressor_CompressionCompleted;
-            _timer.Elapsed += (s, e) =>  { TimeToShow = GetElapsedTimeFormatted(); };
+            _timer.Elapsed += (s, e) => { TimeToShow = GetElapsedTimeFormatted(); };
         }
 
         private void Reset()
@@ -99,9 +99,11 @@ namespace miCompressor.ui.viewmodel
         /// <returns>flags if compression couldn't start.</returns>
         public (bool alreadyInProgress, bool nothingToCompress) StartCompression()
         {
-              
+
             Reset();
             StopTimer();
+
+            settings.SaveForFuture();
 
             var imagesToCompress = store.GetAllFiles.Where(file => !file.ExcludeAndHide && !file.ExcludeAndShow).ToList();
 

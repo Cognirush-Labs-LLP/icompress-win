@@ -52,7 +52,7 @@ namespace miCompressor
         public App()
         {
             this.InitializeComponent();
-            OutputSettingsInstance.restoreFromLastSaved();
+            OutputSettingsInstance.RestoreFromLastSaved();
             HandleCommandLineArgs();
             Task.Run(() => HousekeepingAndDefaults());
 

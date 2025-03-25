@@ -37,7 +37,7 @@
                         <StackPanel x:Name="ImageInfoStackpanel" Orientation="Horizontal" HorizontalAlignment="Left" PointerEntered="Image_PointerEntered" PointerExited="Image_PointerExited">
                             <!-- Checkbox for selecting files/folders -->
                             <FlyoutBase.AttachedFlyout>
-                                <Flyout x:Name="PreviewFlyout" OverlayInputPassThroughElement="{x:Bind ImageInfoStackpanel}">
+                                <Flyout x:Name="PreviewFlyout" OverlayInputPassThroughElement="{Binding ElementName=ImageInfoStackpanel}">
                                     <Image x:Name="PreviewImage" Source="{x:Bind FileInfo.FilePath, Mode=OneWay}" IsHitTestVisible="False" Width="100" Height="100"/>
                                 </Flyout>
                             </FlyoutBase.AttachedFlyout>

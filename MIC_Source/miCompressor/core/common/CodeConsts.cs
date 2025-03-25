@@ -9,6 +9,9 @@ namespace miCompressor.core
 {
     public static class CodeConsts
     {
+
+        public const bool IsForStoreDistribution = false;
+
         /// <summary>
         /// Size of Thumbnail in pixels to show image list in UI
         /// </summary>

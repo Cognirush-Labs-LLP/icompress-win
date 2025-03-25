@@ -32,7 +32,7 @@
             </DropDownButton.Flyout>
         </DropDownButton>
 
-        <Grid Name="OutputFolderUI" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2">
+        <Grid Name="OutputFolderUI" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Visibility="{x:Bind ShowOutputFolderUI, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />

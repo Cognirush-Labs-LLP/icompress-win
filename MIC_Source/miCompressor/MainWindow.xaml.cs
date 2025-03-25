@@ -38,7 +38,7 @@ namespace miCompressor
             // Clean up throttle timers on window close.
             ThrottleTask.Clear();
 #if DEBUG
-            App.OutputSettingsInstance.saveForFuture();
+            App.OutputSettingsInstance.SaveForFuture();
 #endif
         }
     }

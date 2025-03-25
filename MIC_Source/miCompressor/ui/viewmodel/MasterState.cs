@@ -43,7 +43,7 @@ namespace miCompressor.viewmodel
         public Filter SelectionFilter = new();
 
         #region Microsoft Store Related Settings
-        public bool IsOnMicrosoftStore = true;
+        public bool IsOnMicrosoftStore => CodeConsts.IsForStoreDistribution;
 
         public string SoftwareRatingLink => IsOnMicrosoftStore ? "ms-windows-store://review/?ProductId=9NF6R54S63L3" : "https://sourceforge.net/projects/icompress/reviews/new";
 
