@@ -212,8 +212,8 @@
                                 </Paragraph>
                                 <Paragraph>
                                     <Run Text=" or " Foreground="{StaticResource Primary_70}" />
-                                    <Hyperlink NavigateUri="ms-windows-store://pdp/?productid=9NF6R54S63L3">Purchase.</Hyperlink>
-                                    <Run Text=" (same features but with auto-update from Microsoft Store.)" Foreground="{StaticResource Primary_70}" />
+                                    <Hyperlink x:Name="PurchaseButton" Click="PurchaseButton_Click" >Purchase</Hyperlink>
+                                    <Run Text=" (same features but with auto-update from Microsoft Store)." Foreground="{StaticResource Primary_70}" />
                                 </Paragraph>
                             </RichTextBlock>
                         </StackPanel>
@@ -228,11 +228,9 @@
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Opacity="0.8">
                             <HyperlinkButton NavigateUri="{x:Bind CurrentState.SoftwareRatingLink}" Visibility="{x:Bind CurrentState.IsOnMicrosoftStore, Converter={StaticResource ReverseBoolToVisibilityConverter}}">Rate/Review</HyperlinkButton>
                             <HyperlinkButton NavigateUri="https://mic.cognirush.com/mass-image-compressor-for-windows/">Feedback</HyperlinkButton>
-                            <HyperlinkButton NavigateUri="https://mic.cognirush.com/macos" Visibility="{x:Bind CurrentState.IsOnMicrosoftStore, Converter={StaticResource ReverseBoolToVisibilityConverter}}">macOS Version</HyperlinkButton>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Opacity="0.8">
                             <HyperlinkButton NavigateUri="https://mic.cognirush.com/contact-us/?operating-system=Windows">Contact Us</HyperlinkButton>
-                        </StackPanel>                        
+                            <HyperlinkButton NavigateUri="https://mic.cognirush.com/macos" >Mac Version</HyperlinkButton>
+                        </StackPanel>
                     </StackPanel>
                 </Grid>
             </Grid>

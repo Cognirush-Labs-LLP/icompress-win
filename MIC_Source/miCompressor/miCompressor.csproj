@@ -288,10 +288,10 @@
     <IncludeSymbols>False</IncludeSymbols>
     <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
     <AssemblyName>Mass Image Compressor</AssemblyName>
-    <Version>4.0.0</Version>
+    <Version>4.0.1</Version>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <AppxBundle>Never</AppxBundle>

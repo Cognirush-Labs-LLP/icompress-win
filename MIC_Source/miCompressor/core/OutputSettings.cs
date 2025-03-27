@@ -108,6 +108,16 @@ namespace miCompressor.core
         #endregion
 
 
+        public OutputSettings()
+        {
+            this.PrintDimension.PropertyChanged += PrintDimension_PropertyChanged;
+        }
+
+        private void PrintDimension_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(PrintDimension));
+        }
+
         #region Serialize and Store/Restore For Future sessions
         /// <summary>
         /// Key to store settings in local settings.
@@ -122,7 +132,9 @@ namespace miCompressor.core
                 allowLossyPNG,
                 format,
                 dimensionStrategy, percentageOfLongEdge, primaryEdgeLength,
-                PrintDimension,
+                (PrintDimension != null ? PrintDimension.LongEdgeInInch : 1),
+                (PrintDimension != null ? PrintDimension.ShortEdgeInInch : 1),
+                (PrintDimension != null ? PrintDimension.Margin : 1),
                 copyMetadata, skipSensitiveMetadata, copyIPTC, copyXMP               
                 );
         }

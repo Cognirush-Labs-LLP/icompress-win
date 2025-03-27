@@ -198,5 +198,11 @@ namespace miCompressor.ui
             var uri = new Uri("ms-windows-store://review/?ProductId=9NF6R54S63L3");
             await Windows.System.Launcher.LaunchUriAsync(uri);
         }
+
+        private async void PurchaseButton_Click(Microsoft.UI.Xaml.Documents.Hyperlink sender, Microsoft.UI.Xaml.Documents.HyperlinkClickEventArgs args)
+        {
+            var uri = new Uri("ms-windows-store://pdp/?productid=9NF6R54S63L3");
+            await Windows.System.Launcher.LaunchUriAsync(uri);
+        }
     }
 }
