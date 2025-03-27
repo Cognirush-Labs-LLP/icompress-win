@@ -217,14 +217,22 @@
                                 </Paragraph>
                             </RichTextBlock>
                         </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Visibility="{x:Bind CurrentState.IsOnMicrosoftStore, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <HyperlinkButton Name="StoreRatingButton" Click="StoreRatingButton_Click">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <FontIcon Glyph="&#xE728;" />
+                                    <TextBlock Text="Rate/Review" VerticalAlignment="Center" Margin="10,0"/>
+                                </StackPanel>
+                            </HyperlinkButton>
+                        </StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Opacity="0.8">
                             <HyperlinkButton NavigateUri="{x:Bind CurrentState.SoftwareRatingLink}" Visibility="{x:Bind CurrentState.IsOnMicrosoftStore, Converter={StaticResource ReverseBoolToVisibilityConverter}}">Rate/Review</HyperlinkButton>
                             <HyperlinkButton NavigateUri="https://mic.cognirush.com/mass-image-compressor-for-windows/">Feedback</HyperlinkButton>
-                            <HyperlinkButton NavigateUri="https://mic.cognirush.com" Visibility="{x:Bind CurrentState.IsOnMicrosoftStore, Converter={StaticResource ReverseBoolToVisibilityConverter}}">macOS Version</HyperlinkButton>
+                            <HyperlinkButton NavigateUri="https://mic.cognirush.com/macos" Visibility="{x:Bind CurrentState.IsOnMicrosoftStore, Converter={StaticResource ReverseBoolToVisibilityConverter}}">macOS Version</HyperlinkButton>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Opacity="0.8">
                             <HyperlinkButton NavigateUri="https://mic.cognirush.com/contact-us/?operating-system=Windows">Contact Us</HyperlinkButton>
-                        </StackPanel>
+                        </StackPanel>                        
                     </StackPanel>
                 </Grid>
             </Grid>

@@ -192,5 +192,11 @@ namespace miCompressor.ui
             ShowErrorView = true;
             OnPropertyChanged(nameof(ShowBackButton));
         });
+
+        private async void StoreRatingButton_Click(object sender, RoutedEventArgs e)
+        {
+            var uri = new Uri("ms-windows-store://review/?ProductId=9NF6R54S63L3");
+            await Windows.System.Launcher.LaunchUriAsync(uri);
+        }
     }
 }
