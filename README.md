@@ -1,8 +1,15 @@
+<div style="display: flex; justify-content: space-between; align-items: center;">
+  <img src="MIC_Source/miCompressor/Assets/mic512.png" alt="Mass Image Compressor Logo" width="128"/>
+  <a href="https://sourceforge.net/projects/icompress/">
+    <img src="awards/oss-open-source-excellence-sf.svg" alt="Award Badge" width="128"/>
+  </a>
+</div>
+
 # Mass Image Compressor - Windows 10 and Above
 
-Mass Image Compressor is a lightweight, fast, and powerful batch image compression tool. This new version is a complete rewrite of the original project hosted at [SourceForge](https://sourceforge.net/projects/icompress/), redesigned with a modern WinUI 3 interface and built on .NET 8 for Windows 10 and 11.
+Mass Image Compressor is a lightweight, fast, and powerful batch image compression tool. This new version is a complete rewrite of the original project hosted at [SourceForge](https://sourceforge.net/projects/icompress/), redesigned with a modern WinUI 3 interface and built on .NET 8 for Windows 10 and 11. The binaries will still be hosted under [the same project](https://sourceforge.net/projects/icompress/) on SourceForge. 
 
-> **Note:** This project will replace the original Mass Image Compressor for Windows 10/11 after community testing and stabilization. The original Mass Image Compressor (version 3.2+) will still be available for Window 7 users, or as portable image compressor due to its smaller size. 
+> **Note:** This project will replace the original Mass Image Compressor for Windows 10/11 after community testing and stabilization. The original Mass Image Compressor (version 3.3.2+) will still be available for Window 7 users, or as portable image compressor due to its smaller size. 
 
 ---
 
@@ -28,7 +35,25 @@ Mass Image Compressor is a lightweight, fast, and powerful batch image compressi
   - Frame-based for print or responsive image sets (1x/2x/3x)
 
 ---
+## Screenshots
 
+<div style="display: flex; flex-wrap: wrap; gap: 10px;">
+  <a href="screenshots/4K_Preview.webp">
+    <img src="screenshots/4K_Preview.webp" alt="4K Preview" width="300"/>
+  </a>
+ 
+  <a href="screenshots/Gallery.PNG">
+    <img src="screenshots/Gallery.PNG" alt="Gallery" width="300"/>
+  </a>
+   <a href="screenshots/CompressionOutput.PNG">
+    <img src="screenshots/CompressionOutput.PNG" alt="Compression Output" width="300"/>
+  </a>
+  <a href="screenshots/ThemeFit.PNG">
+    <img src="screenshots/ThemeFit.PNG" alt="Theme Fit" width="300"/>
+  </a>
+</div>
+
+---
 ## 📦 Built With & Credits
 
 This project makes use of the following libraries and tools:
@@ -64,4 +89,11 @@ If you find this project helpful, consider supporting its development. Test, Rep
 Also, your donation helps keep the project active and maintained.  
 [☕ Donate via PayPal](https://www.paypal.com/paypalme/Yogendrasinh)
 
-Wishing you a great image compression today! 
+or, purchase from Microsoft Store to make contribution and get automatic updates.
+
+<a href="https://apps.microsoft.com/detail/9NF6R54S63L3?launch=true&mode=full">
+	<img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200"/>
+</a>
+
+---
+Have a great image compression today! 
