@@ -5,7 +5,7 @@
   </a>
 </div>
 
-# Mass Image Compressor - Windows 10 and Above
+# Mass Image Compressor 4
 
 Mass Image Compressor is a lightweight, fast, and powerful batch image compression tool. This new version is a complete rewrite of the original project hosted at [SourceForge](https://sourceforge.net/projects/icompress/), redesigned with a modern WinUI 3 interface and built on .NET 8 for Windows 10 and 11. The binaries will still be hosted under [the same project](https://sourceforge.net/projects/icompress/) on SourceForge. 
 
@@ -35,7 +35,7 @@ Mass Image Compressor is a lightweight, fast, and powerful batch image compressi
   - Frame-based for print or responsive image sets (1x/2x/3x)
 
 ---
-## Screenshots
+## 🖼️ Screenshots
 
 <div style="display: flex; flex-wrap: wrap; gap: 10px;">
   <a href="screenshots/4K_Preview.webp">
@@ -58,7 +58,7 @@ Mass Image Compressor is a lightweight, fast, and powerful batch image compressi
 
 This project makes use of the following libraries and tools:
 
-- [Magick.NET](https://github.com/dlemstra/Magick.NET) - Image conversion & manipulation
+- [Magick.NET](https://github.com/dlemstra/Magick.NET) - Image conversion & manipulation, this is a .NET port of [ImageMagick](https://github.com/ImageMagick/ImageMagick)
 - [ExifTool](https://exiftool.org) - Metadata reading and writing
 - [APNG Optimizer](https://sourceforge.net/projects/apng/files/APNG_Optimizer/) - Optimization for animated PNGs
 - [FFmpeg](https://ffmpeg.org) - Underlying video and animation encoding/decoding via Magick.NET
@@ -67,11 +67,19 @@ This project makes use of the following libraries and tools:
 - [Gifsicle](https://www.lcdf.org/gifsicle/) - Editing and creating GIF images
 - [pngquant](https://pngquant.org/) - For compressing PNGs with lesser colors
 - [Inno Setup](https://jrsoftware.org/isinfo.php) - For install setup binary
+
+Other tools & credits used during development:
+- [Font Awesome](https://fontawesome.com/) - Used free fonts for emojies
+- [Signature Edits](https://www.signatureedits.com/) - For RAW image testing and screenshots.
+- [Krita](https://krita.org/en/) - Used for graphics editing (screenshots etc.)
+- [Paint.NET](https://www.getpaint.net/) - Used for graphics editing 
+
+
 ---
 
 ## 📥 Download
 
-Pre-built binary is available [here](https://sourceforge.net/projects/icompress/files/icompress/Mass%20Image%20Compressor/MassImageCompressorInstallerV4_0_0.exe/download) as a beta release. 
+Pre-built binary is available [here](https://sourceforge.net/projects/icompress/files/icompress/Mass%20Image%20Compressor/MassImageCompressorInstallerV4_0_1.exe/download) as a beta release. 
 
 Please read [LICENSE](./LICENSE) and [NOTICE.txt](./NOTICE.txt). If you're sharing a custom build, just make sure to remove the Cognirush Labs support email or contact links, otherwise folks might email/contact me about something I didn't build, and I won't be able to help (or worse, give them the wrong advice). Appreciate the understanding!
 
