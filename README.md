@@ -7,9 +7,9 @@
 
 # Mass Image Compressor 4
 
-Mass Image Compressor is a lightweight, fast, and powerful batch image compression tool. This new version is a complete rewrite of the original project hosted at [SourceForge](https://sourceforge.net/projects/icompress/), redesigned with a modern WinUI 3 interface and built on .NET 8 for Windows 10 and 11. The binaries is still be hosted under [the same project](https://sourceforge.net/projects/icompress/) on SourceForge. 
+Mass Image Compressor is a lightweight, fast, and powerful batch image compression tool. This official source code of modern version of Mass Image Compressor hosted at [SourceForge](https://sourceforge.net/projects/icompress/), redesigned with a modern WinUI 3 interface and built on .NET 8 for Windows 10 and 11. The binaries is still be hosted under [the same project](https://sourceforge.net/projects/icompress/) on SourceForge as well. 
 
-> **Note:** This project replaces the original Mass Image Compressor for Windows 10/11 after community testing and stabilization. The original Mass Image Compressor (version 3.3+) will still be available for Window 7 users, or as portable image compressor due to its smaller size. 
+> **Note:** This project replaces the older Mass Image Compressor for Windows 10/11. The older Mass Image Compressor (version 3.3+) will still be available for Window 7 & 8 users (and Windows Server older than 2019). Older version's source is hosted on [SourceForge](https://sourceforge.net/projects/icompress/).
 
 ---
 
