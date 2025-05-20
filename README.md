@@ -79,7 +79,7 @@ Other tools & credits used during development:
 
 ## 📥 Download
 
-Pre-built binary is available [here](https://sourceforge.net/projects/icompress/files/icompress/Mass%20Image%20Compressor/MassImageCompressorInstallerV4_0_1.exe/download) as a beta release. 
+Latest Pre-built binary is available [here](https://sourceforge.net/projects/icompress/). We frequently publish on this github project site as well but Sourceforge is out treditional and most popular distirbution channel. 
 
 Please read [LICENSE](./LICENSE) and [NOTICE.txt](./NOTICE.txt). If you're sharing a custom build, just make sure to remove the Cognirush Labs support email or contact links, otherwise folks might email/contact me about something I didn't build, and I won't be able to help (or worse, give them the wrong advice). Appreciate the understanding!
 
