@@ -28,7 +28,11 @@ winget install --id=Cognirush.MassImageCompressor -e
 More details [here](https://mic.cognirush.com/install-via-winget/)
 
 #### Option 3: Use Microsoft Store
-Get signed installer from [Microsoft Store](https://apps.microsoft.com/detail/9NF6R54S63L3?launch=true&mode=full?cid=git) (one-time cost of a coffee). You get auto-update feature and Windows security is cool with it as the installer is signed. 
+Get signed installer from [Microsoft Store](https://apps.microsoft.com/detail/9NF6R54S63L3?launch=true&mode=full?cid=git) (one-time cost of a coffee). You get auto-update feature and Windows security is cool with it as the installer is signed.
+
+<a href="https://apps.microsoft.com/detail/9NF6R54S63L3?launch=true&mode=full?cid=git">
+	<img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200"/>
+</a>
 
 ### Using older Windows System? 
 If you are on Windows 7, 8.x, you will need to use [older version (3.3.x)](https://sf.net/projects/icompress/files/icompress/Mass%20Image%20Compressor/MassImageCompressorV3.3.3.msi/download) of Mass Image Compressor which is shared on [SourceForge.net](https://sourceforge.net/projects/icompress/).
@@ -119,11 +123,7 @@ Please read [LICENSE](./LICENSE) and [NOTICE.txt](./NOTICE.txt). If you're shari
 Also, your donation helps keep the project active and maintained.  
 [☕ Donate via PayPal](https://www.paypal.com/paypalme/Yogendrasinh)
 
-or, purchase from Microsoft Store to make contribution and get automatic updates.
-
-<a href="https://apps.microsoft.com/detail/9NF6R54S63L3?launch=true&mode=full">
-	<img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200"/>
-</a>
+or, purchase from [Microsoft Store](https://apps.microsoft.com/detail/9NF6R54S63L3?launch=true&mode=full?cid=git) to make contribution and get automatic updates.
 
 ---
 Have a great image compression today! 
