@@ -5,7 +5,7 @@
   </a>
 </div>
 
-# Mass Image Compressor 4
+# Mass Image Compressor
 
 Mass Image Compressor is a lightweight, fast, and powerful batch image compression tool. This official source code of modern version of Mass Image Compressor hosted at [SourceForge](https://sourceforge.net/projects/icompress/), redesigned with a modern WinUI 3 interface and built on .NET 8 for Windows 10 and 11. The binaries is still be hosted under [the same project](https://sourceforge.net/projects/icompress/) on SourceForge as well. 
 
