@@ -17,7 +17,7 @@ Mass Image Compressor is a lightweight, fast, and powerful batch image compressi
 Use one of these methods to install Mass Image Compressor.
 
 #### Option 1: SourceForge.net
-Download latest unsigned installer from [SourceForge.net](https://sourceforge.net/projects/icompress/) (free). As the installer is unsigned and release below other sources, Windows security may kick-in and may have to take additional steps to install this. Choose other options if you are not comfortable. 
+Download latest unsigned installer from [SourceForge.net](https://sourceforge.net/projects/icompress/) (free). As the installer is unsigned and releases first, Windows security may kick-in and may have to take additional steps to install this. Choose other options if you are not comfortable. 
 
 #### Option 2: Github or Winget 
 You can download the installer from this Github pobject (see [releases](https://github.com/Cognirush-Labs-LLP/icompress-win/releases)) or use below script to install via winget. 
