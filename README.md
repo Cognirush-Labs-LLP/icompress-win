@@ -9,7 +9,34 @@
 
 Mass Image Compressor is a lightweight, fast, and powerful batch image compression tool. This official source code of modern version of Mass Image Compressor hosted at [SourceForge](https://sourceforge.net/projects/icompress/), redesigned with a modern WinUI 3 interface and built on .NET 8 for Windows 10 and 11. The binaries is still be hosted under [the same project](https://sourceforge.net/projects/icompress/) on SourceForge as well. 
 
-> **Note:** This project replaces the older Mass Image Compressor for Windows 10/11. The older Mass Image Compressor (version 3.3+) will still be available for Window 7 & 8 users (and Windows Server older than 2019). Older version's source is hosted on [SourceForge](https://sourceforge.net/projects/icompress/).
+---
+
+## 📥 Download
+
+### Windows 10 and above, Windows Server 2019 and above
+Use one of these methods to install Mass Image Compressor.
+
+#### Option 1: SourceForge.net
+Download latest unsigned installer from [SourceForge.net](https://sourceforge.net/projects/icompress/) (free). As the installer is unsigned and release below other sources, Windows security may kick-in and may have to take additional steps to install this. Choose other options if you are not comfortable. 
+
+#### Option 2: Github or Winget 
+You can download the installer from this Github pobject (see [releases](https://github.com/Cognirush-Labs-LLP/icompress-win/releases)) or use below script to install via winget. 
+```bash
+winget source update
+winget install --id=Cognirush.MassImageCompressor -e
+```
+More details [here](https://mic.cognirush.com/install-via-winget/)
+
+#### Option 3: Use Microsoft Store
+Get signed installer from [Microsoft Store](https://apps.microsoft.com/detail/9NF6R54S63L3?launch=true&mode=full?cid=git) (one-time cost of a coffee). You get auto-update feature and Windows security is cool with it as the installer is signed. 
+
+### Using older Windows System? 
+If you are on Windows 7, 8.x, you will need to use [older version (3.3.x)](https://sf.net/projects/icompress/files/icompress/Mass%20Image%20Compressor/MassImageCompressorV3.3.3.msi/download) of Mass Image Compressor which is shared on [SourceForge.net](https://sourceforge.net/projects/icompress/).
+
+### macOS 13+
+Mass Image Compressor for macOS is written in Swift by us but it is closed source at present. You can download it from [Mac App Store](https://apps.apple.com/app/apple-store/id6670366523?pt=127286138&ct=WindowsGit&mt=8). It has all required features freely available and purchase is required only for professional features (like watermark or some advanced features).
+
+***NOTE**: Mass Image Compressor is **NOT** available on Android, iOS, iPadOS or as a web application.* 
 
 ---
 
@@ -77,13 +104,6 @@ Other tools & credits used during development:
 
 ---
 
-## 📥 Download
-
-Latest Pre-built binary is available [here](https://sourceforge.net/projects/icompress/). We frequently publish on this github project site as well but Sourceforge is out treditional and most popular distirbution channel. 
-
-Please read [LICENSE](./LICENSE) and [NOTICE.txt](./NOTICE.txt). If you're sharing a custom build, just make sure to remove the Cognirush Labs support email or contact links, otherwise folks might email/contact me about something I didn't build, and I won't be able to help (or worse, give them the wrong advice). Appreciate the understanding!
-
----
 
 ## 👥 Community & Feedback
 
@@ -93,6 +113,8 @@ We're collecting feedback during this rewrite phase. Join the discussion or repo
 ## 💖 Support Development
 
 If you find this project helpful, consider supporting its development. Test, Report Bugs, or just share it with friends!
+
+Please read [LICENSE](./LICENSE) and [NOTICE.txt](./NOTICE.txt). If you're sharing a custom build, just make sure to remove the Cognirush Labs support email or contact links, otherwise folks might email/contact me about something I didn't build, and I won't be able to help (or worse, give them the wrong advice). Appreciate the understanding!
 
 Also, your donation helps keep the project active and maintained.  
 [☕ Donate via PayPal](https://www.paypal.com/paypalme/Yogendrasinh)
