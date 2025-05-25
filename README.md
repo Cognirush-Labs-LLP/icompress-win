@@ -7,7 +7,8 @@
 
 # Mass Image Compressor
 
-Mass Image Compressor is a lightweight, fast, and powerful batch image compression tool. This official source code of modern version of Mass Image Compressor hosted at [SourceForge](https://sourceforge.net/projects/icompress/), redesigned with a modern WinUI 3 interface and built on .NET 8 for Windows 10 and 11. The binaries is still be hosted under [the same project](https://sourceforge.net/projects/icompress/) on SourceForge as well. 
+Mass Image Compressor is a fast, lightweight batch image processing tool for Windows that compresses, resizes, and converts images to popular formats like WebP, AVIF, JPEG, PNG, and GIF—reducing file size while preserving quality.
+This official source code of modern version of Mass Image Compressor hosted at [SourceForge](https://sourceforge.net/projects/icompress/), redesigned with a modern WinUI 3 interface and built on .NET 8 for Windows 10 and 11 in year 2025. 
 
 ---
 
@@ -20,7 +21,7 @@ Use one of these methods to install Mass Image Compressor.
 Download latest unsigned installer from [SourceForge.net](https://sourceforge.net/projects/icompress/) (free). As the installer is unsigned and releases first, Windows security may kick-in and may have to take additional steps to install this. Choose other options if you are not comfortable. 
 
 #### Option 2: Github or Winget 
-You can download the installer from this Github pobject (see [releases](https://github.com/Cognirush-Labs-LLP/icompress-win/releases)) or use below script to install via winget. 
+You can download the installer from this Github project (see [releases](https://github.com/Cognirush-Labs-LLP/icompress-win/releases)) or use below script to install via winget. 
 ```bash
 winget source update
 winget install --id=Cognirush.MassImageCompressor -e
