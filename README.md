@@ -1,7 +1,9 @@
-<div style="display: flex; justify-content: space-between; align-items: center;">
-  <img src="MIC_Source/miCompressor/Assets/mic512.png" alt="Mass Image Compressor Logo" width="128"/>
+<div>
+  <a href="https://mic.cognirush.com/windows/">
+    <img src="MIC_Source/miCompressor/Assets/mic512.png" alt="Mass Image Compressor Logo" width="128" />
+  </a>
   <a href="https://sourceforge.net/projects/icompress/">
-    <img src="awards/oss-open-source-excellence-sf.svg" alt="Award Badge" width="128"/>
+    <img src="awards/oss-open-source-excellence-sf.svg" alt="Award Badge" width="128" align="right"/>
   </a>
 </div>
 
