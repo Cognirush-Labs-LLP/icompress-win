@@ -63,7 +63,7 @@ namespace miCompressor.ui
             {
 
             }
-            return "4.0.1"; // Default for unpackaged apps
+            return "4.0.2"; // Default for unpackaged apps
         }
 
         private async Task<bool> IsUpdateAvailable()

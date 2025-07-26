@@ -38,6 +38,11 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <RepositoryUrl>https://github.com/Cognirush-Labs-LLP/icompress-win</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
@@ -162,7 +167,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(Platform)' == 'x64'">
-    <PackageReference Include="Magick.NET-Q8-OpenMP-x64" Version="14.5.0" />
+    <PackageReference Include="Magick.NET-Q8-OpenMP-x64" Version="14.7.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(Platform)' == 'arm64'">
@@ -170,12 +175,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.0.240109" />
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.250108002" />
-    <PackageReference Include="Serilog" Version="4.2.0" />
+    <PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.250402" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4654" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250606001" />
+    <PackageReference Include="Serilog" Version="4.3.0" />
     <PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" />
-    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AutoNotifyGenerator\AutoNotifyGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
@@ -221,6 +230,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Update="Assets\mic_win_4.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\StoreLogo.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -288,7 +300,7 @@
     <IncludeSymbols>False</IncludeSymbols>
     <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
     <AssemblyName>Mass Image Compressor</AssemblyName>
-    <Version>4.0.1</Version>
+    <Version>4.0.2</Version>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
