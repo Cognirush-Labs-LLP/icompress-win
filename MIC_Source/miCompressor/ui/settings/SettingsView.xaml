@@ -14,8 +14,6 @@
             <local:QualitySettings />
             <Border Style="{StaticResource LineSeparatorStyle}" />
             <local:DimensionSettingsView />
-            <Border Style="{StaticResource LineSeparatorStyle}"/>
-            <local:OutputFolderSettingsMiniView />
             <Border Style="{StaticResource LineSeparatorStyle}" />
             <local:OutputFileSettingsView />            
         </StackPanel>

@@ -32,13 +32,17 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <local:InputSelectionView Grid.Row="0"></local:InputSelectionView>
+        <local:OutputFolderHorizontalView Grid.Row="1"></local:OutputFolderHorizontalView>
 
+        <Border Grid.Row="2" Style="{StaticResource LineSeparatorStyle}" />
         
-        <CommandBar Grid.Row="1" IsOpen="False" DefaultLabelPosition="Right" Margin="10">
+        <CommandBar Grid.Row="2" IsOpen="False" DefaultLabelPosition="Right">
             
             <AppBarButton Name="ShowFilterButton" Label="Hide Filters" Click="ShowFilterButton_Click">
                 <AppBarButton.Icon>
@@ -101,9 +105,11 @@
             
         </CommandBar>
 
-        <local:FiltersView x:Name="FilterOptions" Grid.Row="2" Visibility="{x:Bind CurrentState.ShowFilterOptions, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+        <TextBlock Grid.Row="3" VerticalAlignment="Center" Margin="5,0,0,5" Style="{StaticResource SettingsHeading}">COMPRESSION LIST</TextBlock>
+
+        <local:FiltersView x:Name="FilterOptions" Grid.Row="4" Visibility="{x:Bind CurrentState.ShowFilterOptions, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
         
-        <ListView Grid.Row="3" ItemsSource="{x:Bind FileStore.SelectedPaths}"
+        <ListView Grid.Row="5" ItemsSource="{x:Bind FileStore.SelectedPaths}"
                       VerticalAlignment="Stretch" SelectionMode="None"
                       HorizontalAlignment="Stretch"
                       ScrollViewer.HorizontalScrollMode="Auto"
@@ -128,7 +134,7 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <local:EmptyFilesView Grid.Row="3"
+        <local:EmptyFilesView Grid.Row="5"
               x:Name="FileSelectionPage"
               Visibility="{x:Bind IsEmptyViewVisible, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
     </Grid>

@@ -17,7 +17,7 @@
         </Grid.ColumnDefinitions>
 
         <TextBlock Grid.Column="0" VerticalAlignment="Center">Input File/Folder</TextBlock>
-        <TextBox Grid.Column="1" PlaceholderText="File/Folder Path to Add" Name="InputPathTextBox"  TextWrapping="Wrap" VerticalAlignment="Center" KeyDown="InputPathTextBox_KeyDown" TextChanged="InputPathTextBox_TextChanged" CornerRadius="5,0,0,5" Margin="2,2,0,2" />
+        <TextBox Grid.Column="1" PlaceholderText="File/Folder Path to Add to COMPRESSION LIST" Name="InputPathTextBox"  TextWrapping="Wrap" VerticalAlignment="Center" KeyDown="InputPathTextBox_KeyDown" TextChanged="InputPathTextBox_TextChanged" CornerRadius="5,0,0,5" Margin="2,2,0,2" />
         <Button Grid.Column="2" x:Name="AddInputPathButton" Content="Add" Visibility="{x:Bind InputPathExists, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" Click="AddInputPathButton_Click" Margin="-1,0,5,0" Background="{StaticResource Acccent_50}" CornerRadius="0,5,5,0" Padding="15,8" VerticalAlignment="Center">
         </Button>
         <Button Grid.Column="3" Grid.Row="1" x:Name="PickFolderButton" Click="PickFolderButton_Click" Margin="2,5,20,5" VerticalAlignment="Center">
