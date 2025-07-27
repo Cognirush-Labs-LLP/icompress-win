@@ -44,6 +44,9 @@ VersionInfoTextVersion=Mass Image Compressor {#MICAppVersion}
 Type: filesandordirs; Name: "{localappdata}\Mass Image Compressor V4"
 Type: filesandordirs; Name: "{localappdata}\miCompressor\user_config"
 
+[Run]
+Filename: "{app}\Mass Image Compressor.exe"; Description: "Launch Mass Image Compressor"; Flags: nowait postinstall skipifsilent
+
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
