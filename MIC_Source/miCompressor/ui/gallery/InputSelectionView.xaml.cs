@@ -68,7 +68,7 @@ namespace miCompressor.ui
         public bool InputPathExists
         {
             get
-            {                
+            {
                 return !String.IsNullOrEmpty(InputPathTextBox.Text) && !App.FileStoreInstance.IsPathAdded(InputPathTextBox.Text) && (File.Exists(InputPathTextBox.Text.Trim()) || Directory.Exists(InputPathTextBox.Text.Trim()));
             }
         }
@@ -87,13 +87,12 @@ namespace miCompressor.ui
                 string? selectedFolderPath = await FolderPickerHelper.PickFolderAsync(App.MainWindow!);
                 if (selectedFolderPath != null)
                 {
-                    InputPathTextBox.Text = selectedFolderPath;
-                    if(InputPathExists)
-                    {
-                        string inputPathTxt = (InputPathTextBox.Text ?? "").Trim();
-                        App.FileStoreInstance.Enqueue(inputPathTxt);
-                    }
+                    if (App.FileStoreInstance.SelectedPathCount > 0)
+                        InputPathTextBox.Text = "";
+                    else
+                        InputPathTextBox.Text = selectedFolderPath;
 
+                    App.FileStoreInstance.Enqueue(selectedFolderPath);
                 }
 
                 folderPickerButton.IsEnabled = true;

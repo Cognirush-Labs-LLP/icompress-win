@@ -369,6 +369,18 @@ namespace miCompressor.core
         }
 
         /// <summary>
+        /// Gets count of selected path
+        /// </summary>
+        public int SelectedPathCount
+        {
+            get
+            {
+                using (_lock.WriteLock())
+                    return _store.Count;
+            }
+        }
+
+        /// <summary>
         /// Adds a new path to the store. This method returns the result just after making entry in selected path but all files to process will populate only after 
         /// </summary>
         /// <param name="path">The file or directory path.</param>
