@@ -35,20 +35,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid  Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-
-            <TextBox Grid.Column="0" PlaceholderText="Type File/Folder Path to Add" Name="InputPathTextBox"  TextWrapping="Wrap" VerticalAlignment="Center" KeyDown="InputPathTextBox_KeyDown" TextChanged="InputPathTextBox_TextChanged" CornerRadius="5,0,0,5" Margin="2,2,0,2" />
-            <Button Grid.Column="1" x:Name="AddInputPathButton" Visibility="{x:Bind InputPathExists, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" Click="AddInputPathButton_Click" Margin="-1,1,20,0" Background="{StaticResource Acccent_50}" CornerRadius="0,5,5,0" Padding="15,8">
-                <StackPanel Orientation="Horizontal">
-                    <!--<FontIcon Glyph="&#xE710;" FontSize="{StaticResource TextMedium}"/>-->
-                    <TextBlock Text="Add"/>
-                </StackPanel>
-            </Button>
-        </Grid>
+        <local:InputSelectionView Grid.Row="0"></local:InputSelectionView>
 
         
         <CommandBar Grid.Row="1" IsOpen="False" DefaultLabelPosition="Right" Margin="10">

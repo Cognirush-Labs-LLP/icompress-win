@@ -161,47 +161,6 @@ namespace miCompressor.ui
         }
 
 
-        private void AddInputPathButton_Click(object sender, RoutedEventArgs e)
-        {
-            AddInputPathButton.IsEnabled = false;
-            try
-            {
-                string inputPathTxt = (InputPathTextBox.Text ?? "").Trim();
-                if (string.IsNullOrWhiteSpace(inputPathTxt))
-                { return; }
-
-                if (Directory.Exists(inputPathTxt) || File.Exists(inputPathTxt))
-                {
-                    App.FileStoreInstance.Enqueue(inputPathTxt);
-                    InputPathTextBox.Text = "";
-                }
-            }
-            finally
-            {
-                AddInputPathButton.IsEnabled = true;
-            }
-        }
-
-        private void InputPathTextBox_KeyDown(object sender, KeyRoutedEventArgs e)
-        {
-            if (e.Key == Windows.System.VirtualKey.Enter)
-            {
-                AddInputPathButton_Click(sender, new RoutedEventArgs());
-            }
-        }
-
-        public bool InputPathExists {
-            get
-            {
-                return !String.IsNullOrEmpty(InputPathTextBox.Text) && (File.Exists(InputPathTextBox.Text.Trim()) || Directory.Exists(InputPathTextBox.Text.Trim()));
-            }
-        }
-
-        private void InputPathTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            OnPropertyChanged(nameof(InputPathExists));
-        }
-
         private void OnThumbSettingSelected(object sender, RoutedEventArgs e)
         {
             if (sender is MenuFlyoutItem menuItem)

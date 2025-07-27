@@ -356,6 +356,17 @@ namespace miCompressor.core
             }
         }
 
+        /// <summary>
+        /// Checks if selected path (file/folder) already exists
+        /// </summary>
+        /// <param name="path"></param>
+        public bool IsPathAdded(string path)
+        {
+            using (_lock.WriteLock())
+            {
+                return _store.Any(sp => sp.Path.TrimEnd('\\').Equals(path.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase));
+            }
+        }
 
         /// <summary>
         /// Adds a new path to the store. This method returns the result just after making entry in selected path but all files to process will populate only after 
