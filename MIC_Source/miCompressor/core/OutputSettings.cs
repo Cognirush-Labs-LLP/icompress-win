@@ -1,7 +1,5 @@
 ﻿using miCompressor.core.common;
 using System;
-using System.Text.Json;
-using Windows.Storage;
 
 namespace miCompressor.core
 {
@@ -73,14 +71,44 @@ namespace miCompressor.core
         /// <summary>
         /// Output Location strategy
         /// </summary>
-        [AutoNotify]
-        public OutputLocationSetting outputLocationSettings = OutputLocationSetting.InCompressedFolder;
+        private OutputLocationSetting outputLocationSettings = OutputLocationSetting.InCompressedFolder;
 
         /// <summary>
         /// Path of user specified output folder.
         /// </summary>
-        [AutoNotify]
-        public string outputFolder = "";
+        private string outputFolder = "";
+
+        public OutputLocationSetting OutputLocationSettings
+        {
+            get => outputLocationSettings;
+            set
+            {
+                if (outputLocationSettings != value)
+                {
+                    if (!IsAutoSettingOutputPath)
+                        IsOutputPathAutoSet = false; //reset IsOutputPathAutoSet to false when user sets the output location settings
+
+                    outputLocationSettings = value;
+                    OnPropertyChanged(nameof(OutputLocationSettings));
+                }
+            }
+        }
+
+        public string OutputFolder
+        {
+            get => outputFolder;
+            set
+            {
+                if (outputFolder != value)
+                {
+                    if (!IsAutoSettingOutputPath)
+                        IsOutputPathAutoSet = false; //reset IsOutputPathAutoSet to false when user sets output path
+
+                    outputFolder = value;
+                    OnPropertyChanged(nameof(OutputFolder));
+                }
+            }
+        }
 
         /// <summary>
         /// File name suffix of output (i.e. compressed) file.
@@ -117,6 +145,62 @@ namespace miCompressor.core
         {
             OnPropertyChanged(nameof(PrintDimension));
         }
+
+        #region System Set /compressed path
+
+        private object autosetlock = new();
+        /// <summary>
+        /// This is set to true if the output path is set to 'compressed' directory of selected file/folder.
+        /// Auto set of the output directory happens for backward compatibility of expected user behaviour if only one folder/file is selected for compression. As users have been accustom to change this path, we use to provide path as,
+        /// Input: C:\abc -> Save to: C:\abc\compressed
+        /// Input: C:\abc.jpg -> Save to: C:\abc\compressed
+        /// This variable helps to reset Auto Set output path to OutputLocationSetting.InCompressedFolder if multiple files/directory are in selected items.
+        /// </summary>
+        private bool IsOutputPathAutoSet = true;
+
+        /// <summary>
+        /// Stores auto set path to identify if path was auto set
+        /// </summary>
+        private bool IsAutoSettingOutputPath = false;
+
+        /// <summary>
+        /// Auto set output directory to given path. This method do not do anything if the output set was set by user previously.
+        /// </summary>
+        /// <param name="outputPathToSet">A valid output directory path. This is most probably 'compressed' folder, may or may not exist.</param>
+        public void DoAutoSetOutDir(string outputPathToSet)
+        {
+            if (outputPathToSet == null) return;
+
+            lock (autosetlock)
+            {
+                if (IsOutputPathAutoSet == false 
+                    && !(this.OutputLocationSettings == OutputLocationSetting.UserSpecificFolder && string.IsNullOrWhiteSpace(this.OutputFolder)))
+                    return; // no change if current output setting is not via Auto Set or directory 
+
+                IsAutoSettingOutputPath = true;
+                IsOutputPathAutoSet = true;
+                this.OutputLocationSettings = OutputLocationSetting.UserSpecificFolder;
+                this.OutputFolder = outputPathToSet;
+                IsAutoSettingOutputPath = false;
+            }
+        }
+
+        /// <summary>
+        /// Auto Set output location setting to OutputLocationSetting.InCompressedFolder when multiple files/folders are selected.
+        /// </summary>
+        public void DoAutoSetCompressedDir()
+        {
+            lock (autosetlock)
+            {
+                if (IsOutputPathAutoSet == false)
+                    return; // no change if current output setting is not via Auto Set
+
+                IsOutputPathAutoSet = true;
+                this.OutputLocationSettings = OutputLocationSetting.InCompressedFolder;
+            }
+        }
+        #endregion
+
 
         #region Serialize and Store/Restore For Future sessions
         /// <summary>

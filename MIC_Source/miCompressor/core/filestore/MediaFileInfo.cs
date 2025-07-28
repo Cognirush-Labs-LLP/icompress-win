@@ -318,15 +318,15 @@ namespace miCompressor.core
             // Apply prefix and suffix
             string modifiedFileName = $"{outputSettings.prefix}{originalFileName}{outputSettings.suffix}{fileExtension}";
 
-            if (onlyPreview || outputSettings.outputLocationSettings == OutputLocationSetting.ReplaceOriginal)
+            if (onlyPreview || outputSettings.OutputLocationSettings == OutputLocationSetting.ReplaceOriginal)
             {
                 // Store in temp directory
                 outputDirectory = TempDataManager.GetTempStorageDirPath(RelativeImageDirPath);
-                IsReplaceOperation = outputSettings.outputLocationSettings == OutputLocationSetting.ReplaceOriginal;
+                IsReplaceOperation = outputSettings.OutputLocationSettings == OutputLocationSetting.ReplaceOriginal;
             }
             else
             {
-                switch (outputSettings.outputLocationSettings)
+                switch (outputSettings.OutputLocationSettings)
                 {
                     case OutputLocationSetting.InCompressedFolder:
                         outputDirectory = FileToCompress.Directory!.FullName;
@@ -345,14 +345,14 @@ namespace miCompressor.core
                         break;
 
                     case OutputLocationSetting.UserSpecificFolder:
-                        if (!string.IsNullOrWhiteSpace(outputSettings.outputFolder))
+                        if (!string.IsNullOrWhiteSpace(outputSettings.OutputFolder))
                         {
                             if (multipleFolderSelected && Directory.Exists(SelectedRootPath))
                             {
-                                outputDirectory = Path.Combine(outputSettings.outputFolder, new DirectoryInfo(SelectedRootPath).Name, RelativeImageDirPath);
+                                outputDirectory = Path.Combine(outputSettings.OutputFolder, new DirectoryInfo(SelectedRootPath).Name, RelativeImageDirPath);
                             }
                             else
-                                outputDirectory = Path.Combine(outputSettings.outputFolder, RelativeImageDirPath);
+                                outputDirectory = Path.Combine(outputSettings.OutputFolder, RelativeImageDirPath);
                         }
                         else
                         {

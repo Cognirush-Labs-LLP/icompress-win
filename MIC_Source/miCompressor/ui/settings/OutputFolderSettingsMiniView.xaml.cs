@@ -105,16 +105,16 @@ namespace miCompressor.ui
         {
             if (String.IsNullOrWhiteSpace(FoderPathTextBox.Text))
             {
-                OutputSettings.outputFolder = String.Empty;
+                OutputSettings.OutputFolder = String.Empty;
                 FolderPathError = "Provide output folder path.";
                 OnPropertyChanged(nameof(FolderPathError));
                 return;
             }
 
             if (PathValidator.IsValidFolderPath(FoderPathTextBox.Text, out string error))
-                OutputSettings.outputFolder = FoderPathTextBox.Text.Trim();
+                OutputSettings.OutputFolder = FoderPathTextBox.Text.Trim();
             else
-                OutputSettings.outputFolder = String.Empty;
+                OutputSettings.OutputFolder = String.Empty;
 
             FolderPathError = error;
             OnPropertyChanged(nameof(FolderPathError));

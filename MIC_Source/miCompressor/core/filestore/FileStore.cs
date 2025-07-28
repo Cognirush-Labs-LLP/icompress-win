@@ -380,6 +380,16 @@ namespace miCompressor.core
             }
         }
 
+        public string GetFirstPath()
+        {
+            using (_lock.WriteLock())
+            {
+                var selectedPath = _store.FirstOrDefault();
+                if (selectedPath == null) return null;
+                else return selectedPath.Path;
+            }
+        }
+
         /// <summary>
         /// Adds a new path to the store. This method returns the result just after making entry in selected path but all files to process will populate only after 
         /// </summary>
@@ -499,7 +509,7 @@ namespace miCompressor.core
             foreach (var file in filesToCompress)
             {
                 var outputPath = file.GetOutputPath(settings, multipleSelectedPath, false);
-                if (settings.outputLocationSettings != OutputLocationSetting.ReplaceOriginal)
+                if (settings.OutputLocationSettings != OutputLocationSetting.ReplaceOriginal)
                 {
                     if (file.IsReplaceOperation)
                     {

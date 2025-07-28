@@ -76,6 +76,7 @@ namespace miCompressor.ui
             _outputLocationSettingsItem = OutputLocationSettings.FirstOrDefault(o => o.Value == OutputSettings.OutputLocationSettings) ?? OutputLocationSettings.First();
 
             OutputSettings.PropertyChanged += OutputSettings_PropertyChanged;
+            App.FileStoreInstance.PropertyChanged += FileStore_PropertyChanged;
         }
 
         private void OutputSettings_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -91,6 +92,48 @@ namespace miCompressor.ui
             }
 
             OnPropertyChanged(nameof(ShowOutputFolderUI));
+        }
+
+        private void FileStore_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if(e.PropertyName == nameof(App.FileStoreInstance.SelectedPaths))
+            {
+                if (App.FileStoreInstance.SelectedPathCount == 1)
+                    OutputSettings.DoAutoSetOutDir(GetCompressDirPath(App.FileStoreInstance.GetFirstPath()));
+                else if (App.FileStoreInstance.SelectedPathCount > 1)
+                    OutputSettings.DoAutoSetCompressedDir();
+            }
+        }
+
+        private string GetCompressDirPath(string selectedPath)
+        {
+            string path = selectedPath;
+
+            if (string.IsNullOrWhiteSpace(path) || !Path.IsPathRooted(path))
+                return null;
+
+            string compressedDirName = CodeConsts.compressedDirName;
+
+            string? outputPath = null;
+
+            // Prefer Directory.Exists/File.Exists if the path exists, otherwise fall back to extension heuristics.
+            if (Directory.Exists(path))
+            {
+                outputPath = Path.Combine(path, compressedDirName);
+            }
+            else if (File.Exists(path) || Path.HasExtension(path))
+            {
+                string? parent = Path.GetDirectoryName(path);
+                if (string.IsNullOrEmpty(parent))
+                    parent = Path.GetPathRoot(path);
+
+                if (!string.IsNullOrEmpty(parent))
+                    outputPath = Path.Combine(parent, compressedDirName);
+            }
+            else
+                return null;
+
+            return outputPath;
         }
 
         private async void PickFolderButton_Click(object sender, RoutedEventArgs e)
@@ -112,16 +155,16 @@ namespace miCompressor.ui
         {
             if (String.IsNullOrWhiteSpace(FoderPathTextBox.Text))
             {
-                OutputSettings.outputFolder = String.Empty;
+                OutputSettings.OutputFolder = String.Empty;
                 FolderPathError = "Provide output folder path.";
                 OnPropertyChanged(nameof(FolderPathError));
                 return;
             }
 
             if (PathValidator.IsValidFolderPath(FoderPathTextBox.Text, out string error))
-                OutputSettings.outputFolder = FoderPathTextBox.Text.Trim();
+                OutputSettings.OutputFolder = FoderPathTextBox.Text.Trim();
             else
-                OutputSettings.outputFolder = String.Empty;
+                OutputSettings.OutputFolder = String.Empty;
 
             FolderPathError = error;
             OnPropertyChanged(nameof(FolderPathError));

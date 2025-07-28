@@ -84,10 +84,10 @@ namespace miCompressor.ui.viewmodel
 
         public (bool good, string error) CheckSettingsCondition()
         {
-            if (settings.outputLocationSettings == OutputLocationSetting.UserSpecificFolder && string.IsNullOrWhiteSpace(settings.outputFolder))
+            if (settings.OutputLocationSettings == OutputLocationSetting.UserSpecificFolder && string.IsNullOrWhiteSpace(settings.OutputFolder))
                 return (false, "Output Folder Not Specified.");
 
-            if (settings.outputLocationSettings == OutputLocationSetting.SameFolderWithFileNameSuffix && string.IsNullOrWhiteSpace(settings.prefix) && string.IsNullOrWhiteSpace(settings.suffix))
+            if (settings.OutputLocationSettings == OutputLocationSetting.SameFolderWithFileNameSuffix && string.IsNullOrWhiteSpace(settings.prefix) && string.IsNullOrWhiteSpace(settings.suffix))
                 return (false, "You must provide Prefix or Suffix for current output folder setting: " + OutputLocationSetting.SameFolderWithFileNameSuffix.GetDescription());
 
             return (true, "");

@@ -43,7 +43,7 @@ namespace miCompressor.core
             // Ensure it's a valid absolute path
             if (!Path.IsPathRooted(folderPath))
             {
-                errorMessage = "Path must be an absolute path (e.g., C:\\ValidFolder).";
+                errorMessage = "Path must be an absolute path (e.g., C:\\folder_path).";
                 return false;
             }
 
