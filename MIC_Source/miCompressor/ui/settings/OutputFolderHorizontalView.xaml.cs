@@ -1,19 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+﻿using miCompressor.core;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using miCompressor.core;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
+using System.Linq;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -77,6 +69,7 @@ namespace miCompressor.ui
 
             OutputSettings.PropertyChanged += OutputSettings_PropertyChanged;
             App.FileStoreInstance.PropertyChanged += FileStore_PropertyChanged;
+            SetSuggestionText();
         }
 
         private void OutputSettings_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -85,18 +78,39 @@ namespace miCompressor.ui
             {
                 _outputLocationSettingsItem = OutputLocationSettings.FirstOrDefault(o => o.Value == OutputSettings.OutputLocationSettings) ?? OutputLocationSettings.First();
                 OnPropertyChanged(nameof(SelectedOutputLocationSettingsItem));
+                SetSuggestionText();
             }
             if (e.PropertyName == nameof(OutputSettings.OutputFolder))
-            {
                 FoderPathTextBox.Text = OutputSettings.OutputFolder;
-            }
+
+            if (e.PropertyName == nameof(OutputSettings.Prefix) || e.PropertyName == nameof(OutputSettings.Suffix))
+                SetSuggestionText();
 
             OnPropertyChanged(nameof(ShowOutputFolderUI));
         }
 
+        private void SetSuggestionText()
+        {
+            switch (OutputSettings.OutputLocationSettings)
+            {
+                case OutputLocationSetting.ReplaceOriginal:
+                    SuggestionTextBlock.Text = "Original files will be lost. Keep backup.";
+                    break;
+                case OutputLocationSetting.SameFolderWithFileNameSuffix:
+                    if (string.IsNullOrWhiteSpace(OutputSettings.prefix) && string.IsNullOrWhiteSpace(OutputSettings.suffix))
+                        SuggestionTextBlock.Text = "Provide Prefix/Suffix in settings panel 🡒 ";
+                    else
+                        SuggestionTextBlock.Text = "";
+                    break;
+                default:
+                    SuggestionTextBlock.Text = "";
+                    break;
+            }
+        }
+
         private void FileStore_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if(e.PropertyName == nameof(App.FileStoreInstance.SelectedPaths))
+            if (e.PropertyName == nameof(App.FileStoreInstance.SelectedPaths))
             {
                 if (App.FileStoreInstance.SelectedPathCount == 1)
                     OutputSettings.DoAutoSetOutDir(GetCompressDirPath(App.FileStoreInstance.GetFirstPath()));
