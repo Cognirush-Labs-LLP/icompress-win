@@ -10,9 +10,6 @@ using System.Windows.Input;
 using Windows.System;
 using Windows.UI;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
-
 namespace miCompressor.ui
 {
     public sealed partial class CompressionProgress : UserControl
@@ -23,7 +20,7 @@ namespace miCompressor.ui
 
         [AutoNotify] private bool canShowError = false;
         [AutoNotify] private bool canShowWarning = false;
-        public bool CanShowGeneralInfo => !vm.CompressionInProgress && vm.TotalFilesFailedToCompress == 0 && vm.TotalFilesCancelled == 0 && vm.TotalFilesCompressed > 1;
+        public bool CanShowGeneralInfo => !vm.CompressionInProgress && vm.TotalFilesFailedToCompress == 0 && vm.TotalFilesCancelled == 0 && vm.TotalFilesCompressed > 0;
 
         private bool HasPreCompressionWarnings => warningAndError.HasPreCompressionWarnings;
         
@@ -201,7 +198,13 @@ namespace miCompressor.ui
 
         private async void PurchaseButton_Click(Microsoft.UI.Xaml.Documents.Hyperlink sender, Microsoft.UI.Xaml.Documents.HyperlinkClickEventArgs args)
         {
-            var uri = new Uri("ms-windows-store://pdp/?productid=9NF6R54S63L3");
+            var uri = new Uri("ms-windows-store://pdp/?productid=9NF6R54S63L3&cid=mic");
+            await Windows.System.Launcher.LaunchUriAsync(uri);
+        }
+
+        private async void GithubStar_Click(Microsoft.UI.Xaml.Documents.Hyperlink sender, Microsoft.UI.Xaml.Documents.HyperlinkClickEventArgs args)
+        {
+            var uri = new Uri("https://github.com/Cognirush-Labs-LLP/icompress-win");
             await Windows.System.Launcher.LaunchUriAsync(uri);
         }
     }

@@ -195,25 +195,24 @@
                         </StackPanel>
                     </Button>
 
-                    <Border  Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="11" Margin="0,30,0,0" Style="{StaticResource LineSeparatorStyle}" />
+                    <Border  Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="11" Margin="0,0,0,0" Style="{StaticResource LineSeparatorStyle}" />
 
 
-                    <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="12"  HorizontalAlignment="Center" Margin="0,30,0,0" Visibility="{x:Bind CanShowGeneralInfo, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="12"  HorizontalAlignment="Center" Margin="0,10,0,0" Visibility="{x:Bind CanShowGeneralInfo, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
 
-                        <TextBlock Visibility="{x:Bind CurrentState.IsOnMicrosoftStore, Converter={StaticResource ReverseBoolToVisibilityConverter}}" Text="Enjoying this free, high-quality tool?" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Thin" FontSize="24" Foreground="{StaticResource Primary_70}" />
+                        <TextBlock Visibility="{x:Bind CurrentState.IsOnMicrosoftStore, Converter={StaticResource ReverseBoolToVisibilityConverter}}" Text="Enjoying this free, high-quality tool?" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Bold" FontSize="20" Foreground="{StaticResource Primary_70}" />
 
                         <TextBlock Visibility="{x:Bind CurrentState.IsOnMicrosoftStore, Converter={StaticResource BoolToVisibilityConverter}}" Text="Like this tool?" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="Thin" FontSize="24" Foreground="{StaticResource Primary_70}" />
 
                         <StackPanel Name="DonationRequestPanel" Margin="8" Visibility="{x:Bind CurrentState.IsOnMicrosoftStore, Converter={StaticResource ReverseBoolToVisibilityConverter}}">
                             <RichTextBlock TextWrapping="Wrap" TextAlignment="Center">
                                 <Paragraph>
-                                    <Run Text="Help keep it going - your support makes a difference!" Foreground="{StaticResource Primary_70}" />
-                                    <Hyperlink NavigateUri="https://www.paypal.com/paypalme/Yogendrasinh">Donate Now</Hyperlink>
+                                    <Hyperlink NavigateUri="https://www.paypal.com/paypalme/Yogendrasinh">Donate</Hyperlink><Run Text=" or " Foreground="{StaticResource Primary_70}" /><Hyperlink x:Name="PurchaseButton" Click="PurchaseButton_Click" >Purchase</Hyperlink>
+                                    <Run Text=" (for auto-update from Microsoft Store). " Foreground="{StaticResource Primary_70}" />
                                 </Paragraph>
-                                <Paragraph>
-                                    <Run Text=" or " Foreground="{StaticResource Primary_70}" />
-                                    <Hyperlink x:Name="PurchaseButton" Click="PurchaseButton_Click" >Purchase</Hyperlink>
-                                    <Run Text=" (same features but with auto-update from Microsoft Store)." Foreground="{StaticResource Primary_70}" />
+                                <Paragraph Margin="10">
+                                    <Hyperlink Click="GithubStar_Click" >Give us Star on Github</Hyperlink>
+                                    <Run Text=" to make us more famous." Foreground="{StaticResource Primary_70}" />
                                 </Paragraph>
                             </RichTextBlock>
                         </StackPanel>
