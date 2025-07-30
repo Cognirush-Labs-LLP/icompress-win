@@ -28,7 +28,7 @@ namespace miCompressor.core
                     };
                     break;
                 case OutputFormat.Png:
-                    return !isInputMultiframed ? null : new PngWriteDefines { PreserveiCCP = false, CompressionLevel = 5 };
+                    return isInputMultiframed ? null : new PngWriteDefines { PreserveiCCP = false, CompressionLevel = 5 };
                     break;
                 case OutputFormat.Webp:
                     int method = 2;

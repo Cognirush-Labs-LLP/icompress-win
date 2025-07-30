@@ -100,11 +100,13 @@
     <None Remove="ui\SelectedItemHeader.xaml" />
     <None Remove="ui\SelectionDetailView.xaml" />
     <None Remove="ui\SettingsView.xaml" />
+    <None Remove="ui\settings\ApplyWatermarkToggleView.xaml" />
     <None Remove="ui\settings\DimensionSettingsView.xaml" />
     <None Remove="ui\settings\OutputFileSettingsView.xaml" />
     <None Remove="ui\settings\OutputFolderHorizontalView.xaml" />
     <None Remove="ui\settings\OutputFolderSettingsMiniView.xaml" />
     <None Remove="ui\settings\QualitySettings.xaml" />
+    <None Remove="ui\settings\WatermarkSettingsView.xaml" />
     <None Remove="ui\styles\ControlStyles.xaml" />
     <None Remove="ui\styles\ResourceDictionary1.xaml" />
     <None Remove="ui\styles\Typography.xaml" />
@@ -386,6 +388,12 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+    <Page Update="ui\settings\ApplyWatermarkToggleView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="ui\settings\WatermarkSettingsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="ui\settings\OutputFolderHorizontalView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -53,11 +53,12 @@ public class ImageCompressor
         // Determine max degree of parallelism (half the CPU core count)
         int maxParallel = Math.Max(1, Environment.ProcessorCount / 2);
 
-        if(forPreview || files.Count() < Environment.ProcessorCount)
+        if (forPreview || files.Count() < Environment.ProcessorCount)
         {
-            int parallelismInUnitOfWork = Math.Max(1, (int) Math.Ceiling(Environment.ProcessorCount / (double) files.Count()));
+            int parallelismInUnitOfWork = Math.Max(1, (int)Math.Ceiling(Environment.ProcessorCount / (double)files.Count()));
             //MagickNET.SetEnvironmentVariable("OMP_NUM_THREADS", parallelismInUnitOfWork.ToString());
-        } else
+        }
+        else
         {
             //MagickNET.SetEnvironmentVariable("OMP_NUM_THREADS", "2");
         }
@@ -222,7 +223,7 @@ public class ImageCompressor
                             else
                                 MicLog.Info($"Used Windows Decoder for {Path.GetFileName(sourcePath)}");
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             MicLog.Info($"Windows Decoder crashed, so using fallback. {mediaInfo.ShortName}. No big deal, this happens. Error: {ex.Message}");
                             image = new MagickImage(sourcePath);
@@ -260,8 +261,8 @@ public class ImageCompressor
                     ImageOrientationHelper.CorrectOrientation(collection);
                     // Resize all frames according to settings
                     ResizeHelper.ResizeFrames(collection, settings);
+                    WatermarkHelper.WatermarkAllFrames(collection, settings);
 
-                    
                     foreach (var frame in collection)
                     {
                         frame.Strip();
@@ -282,6 +283,8 @@ public class ImageCompressor
                         return null;
                     }
 
+                    Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
+
                     // Write all frames to output file
                     var writeDefine = MagickHelper.GetWriteDefinesFor(settings.Format, outputPath, true, settings.Quality, mediaInfo);
 
@@ -301,10 +304,11 @@ public class ImageCompressor
                 else if (image != null)
                 {
                     ImageOrientationHelper.CorrectOrientation(image);
-                   
+
                     // Single frame image processing
                     // Apply resizing
                     ResizeHelper.ResizeImage(image, settings);
+                    WatermarkHelper.ApplyWatermark(image, settings);
 
                     // Set output quality for lossy formats
                     if (MagickHelper.CanSetQuality(settings.Format, outputPath))
@@ -360,8 +364,8 @@ public class ImageCompressor
 
             OptimizeIfPNG(outputPath);
             OptimizeIfGIF(mediaInfo.FilePath, outputPath);
-    
-            if(!forPreview)
+
+            if (!forPreview)
                 (new MetadataCopyHelper()).Copy(mediaInfo.FilePath, outputPath, settings);
 
             if (stop)

@@ -63,7 +63,7 @@ namespace miCompressor.core
         /// <returns></returns>
         public static string getTempPreviewFilePath(string fileName)
         {
-            return Path.Combine(tempAppDir, preivewDirName, fileName);
+            return Path.Combine(getTempPreviewDirPath(), fileName);
         }
 
         /// <summary>
@@ -72,7 +72,9 @@ namespace miCompressor.core
         /// <returns>Preview directory path</returns>
         public static string getTempPreviewDirPath()
         {
-            return Path.Combine(tempAppDir, preivewDirName);
+            string dirPath = Path.Combine(tempAppDir, preivewDirName);
+            Directory.CreateDirectory(dirPath); // Ensures the directory exists
+            return dirPath;
         }
 
         /// <summary>

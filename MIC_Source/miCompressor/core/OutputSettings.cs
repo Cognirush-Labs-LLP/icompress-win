@@ -66,6 +66,17 @@ namespace miCompressor.core
         [AutoNotify]
         public bool retainDateTime = true;
 
+        #region Watermark Settings
+        [AutoNotify]
+        public bool applyWatermark = false;
+
+        /// <summary>
+        /// Just increment when watermark settings change (helps to update image output in live compression preview
+        /// </summary>
+        [AutoNotify]
+        public int watermarkSettingsHash = 0;
+
+        #endregion
 
         #region Output file creation setting
         /// <summary>
@@ -219,7 +230,7 @@ namespace miCompressor.core
                 (PrintDimension != null ? PrintDimension.LongEdgeInInch : 1),
                 (PrintDimension != null ? PrintDimension.ShortEdgeInInch : 1),
                 (PrintDimension != null ? PrintDimension.Margin : 1),
-                copyMetadata, skipSensitiveMetadata, copyIPTC, copyXMP               
+                copyMetadata, skipSensitiveMetadata, copyIPTC, copyXMP, applyWatermark , watermarkSettingsHash
                 );
         }
 
@@ -280,6 +291,7 @@ namespace miCompressor.core
             CopyIPTC = other.copyIPTC;
             CopyXMP = other.copyXMP;
             RetainDateTime = other.retainDateTime;
+            ApplyWatermark = other.applyWatermark;
             //OutputLocationSetting = other.outputLocationSettings;
             //OutputFolder = other.outputFolder;
             //Suffix = other.suffix;

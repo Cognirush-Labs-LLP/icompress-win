@@ -15,7 +15,9 @@
             <Border Style="{StaticResource LineSeparatorStyle}" />
             <local:DimensionSettingsView />
             <Border Style="{StaticResource LineSeparatorStyle}" />
-            <local:OutputFileSettingsView />            
+            <local:OutputFileSettingsView />
+            <Border Style="{StaticResource LineSeparatorStyle}" />
+            <local:ApplyWatermarkToggleView />
         </StackPanel>
     </Grid>
 </Page>
