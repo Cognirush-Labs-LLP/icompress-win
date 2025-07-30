@@ -9,7 +9,7 @@
 
 # Mass Image Compressor
 
-Mass Image Compressor is a fast, lightweight batch image processing tool that compresses, resizes, and converts images to popular formats like WebP, AVIF, JPEG, PNG, and GIF—reducing file size while preserving quality.
+Mass Image Compressor is a fast, lightweight batch image processing tool that compresses, resizes, watermark and converts images to popular formats like WebP, AVIF, JPEG, PNG, and GIF—reducing file size while preserving quality.
 This official source code of modern version of Mass Image Compressor hosted at [SourceForge](https://sourceforge.net/projects/icompress/), redesigned with a modern WinUI 3 interface and built on .NET 8 for Windows 10 and 11 in year 2025. 
 
 ---
@@ -50,7 +50,7 @@ Mass Image Compressor for macOS is written in Swift by us but it is closed sourc
 ## 🔧 Features
 
 - Compress multiple folders and files in one go (including optional subfolders)
-- Seamless Windows Explorer integration via the "Send To" menu
+- Seamless Windows Explorer integration via the "Send To" menu (enabled if application is launched atleast once)
 - Advanced metadata copy settings (EXIF, XMP, IPTC) with filtering (e.g., strip GPS, serial numbers)
 - Full support for **Animated Images** (GIF, PNG, WebP)
 - Output to modern formats like **WebP** and **AVIF**
@@ -67,23 +67,27 @@ Mass Image Compressor for macOS is written in Swift by us but it is closed sourc
   - By percentage
   - Long edge, fixed width/height
   - Frame-based for print or responsive image sets (1x/2x/3x)
+- Watermark Image (v4.1.0 and above)
 
 ---
 ## 🖼️ Screenshots
 
 <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-  <a href="screenshots/4K_Preview.webp">
-    <img src="screenshots/4K_Preview.webp" alt="4K Preview" width="300"/>
+  <a href="screenshots/4.1.0/landing.png">
+    <img src="screenshots/4.1.0/landing.png" alt="Mass Image Compressor Landing Page" width="300"/>
   </a>
  
-  <a href="screenshots/Gallery.PNG">
-    <img src="screenshots/Gallery.PNG" alt="Gallery" width="300"/>
+  <a href="screenshots/4.1.0/gallary.png">
+    <img src="screenshots/4.1.0/gallary.png" alt="Gallery" width="300"/>
   </a>
-   <a href="screenshots/CompressionOutput.PNG">
-    <img src="screenshots/CompressionOutput.PNG" alt="Compression Output" width="300"/>
+   <a href="screenshots/4.1.0/preview.png">
+    <img src="screenshots/4.1.0/preview.png" alt="Compression Preview" width="300"/>
   </a>
-  <a href="screenshots/ThemeFit.PNG">
-    <img src="screenshots/ThemeFit.PNG" alt="Theme Fit" width="300"/>
+  <a href="screenshots/4.1.0/watermarksettings.png">
+    <img src="screenshots/4.1.0/watermarksettings.png" alt="Watermark Settings" width="300"/>
+  </a>
+    <a href="screenshots/4.1.0/options.png">
+    <img src="screenshots/4.1.0/options.png" alt="Compression options" width="300"/>
   </a>
 </div>
 
