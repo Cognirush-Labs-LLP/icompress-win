@@ -304,7 +304,7 @@
     <IncludeSymbols>False</IncludeSymbols>
     <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
     <AssemblyName>Mass Image Compressor</AssemblyName>
-    <Version>4.0.2</Version>
+    <Version>4.1.0</Version>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>

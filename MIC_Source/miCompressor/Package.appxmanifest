@@ -10,7 +10,7 @@
   <Identity
     Publisher="CN=yogee"
     Name="CognirushLabs.MassImageCompressor"
-    Version="4.0.2.0" />
+    Version="4.1.0.0" />
 
   <Properties>
     <DisplayName>Mass Image Compressor</DisplayName>

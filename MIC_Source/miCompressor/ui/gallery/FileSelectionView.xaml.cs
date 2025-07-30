@@ -46,6 +46,8 @@ namespace miCompressor.ui
             SetThumbSettingOptionIcon_Selected();
             IsEmptyViewVisible = !App.FileStoreInstance.SelectedPaths.Any();
             App.FileStoreInstance.PropertyChanged += FileStore_PropertyChanged;
+
+            ShowFilterButton.Label = CurrentState.ShowFilterOptions ? "Hide Filters" : "Show Filters";
         }
 
         private void FileStore_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
