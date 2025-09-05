@@ -133,7 +133,7 @@
                 Margin="8,0"/>
             <TextBlock Text="% height" VerticalAlignment="Center" Margin="8,0,0,0"/>
         </StackPanel>
-        <TextBlock  Margin="0,10,0,0" FontSize="12" Grid.Row="6" Opacity="0.5">NOTE: GIF🡒GIF or GIF🡒PNG doesn't support watermakr on it.</TextBlock>
+        <TextBlock  Margin="0,10,0,0" FontSize="12" Grid.Row="6" Opacity="0.5">NOTE: GIF🡒GIF or GIF🡒PNG doesn't support watermark on it.</TextBlock>
     </Grid>
     </ScrollViewer>
 </UserControl>
