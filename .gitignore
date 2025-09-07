@@ -413,3 +413,4 @@ MIC_Source/miCompressorSetup/MassImageCompressor_4.*/
 MIC_Source/miCompressorSetup/manifests/
 MIC_Source/miCompressorSetup/MassImageCompressorPortableV4_*/
 MIC_Source/miCompressorSetup/WinGet_Release/
+MIC_Source/miCompressorSetup/*.zip
