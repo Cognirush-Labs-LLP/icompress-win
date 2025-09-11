@@ -1,2 +1,2 @@
 # Ignore ExifTool (Perl scripts) in language stats
-MIC_Source/miCompressor/3rdParty_x64/* linguist-vendored
+MIC_Source/miCompressor/3rdParty_x64/** linguist-vendored
