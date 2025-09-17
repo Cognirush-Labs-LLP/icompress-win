@@ -191,7 +191,7 @@
                         Visibility="{x:Bind ShowOutputFolderLink, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                         <StackPanel Orientation="Horizontal">
                             <FontIcon Glyph="&#xE838;" />
-                            <TextBlock HorizontalAlignment="Center" Margin="10,5" Text="Open Output Foder" />
+                            <TextBlock HorizontalAlignment="Center" Margin="10,5" Text="Open Output Folder" />
                         </StackPanel>
                     </Button>
 
