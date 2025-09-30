@@ -10,8 +10,8 @@ namespace miCompressor.IntegrationTests
 {
     public class TestVersionChecker
     {
-        int latestMajorVersion = 3;
-        int latestMinorVersion = 3; //this shoudl match what's there at https://sourceforge.net/rest/p/icompress/wiki/Version
+        int latestMajorVersion = 4;
+        int latestMinorVersion = 1; //this should match what's there at https://sourceforge.net/rest/p/icompress/wiki/Version
         //int? currentPatchVersion = 0;
         //int? currentBuildVersion = 0;
 

@@ -19,45 +19,58 @@ public class VersionChecker
     /// <returns>True if the fetched version's major or minor is greater than the current version; otherwise, false.</returns>
     public static async Task<bool> CheckIfNewVersionAvailableAsync(string currentVersion)
     {
-        // Fetch the content from the URL.
-        using HttpClient client = new HttpClient();
-        string content = await client.GetStringAsync(VersionUrl);
 
-        // Look for a version string like "Current Version is 3.3.2" or "Current Version is 4.0"
-        var regex = new Regex(@"Current\s+Version\s+is\s+([\d\.]+)", RegexOptions.IgnoreCase);
-        var match = regex.Match(content);
-        if (!match.Success)
+        if (string.IsNullOrWhiteSpace(currentVersion))
         {
-            throw new Exception("Unable to find version information in the fetched content.");
+            return false; //VersionUrl is not configured.
         }
 
-        string fetchedVersion = match.Groups[1].Value;
-
-        // Parse the fetched version and current version to compare only major and minor parts.
-        var fetchedParts = fetchedVersion.Split('.');
-        var currentParts = currentVersion.Split('.');
-
-        if (fetchedParts.Length < 2 || currentParts.Length < 2)
+        try
         {
-            throw new Exception("Invalid version format. Expected at least major and minor version numbers.");
+            // Fetch the content from the URL.
+            using HttpClient client = new HttpClient();
+            string content = await client.GetStringAsync(VersionUrl);
+
+
+            // Look for a version string like "Current Version is 3.3.2" or "Current Version is 4.0"
+            var regex = new Regex(@"Current\s+Version\s+is\s+([\d\.]+)", RegexOptions.IgnoreCase);
+            var match = regex.Match(content);
+            if (!match.Success)
+            {
+                throw new Exception("Unable to find version information in the fetched content.");
+            }
+
+            string fetchedVersion = match.Groups[1].Value;
+
+            // Parse the fetched version and current version to compare only major and minor parts.
+            var fetchedParts = fetchedVersion.Split('.');
+            var currentParts = currentVersion.Split('.');
+
+            if (fetchedParts.Length < 2 || currentParts.Length < 2)
+            {
+                throw new Exception("Invalid version format. Expected at least major and minor version numbers.");
+            }
+
+            int fetchedMajor = int.Parse(fetchedParts[0]);
+            int fetchedMinor = int.Parse(fetchedParts[1]);
+
+            int currentMajor = int.Parse(currentParts[0]);
+            int currentMinor = int.Parse(currentParts[1]);
+
+            // Compare major version first, then minor.
+            if (fetchedMajor > currentMajor)
+            {
+                return true;
+            }
+            else if (fetchedMajor == currentMajor && fetchedMinor > currentMinor)
+            {
+                return true;
+            }
         }
-
-        int fetchedMajor = int.Parse(fetchedParts[0]);
-        int fetchedMinor = int.Parse(fetchedParts[1]);
-
-        int currentMajor = int.Parse(currentParts[0]);
-        int currentMinor = int.Parse(currentParts[1]);
-
-        // Compare major version first, then minor.
-        if (fetchedMajor > currentMajor)
+        catch (Exception ex)
         {
-            return true;
+            //ignore, probably version url is not reachable. 
         }
-        else if (fetchedMajor == currentMajor && fetchedMinor > currentMinor)
-        {
-            return true;
-        }
-
         return false;
     }
 }

@@ -86,7 +86,7 @@ namespace miCompressor.Tests.MediaFileInfoTests
         {
             // Arrange
             var outputSettings = CreateOutputSettings(OutputLocationSetting.UserSpecificFolder);
-            outputSettings.outputFolder = "C:\\output folder\\";
+            outputSettings.OutputFolder = "C:\\output folder\\";
             var mediaFile1 = CreateMediaFileInfo("c  d\\ghi\\fil e.bmp");
             var mediaFile2 = CreateMediaFileInfoAsSelectedPath("c  d\\ghi\\fil e.bmp");
 
@@ -164,7 +164,7 @@ namespace miCompressor.Tests.MediaFileInfoTests
         {
             // Arrange
             var outputSettings = CreateOutputSettings(OutputLocationSetting.UserSpecificFolder);
-            outputSettings.outputFolder = string.Empty;
+            outputSettings.OutputFolder = string.Empty;
             var mediaFile = CreateMediaFileInfo("ghi\\file.bmp");
 
             // Act & Assert
@@ -187,8 +187,8 @@ namespace miCompressor.Tests.MediaFileInfoTests
             return new OutputSettings
             {
                 format = OutputFormat.KeepSame,
-                outputLocationSettings = locationSettings,
-                outputFolder = _tempDirectory,
+                OutputLocationSettings = locationSettings,
+                OutputFolder = _tempDirectory,
                 prefix = string.Empty,
                 suffix = string.Empty,
                 replaceFrom = string.Empty,

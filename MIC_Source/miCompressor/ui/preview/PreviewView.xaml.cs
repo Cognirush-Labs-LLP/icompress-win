@@ -18,7 +18,7 @@ public sealed partial class PreviewView : UserControl
     MasterState CurrentState = App.CurrentState;
     PreviewViewModel vm = new PreviewViewModel(App.CurrentState);
 
-    [AutoNotify] public bool showCompressed = false;
+    [AutoNotify] public bool showCompressed = true;
     [AutoNotify] public string currentZoomLevel = "";
 
     uint OriginalHeight;
