@@ -21,7 +21,20 @@ namespace miCompressor.core
         /// Supported lower cased input file extensions without dot. i.e. "jpg", "jpeg", "png", "webp". We will add all supported image formats later, this is just for testing. 
         /// </summary>
         public static string[] SupportedInputExtensions = ["jpg", "jpeg", "png", "webp","gif","tif", "tiff", "avif", "heic", "jp2", "bmp", "svg", "jxl",
-            "arw", "dng", "nef", "cr2", "cr3","crw","dcr","mrw", "orf","raf", "pef", "raw","rw2", "srw","erf","3fr","kdc", "dcr","mos", "mef"];
+            "arw", "dng", "nef", "cr2", "cr3","crw","dcr","mrw", "orf","raf", "pef", "raw","rw2", "srw","erf","3fr","kdc", "dcr","mos", "mef",
+            // Added in 4.2
+            "psd", //rendered composition only
+            "ppm","pgm","pbm","pnm","pam","xbm","xpm",
+            "mpo",
+            "j2k","jpc","jpf","jpm","jpx","mj2",
+            "svgz",
+            "hdr", "exr", "pfm",
+            // Added new RAW in 4.2
+            "nrw","sr2","srf","rwl","x3f","gpr","iiq"
+            ]
+        
+        
+        ;
 
         /// <summary>
         /// Extension used by cameras to create RAW files, TIFF not included.

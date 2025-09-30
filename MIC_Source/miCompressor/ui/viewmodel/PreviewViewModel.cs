@@ -296,15 +296,22 @@ namespace miCompressor.ui
                 mediaFile = Images[CurrentIndex];
             }
             //string outputPath = await compressor.ProcessSingleFileAsync(mediaFile, multipleSelectPaths: false, settings, forPreview: true);
-
+            try
+            {
             string outputPath = await Task.Run(async () =>
             {
                 return await Compressor.ProcessSingleFileAsync(mediaFile, multipleSelectPaths: false, Settings, forPreview: true);
             });
 
+
             CompressedImage_cached = await GetImage(outputPath, true);
 
             return (CompressedImage_cached, false);
+        }
+            catch
+            {
+                return (null, false);
+            }
         }
 
         #region Previous/Next Logic
