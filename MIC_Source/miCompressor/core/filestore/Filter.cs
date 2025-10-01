@@ -52,7 +52,7 @@ public partial class Filter
     /// <summary>
     /// User enters this value along with FileSizeUnit.
     /// </summary>
-    private double _fileSizeValue  = 1;
+    private double _fileSizeValue;
     public double FileSizeValue
     {
         get { return _fileSizeValue; }
@@ -69,7 +69,7 @@ public partial class Filter
     /// <summary>
     /// User enters this value along with FileSizeValue.
     /// </summary>
-    private FileSizeUnit _fileSizeUnit = FileSizeUnit.MB;
+    private FileSizeUnit _fileSizeUnit;
     public FileSizeUnit FileSizeUnit
     {
         get { return _fileSizeUnit;  }
@@ -82,6 +82,12 @@ public partial class Filter
         }
     }
 
+    public Filter()
+    {
+        FileSizeValue = 1;
+        FileSizeUnit = FileSizeUnit.MB; //This should always be MB as it is hardcoded in UI to set as MB first. 
+
+    }
     /// <summary>
     /// All selected filters are applied with AND conditions. If ALL conditions match, the file is set to be included. 
     /// </summary>
