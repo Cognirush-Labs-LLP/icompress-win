@@ -13,88 +13,114 @@
     <!-- File Name Filter Section -->
 
     <ScrollView>
-        <Grid ColumnSpacing="12" RowSpacing="10" Margin="0,0,10,10" HorizontalAlignment="Center" Padding="10,10,10,10" BorderBrush="{StaticResource Primary_10}" BorderThickness="2" CornerRadius="15">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="140"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+        <StackPanel>
+            <Grid ColumnSpacing="12" RowSpacing="10" Margin="0,0,10,10" HorizontalAlignment="Center" Padding="10,10,10,10" BorderBrush="{StaticResource Primary_10}" BorderThickness="2" CornerRadius="15" Visibility="{x:Bind IsOpen, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="140"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-            <!-- Enable/disable File Name filter -->
-            <CheckBox Grid.Column="0" Grid.Row="0"
+                <!-- Enable/disable File Name filter -->
+                <CheckBox Grid.Column="0" Grid.Row="0"
                   Content="File Name"
                   IsChecked="{x:Bind ApplyNameFileSelectionFilter, Mode=TwoWay}" />
 
-            <!-- Dropdown to choose filter type (using DropDownButton) -->
-            <muxc:DropDownButton Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch"
+                <!-- Dropdown to choose filter type (using DropDownButton) -->
+                <muxc:DropDownButton Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch"
                              x:Name="FileNameFilterModeDropdown"
                              IsEnabled="{x:Bind ApplyNameFileSelectionFilter, Mode=OneWay}"
                              Content="{x:Bind Contains}">
-                <muxc:DropDownButton.Flyout>
-                    <MenuFlyout>
-                        <MenuFlyoutItem Text="{x:Bind Contains}" Click="FileNameFilterMode_Click"/>
-                        <MenuFlyoutItem Text="{x:Bind StartsWith}" Click="FileNameFilterMode_Click"/>
-                        <MenuFlyoutItem Text="{x:Bind EndsWith}" Click="FileNameFilterMode_Click"/>
-                    </MenuFlyout>
-                </muxc:DropDownButton.Flyout>
-            </muxc:DropDownButton>
-
-            <!-- TextBox for file name filter value -->
-            <TextBox Grid.Column="2" Grid.Row="0"
-                 x:Name="FileNameFilterTextBox"
-                 IsEnabled="{x:Bind ApplyNameFileSelectionFilter, Mode=OneWay}"
-                 PlaceholderText="Enter file name filter"
-                 TextChanged="FileNameFilterTextBox_TextChanged"/>
-
-            <!-- Enable/disable File Size filter -->
-            <CheckBox Grid.Column="0" Grid.Row="1"
-                  Content="File Size"
-                  IsChecked="{x:Bind SelectionFilter.ApplySizeFilter, Mode=TwoWay}" />
-
-            <!-- Dropdown for file size comparator -->
-            <muxc:DropDownButton Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch"
-                                 IsEnabled="{x:Bind SelectionFilter.ApplySizeFilter , Mode=OneWay}"
-                             x:Name="FileSizeComparatorDropdown"
-                             Content="{x:Bind LargerThan}">
-                <muxc:DropDownButton.Flyout>
-                    <MenuFlyout>
-                        <MenuFlyoutItem Text="{x:Bind LargerThan}" Click="FileSizeComparator_Click"/>
-                        <MenuFlyoutItem Text="{x:Bind SmallerThan}" Click="FileSizeComparator_Click"/>
-                    </MenuFlyout>
-                </muxc:DropDownButton.Flyout>
-            </muxc:DropDownButton>
-
-            <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Horizontal" Spacing="10">
-
-                <!-- TextBox for file size value -->
-                <NumberBox Width="100" HorizontalContentAlignment="Right" Minimum="0"
-                 PlaceholderText="Size Value" IsEnabled="{x:Bind SelectionFilter.ApplySizeFilter , Mode=OneWay}"
-                 Value="{x:Bind SelectionFilter.FileSizeValue, Mode=TwoWay}"/>
-
-                <!-- Dropdown for file size unit -->
-                <muxc:DropDownButton Width="80" HorizontalContentAlignment="Left"
-                 x:Name="FileSizeUnitDropdown"
-                 IsEnabled="{x:Bind SelectionFilter.ApplySizeFilter , Mode=OneWay}"
-                 Content="{x:Bind MB}">
                     <muxc:DropDownButton.Flyout>
                         <MenuFlyout>
-                            <MenuFlyoutItem Text="{x:Bind Bytes}" Click="FileSizeUnit_Click"/>
-                            <MenuFlyoutItem Text="{x:Bind KB}" Click="FileSizeUnit_Click"/>
-                            <MenuFlyoutItem Text="{x:Bind MB}" Click="FileSizeUnit_Click"/>
+                            <MenuFlyoutItem Text="{x:Bind Contains}" Click="FileNameFilterMode_Click"/>
+                            <MenuFlyoutItem Text="{x:Bind StartsWith}" Click="FileNameFilterMode_Click"/>
+                            <MenuFlyoutItem Text="{x:Bind EndsWith}" Click="FileNameFilterMode_Click"/>
+                            <MenuFlyoutItem Text="{x:Bind NameGlob}" Click="FileNameFilterMode_Click"/>
+                            <MenuFlyoutItem Text="{x:Bind NameRegex}" Click="FileNameFilterMode_Click"/>
                         </MenuFlyout>
                     </muxc:DropDownButton.Flyout>
                 </muxc:DropDownButton>
-            </StackPanel>
 
+                <!-- TextBox for file name filter value -->
+                <Grid Grid.Column="2" Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0"
+                        x:Name="FileNameFilterTextBox"
+                        IsEnabled="{x:Bind ApplyNameFileSelectionFilter, Mode=OneWay}"
+                        PlaceholderText="Enter file name filter"
+                        TextChanged="FileNameFilterTextBox_TextChanged"
+                        VerticalAlignment="Center"
+                        Margin="0,0,5,0"/>
+
+                    <FontIcon  Grid.Column="1"
+                        Glyph="&#xE783;" 
+                        Visibility="{x:Bind RegexError, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                        Foreground="{ThemeResource SystemFillColorCriticalBrush}" 
+                        VerticalAlignment="Center"/>
+                </Grid>
+
+
+                <!-- Enable/disable File Size filter -->
+                <CheckBox Grid.Column="0" Grid.Row="1"
+                  Content="File Size"
+                  IsChecked="{x:Bind SelectionFilter.ApplySizeFilter, Mode=TwoWay}" />
+
+                <!-- Dropdown for file size comparator -->
+                <muxc:DropDownButton Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch"
+                                 IsEnabled="{x:Bind SelectionFilter.ApplySizeFilter , Mode=OneWay}"
+                             x:Name="FileSizeComparatorDropdown"
+                             Content="{x:Bind LargerThan}">
+                    <muxc:DropDownButton.Flyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem Text="{x:Bind LargerThan}" Click="FileSizeComparator_Click"/>
+                            <MenuFlyoutItem Text="{x:Bind SmallerThan}" Click="FileSizeComparator_Click"/>
+                        </MenuFlyout>
+                    </muxc:DropDownButton.Flyout>
+                </muxc:DropDownButton>
+
+                <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Horizontal" Spacing="10">
+
+                    <!-- TextBox for file size value -->
+                    <NumberBox Width="100" HorizontalContentAlignment="Right" Minimum="0"
+                 PlaceholderText="Size Value" IsEnabled="{x:Bind SelectionFilter.ApplySizeFilter , Mode=OneWay}"
+                 Value="{x:Bind SelectionFilter.FileSizeValue, Mode=TwoWay}"/>
+
+                    <!-- Dropdown for file size unit -->
+                    <muxc:DropDownButton Width="80" HorizontalContentAlignment="Left"
+                 x:Name="FileSizeUnitDropdown"
+                 IsEnabled="{x:Bind SelectionFilter.ApplySizeFilter , Mode=OneWay}"
+                 Content="{x:Bind MB}">
+                        <muxc:DropDownButton.Flyout>
+                            <MenuFlyout>
+                                <MenuFlyoutItem Text="{x:Bind Bytes}" Click="FileSizeUnit_Click"/>
+                                <MenuFlyoutItem Text="{x:Bind KB}" Click="FileSizeUnit_Click"/>
+                                <MenuFlyoutItem Text="{x:Bind MB}" Click="FileSizeUnit_Click"/>
+                            </MenuFlyout>
+                        </muxc:DropDownButton.Flyout>
+                    </muxc:DropDownButton>
+                </StackPanel>
+
+
+
+                <!--
             <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
                 <TextBlock Text="(Non-matching files will be removed from selection)" Foreground="{StaticResource Primary_30}" FontSize="{StaticResource TextSmall}" VerticalAlignment="Bottom" HorizontalAlignment="Right" />
                 <Button Name="ApplyFilterButton" Content="Apply Filter" HorizontalAlignment="Right" Margin="6,6,0,0" Click="ApplyFilterButton_Click" />
+            </StackPanel> -->
+            </Grid>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock Text="{x:Bind FilterText, Mode=OneWay}" Foreground="{StaticResource Primary_70}" FontSize="{StaticResource TextSmall}"  VerticalAlignment="Center" />
+                <HyperlinkButton NavigateUri="https://chatgpt.com/g/g-67e1cb51197081919275342ce9c697c8-mass-image-compressor-windows" FontSize="{StaticResource TextXSmall}"  VerticalAlignment="Center">Need help setting filters?</HyperlinkButton>
             </StackPanel>
-        </Grid>
+        </StackPanel>
     </ScrollView>
 </UserControl>

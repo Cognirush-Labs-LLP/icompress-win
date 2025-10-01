@@ -49,9 +49,9 @@ public class FilterTests
     public void TestFileNameContainsFilter_RegularMode_MultipleTokens()
     {
         Filter filter = new();
-        filter.ApplyNameContainsFilter = true;
+        filter.ApplyNameGlobFilter = true;
         // Literal mode with token separator (pipe)
-        filter.NameContains = "abc|xyz";
+        filter.NameGlob = "*abc*|*xyz*";
 
         Assert.False(filter.DoesQualifyToBeExcluded("file_abc.jpg", 0));
         Assert.False(filter.DoesQualifyToBeExcluded("file_xyz.png", 0));
@@ -59,13 +59,26 @@ public class FilterTests
     }
 
     [Fact]
+    public void TestFileNameContainsFilter_RegularMode_WithStar()
+    {
+        Filter filter = new();
+        filter.ApplyNameGlobFilter = true;
+        // Literal mode with token separator (pipe)
+        filter.NameGlob = "*.jpg";
+
+        Assert.False(filter.DoesQualifyToBeExcluded("file_abc.jpg", 0));
+        Assert.True(filter.DoesQualifyToBeExcluded("file_jpg.png", 0));
+        Assert.True(filter.DoesQualifyToBeExcluded("file_xyz.png", 0));
+    }
+
+    [Fact]
     public void TestFileNameContainsFilter_AdvancedMode_RegexMatch()
     {
         Filter filter = new();
-        filter.ApplyNameContainsFilter = true;
+        filter.ApplyNameRegexFilter = true;
         // Contains regex meta character '.' so advanced regex mode is used.
         // Pattern "a.c" will match strings with 'a', any character, then 'c'
-        filter.NameContains = "a.c";
+        filter.NameRegex = "a.c";
 
         Assert.False(filter.DoesQualifyToBeExcluded("abc.jpg", 0));   // 'b' between a and c
         Assert.False(filter.DoesQualifyToBeExcluded("a-cfile.txt", 0)); // '-' between a and c
@@ -87,19 +100,7 @@ public class FilterTests
         Assert.True(filter.DoesQualifyToBeExcluded("zabc.jpg", 0));
     }
 
-    [Fact]
-    public void TestFileNameStartsWithFilter_AdvancedMode_RegexMatch()
-    {
-        Filter filter = new();
-        filter.ApplyNameStartsWithFilter = true;
-        // Contains regex meta char, so advanced mode applies.
-        // Regex "ab.+" will match any string starting with "ab" followed by at least one character.
-        filter.NameStartsWith = "ab.+"; //'.+' is single instruction, it means 1 char.
-
-        Assert.False(filter.DoesQualifyToBeExcluded("abcfile.jpg", 0));
-        Assert.True(filter.DoesQualifyToBeExcluded("ab", 0)); // fails because ".+" requires at least one char after "ab"
-    }
-
+   
     [Fact]
     public void TestFileNameStartsWithFilter_InvalidRegexFallback()
     {
@@ -131,12 +132,14 @@ public class FilterTests
     public void TestFileNameEndsWithFilter_AdvancedMode_RegexMatch()
     {
         Filter filter = new();
-        filter.ApplyNameEndsWithFilter = true;
+        filter.ApplyNameRegexFilter = true;
         // Regex "j.g" matches "j", any character, then "g". The advanced mode will automatically add the end anchor.
-        filter.NameEndsWith = "j.g";
+        filter.nameRegex = "j.g";
 
         Assert.False(filter.DoesQualifyToBeExcluded("image.jpg", 0));
-        Assert.True(filter.DoesQualifyToBeExcluded("image.jogg", 0));
+        Assert.False(filter.DoesQualifyToBeExcluded("image.jogg", 0));
+        Assert.True(filter.DoesQualifyToBeExcluded("image.josg", 0));
+
     }
 
     [Fact]
@@ -249,8 +252,8 @@ public class FilterTests
         // A shutterbug typically wants to process only JPEG files.
         // Even as an advanced user, many will simply enter a pipe-separated list.
         Filter filter = new();
-        filter.ApplyNameEndsWithFilter = true;
-        filter.NameEndsWith = "jpg|jpeg"; // literal token mode
+        filter.ApplyNameGlobFilter = true;
+        filter.NameGlob = "*.jpg|*.jpeg"; // literal token mode
 
         Assert.False(filter.DoesQualifyToBeExcluded("holiday_photo.jpg", 0));
         Assert.False(filter.DoesQualifyToBeExcluded("vacation.jpeg", 0));
@@ -288,80 +291,60 @@ public class FilterTests
         Assert.True(filter.DoesQualifyToBeExcluded("IMG_20230414_100000.jpg", 0));
     }
 
-    [Fact]
-    public void TestImageNameContainsFilter_AdvancedMode_SequenceNumberRegex()
-    {
-        // A photographer might want to process files that include a sequential number in the name.
-        // For example, many cameras output names like "DSC_0001.jpg".
-        Filter filter = new();
-        filter.ApplyNameContainsFilter = true;
-        // Regex to match a sequence of exactly four digits
-        filter.NameContains = @"\d{4}";
 
-        Assert.False(filter.DoesQualifyToBeExcluded("DSC_0001.jpg", 0));
-        Assert.False(filter.DoesQualifyToBeExcluded("DSC_1234.jpeg", 0));
-        Assert.True(filter.DoesQualifyToBeExcluded("DSC_12.jpg", 0));
+    [Fact]
+    public void TestFileNameGlobFilter_MultiplePatterns()
+    {
+        Filter filter = new();
+        filter.ApplyNameGlobFilter = true;
+        filter.NameGlob = "*.jpeg|*.png";
+
+        Assert.False(filter.DoesQualifyToBeExcluded("photo.jpeg", 0));       // match
+        Assert.False(filter.DoesQualifyToBeExcluded("image.PNG", 0));        // case-insensitive match
+        Assert.True(filter.DoesQualifyToBeExcluded("document.txt", 0));      // non-match
     }
 
-    // ------------------------------------------------------------------
-    // Combination Scenarios Reflecting User Workflows
-    // ------------------------------------------------------------------
+    [Fact]
+    public void TestFileNameRegexFilter_RawPattern()
+    {
+        Filter filter = new();
+        filter.ApplyNameRegexFilter = true;
+        filter.NameRegex = "^a.g$"; // exactly 3 chars, starts with 'a', ends with 'g'
+
+        Assert.False(filter.DoesQualifyToBeExcluded("abg", 0));              // match
+        Assert.False(filter.DoesQualifyToBeExcluded("aXg", 0));              // match
+        Assert.True(filter.DoesQualifyToBeExcluded("ag", 0));                // too short → non-match
+        Assert.True(filter.DoesQualifyToBeExcluded("aZZg", 0));              // too long → non-match
+    }
+
+
     [Fact]
     public void TestImageFilters_Combination_WebDeveloperAndArtist()
     {
-        // A web developer/designer might select banner images that:
-        // - Start with "header"
-        // - Contain "design" (added by an artist)
-        // - And have a common image extension (e.g., jpg or jpeg)
+        // Single active name filter (Glob) expressing:
+        // - starts with "header"
+        // - contains "design"
+        // - ends with jpg or jpeg
         Filter filter = new();
-        filter.ApplyNameStartsWithFilter = true;
-        filter.NameStartsWith = "header";
-        filter.ApplyNameContainsFilter = true;
-        filter.NameContains = "design";
-        filter.ApplyNameEndsWithFilter = true;
-        // Users may simply write a literal token list.
-        filter.NameEndsWith = "jpg|jpeg";
+        filter.ApplyNameGlobFilter = true;
+        filter.NameGlob = "header*design*.{jpg,jpeg}";
 
-        Assert.False(filter.DoesQualifyToBeExcluded("header_design_banner.jpg", 0));
-        // Each failure in one filter leads to exclusion:
-        Assert.True(filter.DoesQualifyToBeExcluded("header_banner.jpg", 0));     // missing "design"
-        Assert.True(filter.DoesQualifyToBeExcluded("footer_design_banner.jpg", 0)); // does not start with "header"
-        Assert.True(filter.DoesQualifyToBeExcluded("header_design_banner.png", 0)); // wrong extension
-    }
-
-    [Fact]
-    public void TestImageFilters_Combination_MobilePhotography()
-    {
-        // A mobile photography workflow:
-        // - File names typically start with "IMG_"
-        // - User wants files from 2023 (common year token)
-        // - User wants only JPEG images.
-        Filter filter = new();
-        filter.ApplyNameStartsWithFilter = true;
-        filter.NameStartsWith = "IMG_";
-        filter.ApplyNameContainsFilter = true;
-        filter.NameContains = "2023"; // literal token search for year 2023
-        filter.ApplyNameEndsWithFilter = true;
-        filter.NameEndsWith = "jpg|jpeg"; // literal mode token list for extensions
-
-        Assert.False(filter.DoesQualifyToBeExcluded("IMG_20230315_123456.jpg", 0));
-        Assert.False(filter.DoesQualifyToBeExcluded("IMG_20231231_235959.jpeg", 0));
-        // File from another year should be excluded.
-        Assert.True(filter.DoesQualifyToBeExcluded("IMG_20221231_235959.jpg", 0));
+        Assert.False(filter.DoesQualifyToBeExcluded("header_design_banner.jpg", 0));   // match
+        Assert.True(filter.DoesQualifyToBeExcluded("header_banner.jpg", 0));           // missing "design"
+        Assert.True(filter.DoesQualifyToBeExcluded("footer_design_banner.jpg", 0));    // doesn't start with "header"
+        Assert.True(filter.DoesQualifyToBeExcluded("header_design_banner.png", 0));    // wrong extension
     }
 
     [Fact]
     public void TestImageFilters_DateBasedAdvancedRegex_MonthSelection()
     {
-        // A photographer might want to filter images taken in March.
-        // Mobile images often include the full date, e.g., "DSC_20230315_100000.jpg".
-        // An advanced user might simply write a regex without anchors, like "2023[/-]?03".
+        // Single active name filter (Regex) for March 2023 (supports "-" or "_" before 03)
         Filter filter = new();
-        filter.ApplyNameContainsFilter = true;
-        filter.NameContains = @"2023[-_]?03";  // matches 2023 followed by - or _ and then 03
+        filter.ApplyNameRegexFilter = true;
+        filter.NameRegex = @"2023[-_]?03";
 
-        Assert.False(filter.DoesQualifyToBeExcluded("DSC_2023-03-15_100000.jpg", 0));
-        Assert.False(filter.DoesQualifyToBeExcluded("DSC_20230315_100000.jpg", 0));
-        Assert.True(filter.DoesQualifyToBeExcluded("DSC_20230415_100000.jpg", 0));
+        Assert.False(filter.DoesQualifyToBeExcluded("DSC_2023-03-15_100000.jpg", 0));  // match
+        Assert.False(filter.DoesQualifyToBeExcluded("DSC_20230315_100000.jpg", 0));    // match
+        Assert.True(filter.DoesQualifyToBeExcluded("DSC_20230415_100000.jpg", 0));     // non-match
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 
 namespace miCompressor.core;
-using System.Text.RegularExpressions;
 
 /// <summary>
 /// Allows user to apply filter. This selection filter. Means, if conditions match, we include the file.
@@ -30,10 +30,72 @@ public partial class Filter
     /// </summary>
     [AutoNotify] public string nameEndsWith = "";
 
+    [AutoNotify] public string nameGlob = "";
+    [AutoNotify] public string nameRegex = "";
+
+
     [AutoNotify] public bool applyNameContainsFilter = false;
     [AutoNotify] public bool applyNameStartsWithFilter = false;
     [AutoNotify] public bool applyNameEndsWithFilter = false;
+    [AutoNotify] public bool applyNameGlobFilter = false;
+    [AutoNotify] public bool applyNameRegexFilter = false;
+
+
+
     [AutoNotify] public bool applySizeFilter = false;
+
+    /// <summary>
+    /// Create text representation (For UI purpose) of filters.
+    /// </summary>
+    /// <returns></returns>
+    public string BuildFilterSummary()
+    {
+        // Name part (only one apply* flag will be true, or all false)
+        string? namePart = null;
+
+        if (applyNameContainsFilter && !string.IsNullOrWhiteSpace(nameContains))
+            namePart = $"File Name Contains {nameContains}";
+        else if (applyNameStartsWithFilter && !string.IsNullOrWhiteSpace(nameStartsWith))
+            namePart = $"File Name Starts With {nameStartsWith}";
+        else if (applyNameEndsWithFilter && !string.IsNullOrWhiteSpace(nameEndsWith))
+            namePart = $"File Name Ends With {nameEndsWith}";
+        else if (applyNameGlobFilter && !string.IsNullOrWhiteSpace(nameGlob))
+            namePart = $"File Name matches Glob \"{nameGlob}\"";
+        else if (applyNameRegexFilter && !string.IsNullOrWhiteSpace(nameRegex))
+            namePart = $"File Name matches Regex \"{nameRegex}\"";
+
+        // Size part (optional)
+        string? sizePart = null;
+        if (applySizeFilter)
+        {
+            string cmp = sizeComparator switch
+            {
+                FileSizeComparator.GreaterThan => FileSizeComparator.GreaterThan.GetDescription(),
+                FileSizeComparator.LessThan => FileSizeComparator.LessThan.GetDescription(),
+                _ => sizeComparator.ToString()
+            };
+
+            string unit = FileSizeUnit switch
+            {
+                FileSizeUnit.B => FileSizeUnit.B.GetDescription(),
+                FileSizeUnit.KB => FileSizeUnit.KB.GetDescription(),
+                FileSizeUnit.MB => FileSizeUnit.MB.GetDescription(),
+                _ => FileSizeUnit.ToString()
+            };
+
+            string valueText = FileSizeValue.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+            sizePart = $"File Size {cmp} {valueText} {unit}";
+        }
+
+        if (string.IsNullOrWhiteSpace(namePart) && string.IsNullOrWhiteSpace(sizePart))
+            return "No filters applied.";
+
+        if (!string.IsNullOrWhiteSpace(namePart) && !string.IsNullOrWhiteSpace(sizePart))
+            return $"Selected only (see Filters): {namePart} and {sizePart}.";
+
+        return "Selected only (see Filters): " + (namePart ?? sizePart) + ".";
+    }
+
 
     /// <summary>
     /// Options to complete file selection filter. 
@@ -128,6 +190,20 @@ public partial class Filter
                 return true;
         }
 
+        // Name Glob Filter
+        if (applyNameGlobFilter && !string.IsNullOrWhiteSpace(nameGlob))
+        {
+            if (!MatchesFilter(fileName, nameGlob, MatchType.Glob))
+                return true;
+        }
+
+        // Name Regex Filter
+        if (applyNameRegexFilter && !string.IsNullOrWhiteSpace(nameRegex))
+        {
+            if (!MatchesFilter(fileName, nameRegex, MatchType.Regex))
+                return true;
+        }
+
         // File Size Filter
         if (applySizeFilter)
         {
@@ -142,7 +218,6 @@ public partial class Filter
                         return true;
                     break;
                 default:
-                    // equal to? HAHAHA
                     break;
             }
         }
@@ -152,105 +227,56 @@ public partial class Filter
     }
 
     // Enum to differentiate match types
-    private enum MatchType { Contains, StartsWith, EndsWith }
+    private enum MatchType { Contains, StartsWith, EndsWith, Glob, Regex }
 
     /// <summary>
-    /// Determines whether the fileName matches the filter criteria.
-    /// Depending on the content of the filter string, this method either performs a literal match (with optional token splitting on '|')
-    /// or uses a regex-based match.
+    /// Determines whether <paramref name="fileName"/> matches <paramref name="filter"/>
+    /// according to <paramref name="matchType"/>.
+    /// 
+    /// Modes:
+    /// - Contains / StartsWith / EndsWith: plain, case-insensitive string checks (no tokenization).
+    /// - Glob: filename-only matcher supporting '*', '?', and brace expansion '{a,b}' with nesting. Multiple patterns via '|' or ';'.
+    /// - Regex: raw user regex (we do not add anchors).
+    /// 
+    /// Thread-safety: Stateless; safe for concurrent use.
     /// </summary>
-    /// <param name="fileName">The file name to test.</param>
-    /// <param name="filter">The filter string (which may be a literal or regex).</param>
-    /// <param name="matchType">The type of match: Contains, StartsWith, or EndsWith.</param>
-    /// <returns>True if a match is found, otherwise false.</returns>
-    private bool MatchesFilter(string fileName, string filter, MatchType matchType)
+    /// <param name="fileName">A file name (not required to be a path). Null/empty -> false.</param>
+    /// <param name="filter">
+    ///   For Glob, supports: '*', '?', and brace sets '{jpg,png}', including nesting (e.g., "{a,{b,c}}").
+    ///   For Regex, provide a .NET regex pattern (invalid regex -> false).
+    ///   For literal modes, used as-is. Empty/whitespace filter -> true (no filter).
+    /// </param>
+    /// <param name="matchType">Contains | StartsWith | EndsWith | Glob | Regex.</param>
+    /// <returns>True if matched; otherwise false.</returns>
+    private static bool MatchesFilter(string fileName, string filter, MatchType matchType)
     {
-        // If the filter contains a pipe and does NOT have other regex meta characters, assume literal token mode.
-        if (filter.Contains("|") && !ContainsRegexMeta(filter, ignorePipe: true))
-        {
-            var tokens = filter.Split('|', StringSplitOptions.RemoveEmptyEntries);
-            foreach (var token in tokens)
-            {
-                string trimmed = token.Trim();
-                if (IsLiteralMatch(fileName, trimmed, matchType))
-                    return true;
-            }
+        if (string.IsNullOrEmpty(fileName))
             return false;
-        }
 
-        // If no regex meta characters are found, use literal matching.
-        if (!ContainsRegexMeta(filter, ignorePipe: false))
-        {
-            return IsLiteralMatch(fileName, filter, matchType);
-        }
-        else
-        {
-            // Advanced regex mode.
-            // For startsWith/endsWith, add anchor if not already present.
-            string pattern = filter;
-            if (matchType == MatchType.StartsWith && !pattern.StartsWith("^"))
-            {
-                pattern = "^" + pattern;
-            }
-            else if (matchType == MatchType.EndsWith && !pattern.EndsWith("$"))
-            {
-                pattern = pattern + "$";
-            }
+        if (string.IsNullOrWhiteSpace(filter))
+            return true; // No filter => accept all.
 
-            try
-            {
-                return Regex.IsMatch(fileName, pattern, RegexOptions.IgnoreCase);
-            }
-            catch (ArgumentException)
-            {
-                // If regex compilation fails, fallback to literal matching.
-                return IsLiteralMatch(fileName, filter, matchType);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Performs literal matching on the fileName.
-    /// </summary>
-    /// <param name="fileName">The file name to test.</param>
-    /// <param name="text">The literal text to compare.</param>
-    /// <param name="matchType">The type of match: Contains, StartsWith, or EndsWith.</param>
-    /// <returns>True if the literal condition is satisfied.</returns>
-    private bool IsLiteralMatch(string fileName, string text, MatchType matchType)
-    {
         switch (matchType)
         {
             case MatchType.Contains:
-                return fileName.IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0;
+                return fileName.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0;
+
             case MatchType.StartsWith:
-                return fileName.StartsWith(text, StringComparison.OrdinalIgnoreCase);
+                return fileName.StartsWith(filter, StringComparison.OrdinalIgnoreCase);
+
             case MatchType.EndsWith:
-                return fileName.EndsWith(text, StringComparison.OrdinalIgnoreCase);
+                return fileName.EndsWith(filter, StringComparison.OrdinalIgnoreCase);
+
+            case MatchType.Glob:
+                return CustomGlobFilter.MatchesAnyGlob(fileName, filter);
+
+            case MatchType.Regex:
+                try { return Regex.IsMatch(fileName, filter, RegexOptions.IgnoreCase); }
+                catch (ArgumentException) { return false; }
+
             default:
                 return false;
         }
-    }
-
-    /// <summary>
-    /// Checks if the input string contains regex meta characters.
-    /// If ignorePipe is true, the '|' character is not considered a meta character.
-    /// </summary>
-    /// <param name="input">The input string to check.</param>
-    /// <param name="ignorePipe">Whether to ignore the pipe character.</param>
-    /// <returns>True if any meta character is found; otherwise, false.</returns>
-    private bool ContainsRegexMeta(string input, bool ignorePipe)
-    {
-        // List of common regex meta characters.
-        char[] metaChars = ignorePipe
-            ? new char[] { '.', '*', '?', '+', '[', ']', '(', ')', '{', '}', '^', '$', '\\' }
-            : new char[] { '.', '*', '?', '+', '[', ']', '(', ')', '{', '}', '^', '$', '\\', '|' };
-
-        foreach (char c in metaChars)
-        {
-            if (input.IndexOf(c) >= 0)
-                return true;
-        }
-        return false;
     }
 }
 
@@ -309,7 +335,7 @@ public static class FileSizeComparatorExtensions
     {
         return comparator switch
         {
-            FileSizeComparator.GreaterThan => "Larger Than",
+            FileSizeComparator.GreaterThan => "Bigger Than",
             FileSizeComparator.LessThan => "Smaller Than",
             _ => comparator.ToString() // Fallback (should never happen)
         };

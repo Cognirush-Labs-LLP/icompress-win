@@ -107,7 +107,7 @@
 
         <TextBlock Grid.Row="3" VerticalAlignment="Center" Margin="5,0,0,5" Style="{StaticResource SettingsHeading}">COMPRESSION LIST</TextBlock>
 
-        <local:FiltersView x:Name="FilterOptions" Grid.Row="4" Visibility="{x:Bind CurrentState.ShowFilterOptions, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+        <local:FiltersView x:Name="FilterOptions" Grid.Row="4" IsOpen="{x:Bind CurrentState.ShowFilterOptions, Mode=OneWay}" />
         
         <ListView Grid.Row="5" ItemsSource="{x:Bind FileStore.SelectedPaths}"
                       VerticalAlignment="Stretch" SelectionMode="None"

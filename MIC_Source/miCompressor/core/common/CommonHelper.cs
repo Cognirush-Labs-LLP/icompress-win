@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace miCompressor.core
 {
@@ -237,6 +238,33 @@ namespace miCompressor.core
             }
 
             return parentFolder;
+        }
+    }
+
+    /// <summary>
+    /// Helper for validating regex patterns.
+    /// </summary>
+    public static class RegexHelper
+    {
+        /// <summary>
+        /// Checks if the given regex pattern is valid.
+        /// </summary>
+        /// <param name="pattern">Regex pattern to validate.</param>
+        /// <returns>True if valid, false otherwise.</returns>
+        public static bool IsValidPattern(string pattern)
+        {
+            if (string.IsNullOrWhiteSpace(pattern))
+                return false;
+
+            try
+            {
+                _ = new Regex(pattern);
+                return true;
+            }
+            catch (ArgumentException)
+            {
+                return false;
+            }
         }
     }
 }

@@ -688,9 +688,9 @@ namespace miCompressor.ui.viewmodel
             }
             else if (e.PropertyName == nameof(MediaFileInfo.ExcludeAndHide))
             {
-                ThrottleTask.Add(100, $"ImageTreeNode_FileInfo_{FullPath}PropertyChanged",() => {
+                ThrottleTask.Add(100, $"ImageTreeNode_{_name}_FileInfo_PropertyChanged", () => {
 
-                    OnPropertyChanged(nameof(SelectionState));
+                        OnPropertyChanged(nameof(SelectionState));
                     OnPropertyChanged(nameof(IsIncluded));
                     CalculateSelectedImageFileCount();
                     //OnPropertyChanged(nameof(FilteredChildren));

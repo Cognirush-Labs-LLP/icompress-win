@@ -119,30 +119,9 @@ namespace miCompressor.ui
 
         private async void ShowFilterButton_Click(object sender, RoutedEventArgs e)
         {
-            var isFilterOptionVisible = FilterOptions.Visibility == Visibility.Visible;
-            if (isFilterOptionVisible)
-                HideFilterOptions();
-            else
-                ShowFilterOptions();
+            CurrentState.ShowFilterOptions = !CurrentState.ShowFilterOptions;
 
-            ShowFilterButton.Label = isFilterOptionVisible ? "Show Filters" : "Hide Filters"; // reverse as we just toggled visibility value. 
-        }
-
-        private void ShowFilterOptions()
-        {
-            FilterOptions.Visibility = Visibility.Visible; // Make it render
-            FadeInAnimation.Begin(); // Start fade-in effect
-            CurrentState.ShowFilterOptions = true;
-        }
-
-        private void HideFilterOptions()
-        {
-            FadeOutAnimation.Completed += (s, e) =>
-            {
-                FilterOptions.Visibility = Visibility.Collapsed; // Hide after animation ends
-            };
-            FadeOutAnimation.Begin();
-            CurrentState.ShowFilterOptions = false;
+            ShowFilterButton.Label = !CurrentState.ShowFilterOptions ? "Show Filters" : "Hide Filters"; // reverse as we just toggled visibility value. 
         }
 
         private async void AddFolderKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
