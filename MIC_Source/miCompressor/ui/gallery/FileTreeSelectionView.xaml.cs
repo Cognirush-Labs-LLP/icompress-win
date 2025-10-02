@@ -5,9 +5,12 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
 using System;
 using System.IO;
 using System.Windows.Input;
+using Windows.Foundation;
+using Windows.Graphics;
 using Windows.System;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -54,7 +57,105 @@ namespace miCompressor.ui
             ViewModel.IsTreeView = true;
             this.InitializeComponent();
             this.DataContext = this;
+
+            Loaded += OnLoaded;
+            Unloaded += OnUnloaded;
         }
+
+        #region Treeview height
+        private const double BottomMargin = 30;
+        private double _lastAppliedMaxHeight = -1;
+        private bool _inUpdate;
+
+        
+        private ScrollViewer _parentScroll;
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            // Prefer SizeChanged over LayoutUpdated to avoid tight loops
+            this.SizeChanged += OnAnySizeChanged;
+            TreeContainer.SizeChanged += OnAnySizeChanged; // your Grid x:Name="TreeContainer"
+
+            if (App.MainWindow is Window w)
+                w.SizeChanged += OnWindowSizeChanged;
+
+            _parentScroll = FindAncestorScrollViewer(this);
+            if (_parentScroll != null)
+                _parentScroll.ViewChanged += OnParentScrollChanged;
+
+            UpdateTreeMaxHeight();
+        }
+
+        private void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            this.SizeChanged -= OnAnySizeChanged;
+            TreeContainer.SizeChanged -= OnAnySizeChanged;
+
+            if (App.MainWindow is Window w)
+                w.SizeChanged -= OnWindowSizeChanged;
+
+            if (_parentScroll != null)
+            {
+                _parentScroll.ViewChanged -= OnParentScrollChanged;
+                _parentScroll = null;
+            }
+        }
+
+        private void OnAnySizeChanged(object sender, SizeChangedEventArgs e) => UpdateTreeMaxHeight();
+        private void OnWindowSizeChanged(object sender, WindowSizeChangedEventArgs e) => UpdateTreeMaxHeight();
+        private void OnParentScrollChanged(object sender, ScrollViewerViewChangedEventArgs e) => UpdateTreeMaxHeight();
+
+        private void UpdateTreeMaxHeight()
+        {
+            // Reentrancy guard
+            if (_inUpdate) return;
+            _inUpdate = true;
+            try
+            {
+                if (SelectedPathTreeView == null || App.MainWindow is not Window win) return;
+                if (win.Content is not FrameworkElement windowRoot) return;
+
+                // Window client height (DIPs)
+                SizeInt32 client = win.AppWindow?.ClientSize ?? new SizeInt32(1200, 800);
+                double windowClientHeight = client.Height;
+
+                if(_parentScroll != null)
+                    windowClientHeight -= _parentScroll.TransformToVisual(windowRoot).TransformPoint(new Point(0, 0)).Y;
+
+
+                // Y of TreeView relative to window content root
+                GeneralTransform t = SelectedPathTreeView.TransformToVisual(windowRoot);
+                Point topLeft = t.TransformPoint(new Point(0, 0));
+                double y = topLeft.Y;
+
+                // Compute target; clamp & stabilize to integer to avoid 1px oscillations
+                double target = Math.Max(50, Math.Floor(windowClientHeight - BottomMargin));
+
+                // Only set when it actually changes by >= 1 px
+                if (Math.Abs(target - _lastAppliedMaxHeight) >= 1)
+                {
+                    SelectedPathTreeView.MaxHeight = target;
+                    _lastAppliedMaxHeight = target;
+                }
+            }
+            catch
+            {
+                // Transform can throw during early template churn; ignore and next event will retry
+            }
+            finally
+            {
+                _inUpdate = false;
+            }
+        }
+
+        private static ScrollViewer FindAncestorScrollViewer(DependencyObject start)
+        {
+            for (DependencyObject d = start; d != null; d = VisualTreeHelper.GetParent(d))
+                if (d is ScrollViewer sv) return sv;
+            return null;
+        }
+        #endregion
+
 
         private void OnCheckBoxClicked(object sender, RoutedEventArgs e)
         {
