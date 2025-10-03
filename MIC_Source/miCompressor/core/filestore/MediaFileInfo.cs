@@ -192,7 +192,7 @@ namespace miCompressor.core
         {
             if (!mediaFile.Exists)
                 throw new FileNotFoundException("File not found", mediaFile.FullName);
-
+            
             SelectedRootPath = selectedPath;
             FileToCompress = mediaFile;
             ShortName = mediaFile.Name;
@@ -211,7 +211,8 @@ namespace miCompressor.core
             if (!force && IsMetadataLoaded)
                 return;
 
-            if (!CodeConsts.SupportedCameraExtensionsWithDot.Contains(Path.GetExtension(FileToCompress.FullName).ToLower()))
+            if (false && //IMP: REMOVED OPTION OF LOADING USING StorageFile due to performance issue
+                !CodeConsts.SupportedCameraExtensionsWithDot.Contains(Path.GetExtension(FileToCompress.FullName).ToLower()))
             {
                 ImageMetadata? outputMeta = await LoadImageMetadataAsync(FileToCompress.FullName, loadFileSize: false);
                 Width = outputMeta?.Width ?? 0;
@@ -257,7 +258,7 @@ namespace miCompressor.core
         /// <returns>Returns an ImageMetadata object containing the extracted details.</returns>
         private async Task<ImageMetadata?> LoadImageMetadataAsync(string filePath, bool loadFileSize = true)
         {
-            Debug.WriteLineIf(debugThisClass, $"Loading file metadata {Path.GetFileName(filePath)}");
+            //Debug.WriteLineIf(debugThisClass, $"Loading file metadata {Path.GetFileName(filePath)}");
             try
             {
                 StorageFile file = await StorageFile.GetFileFromPathAsync(filePath);

@@ -222,21 +222,34 @@ namespace miCompressor.core
 
                 var fiArr = di.GetFiles("*.*", SearchOption.TopDirectoryOnly)
                              .Where(file => supportedInputExtensions.Contains(file.Extension.ToLower()));
-
-                var newFiles = fiArr.Select(file =>
+                                
+                try
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    return new MediaFileInfo(originalSelectedDirectory, file);
-                }).ToList();
+                    int dop = Math.Max(2, Environment.ProcessorCount);
+                    var newFiles = fiArr
+                        .AsParallel()
+                        .WithDegreeOfParallelism(dop)
+                        .Select(file =>
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+                            return new MediaFileInfo(originalSelectedDirectory, file);
+                        })
+                        .ToList();
 
-                if (newFiles.Any())
-                {
-                    using (_lockForFiles.WriteLock())
+                    if (newFiles.Any())
                     {
-                        _files.AddRange(newFiles);
+                        using (_lockForFiles.WriteLock())
+                        {
+                            _files.AddRange(newFiles);
+                        }
+                        OnPropertyChanged(nameof(Files));
+                        OnPropertyChanged(nameof(FileCount));
                     }
-                    OnPropertyChanged(nameof(Files));
-                    OnPropertyChanged(nameof(FileCount));
+                }
+                catch (AggregateException ae)
+                {
+                    /*foreach (var e in ae.Flatten().InnerExceptions)
+                        Debug.WriteLine(e); */
                 }
 
                 if (includeSubDir)
