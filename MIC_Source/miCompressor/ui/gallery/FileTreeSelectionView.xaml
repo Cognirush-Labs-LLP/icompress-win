@@ -20,7 +20,10 @@
     
     <Grid x:Name="TreeContainer">
         <TreeView x:Name="SelectedPathTreeView" ItemsSource="{x:Bind ViewModel.ImageTree, Mode=OneWay}" SelectionMode="None"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AllowDrop="False" 
-                  RightTapped="FolderTreeView_RightTapped" ScrollViewer.VerticalScrollMode="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" MaxHeight="1000">
+                  RightTapped="FolderTreeView_RightTapped" 
+                  ScrollViewer.VerticalScrollMode="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" 
+                  ScrollViewer.IsVerticalScrollChainingEnabled="True"
+                  >
             <TreeView.ItemContainerStyle>
                 <Style TargetType="TreeViewItem">
                     <Setter Property="Padding" Value="0,0,0,0"/>
@@ -33,7 +36,11 @@
             </TreeView.ItemContainerStyle>
             <TreeView.ItemTemplate>
                 <DataTemplate x:DataType="vm:ImageTreeNode">
-                    <TreeViewItem ItemsSource="{x:Bind FilteredChildren, Mode=OneWay}" >
+                    <TreeViewItem ItemsSource="{x:Bind FilteredChildren, Mode=OneWay}" AllowDrop="False" CanDrag="False"
+                                  DragStarting="SelectedPathTreeView_DragStarting"
+    DragOver="SelectedPathTreeView_DragOver"
+    Drop="SelectedPathTreeView_Drop"
+                                  >
                         <StackPanel x:Name="ImageInfoStackpanel" Orientation="Horizontal" HorizontalAlignment="Left" PointerEntered="Image_PointerEntered" PointerExited="Image_PointerExited">
                             <!-- Checkbox for selecting files/folders -->
                             <FlyoutBase.AttachedFlyout>

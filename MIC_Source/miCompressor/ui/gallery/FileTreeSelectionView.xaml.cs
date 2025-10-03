@@ -42,7 +42,7 @@ namespace miCompressor.ui
                 if (newPath == null)
                     return;
                 control.ViewModel.LoadData(newPath);
-                System.Diagnostics.Debug.WriteLine($"Loaded Data for: {newPath.DisplayName}");
+                //System.Diagnostics.Debug.WriteLine($"Loaded Data for: {newPath.DisplayName}");
             }
         }
 
@@ -63,7 +63,7 @@ namespace miCompressor.ui
         }
 
         #region Treeview height
-        private const double BottomMargin = 30;
+        private const double BottomMargin = 120;
         private double _lastAppliedMaxHeight = -1;
         private bool _inUpdate;
 
@@ -105,11 +105,31 @@ namespace miCompressor.ui
         private void OnWindowSizeChanged(object sender, WindowSizeChangedEventArgs e) => UpdateTreeMaxHeight();
         private void OnParentScrollChanged(object sender, ScrollViewerViewChangedEventArgs e) => UpdateTreeMaxHeight();
 
+        bool _getScrollbar = false;
+
         private void UpdateTreeMaxHeight()
         {
-            // Reentrancy guard
             if (_inUpdate) return;
             _inUpdate = true;
+
+            /*if(_getScrollbar == false)
+            {
+                try
+                {
+                    int bigNoScrollHeight = 100 * 1000;
+                    if (_lastAppliedMaxHeight != bigNoScrollHeight)
+                    {
+                        SelectedPathTreeView.MaxHeight = bigNoScrollHeight;
+                        _lastAppliedMaxHeight = bigNoScrollHeight;
+                    }
+                    return;
+                }
+                finally
+                {
+                    _inUpdate = false;
+                }
+            }*/
+
             try
             {
                 if (SelectedPathTreeView == null || App.MainWindow is not Window win) return;
@@ -119,7 +139,7 @@ namespace miCompressor.ui
                 SizeInt32 client = win.AppWindow?.ClientSize ?? new SizeInt32(1200, 800);
                 double windowClientHeight = client.Height;
 
-                if(_parentScroll != null)
+                if (_parentScroll != null)
                     windowClientHeight -= _parentScroll.TransformToVisual(windowRoot).TransformPoint(new Point(0, 0)).Y;
 
 
@@ -129,10 +149,10 @@ namespace miCompressor.ui
                 double y = topLeft.Y;
 
                 // Compute target; clamp & stabilize to integer to avoid 1px oscillations
-                double target = Math.Max(50, Math.Floor(windowClientHeight - BottomMargin));
+                double target = Math.Max(300, Math.Floor(windowClientHeight - BottomMargin));
 
                 // Only set when it actually changes by >= 1 px
-                if (Math.Abs(target - _lastAppliedMaxHeight) >= 1)
+                if (Math.Abs(target - _lastAppliedMaxHeight) >= 5)
                 {
                     SelectedPathTreeView.MaxHeight = target;
                     _lastAppliedMaxHeight = target;
@@ -146,6 +166,49 @@ namespace miCompressor.ui
             {
                 _inUpdate = false;
             }
+            /*
+            if (_inUpdate) return;
+                _inUpdate = true;
+            ThrottleTask.Add(2000, "FileTreeSelectionView_SelectedPathTreeView_UpdateTreeMaxHeight", () => {
+                
+                try
+                {
+                    if (SelectedPathTreeView == null || App.MainWindow is not Window win) return;
+                    if (win.Content is not FrameworkElement windowRoot) return;
+
+                    // Window client height (DIPs)
+                    SizeInt32 client = win.AppWindow?.ClientSize ?? new SizeInt32(1200, 800);
+                    double windowClientHeight = client.Height;
+
+                    if (_parentScroll != null)
+                        windowClientHeight -= _parentScroll.TransformToVisual(windowRoot).TransformPoint(new Point(0, 0)).Y;
+
+
+                    // Y of TreeView relative to window content root
+                    GeneralTransform t = SelectedPathTreeView.TransformToVisual(windowRoot);
+                    Point topLeft = t.TransformPoint(new Point(0, 0));
+                    double y = topLeft.Y;
+
+                    // Compute target; clamp & stabilize to integer to avoid 1px oscillations
+                    double target = Math.Max(300, Math.Floor(windowClientHeight - BottomMargin));
+
+                    // Only set when it actually changes by >= 1 px
+                    if (Math.Abs(target - _lastAppliedMaxHeight) >= 5)
+                    {
+                        SelectedPathTreeView.MaxHeight = target;
+                        _lastAppliedMaxHeight = target;
+                    }
+                }
+                catch
+                {
+                    // Transform can throw during early template churn; ignore and next event will retry
+                }
+                finally
+                {
+                    _inUpdate = false;
+                }
+            }, shouldRunInUI: true);
+            */ 
         }
 
         private static ScrollViewer FindAncestorScrollViewer(DependencyObject start)
@@ -154,7 +217,93 @@ namespace miCompressor.ui
                 if (d is ScrollViewer sv) return sv;
             return null;
         }
+
+        /*private void SelectedPathTreeView_Expanding(TreeView sender, TreeViewExpandingEventArgs args)
+        {
+            // TreeViewNode for the row being expanded
+            var node = args.Node;
+
+            // 1) Count immediate UI children that will be realized
+            int uiChildCount = node?.Children?.Count ?? 0;
+
+            // 2) (Optional) Count from your model if you need the data-side number
+            var model = node?.Content as miCompressor.ui.viewmodel.ImageTreeNode;
+            int modelChildCount = model?.FilteredChildren?.Count ?? 0;
+
+            System.Diagnostics.Debug.WriteLine(
+                $"Expanding: {model?.ShortName} | UI children: {uiChildCount} | Model children: {modelChildCount}");
+
+            int visibleRows = CountLogicallyVisibleWholeTree();
+            System.Diagnostics.Debug.WriteLine($"Expanded nodes in entire tree (pre-expand): {visibleRows}");
+
+            _getScrollbar = ((modelChildCount + visibleRows) > 100);
+        }
+
+
+        private void SelectedPathTreeView_Collapsed(TreeView sender, TreeViewCollapsedEventArgs args)
+        {
+            int visibleRows = CountLogicallyVisibleWholeTree();
+            System.Diagnostics.Debug.WriteLine($"Expanded nodes in entire tree (pre-expand): {visibleRows}");
+            _getScrollbar = visibleRows > 100;
+        }
+
+        // Count expanded nodes under a given node (includes that node if expanded)
+        private static int CountExpandedSubtree(TreeViewNode node)
+        {
+            if (node == null) return 0;
+            int total = node.IsExpanded ? 1 : 0;
+            for (int i = 0; i < node.Children.Count; i++)
+                total += CountExpandedSubtree(node.Children[i]);
+            return total;
+        }
+
+
+        private static int CountLogicallyVisibleFromNode(TreeViewNode node)
+        {
+            if (node == null) return 0;
+
+            int total = 1; // the node itself is visible once its parent path is expanded
+
+            if (node.IsExpanded)
+            {
+                var children = node.Children;
+                for (int i = 0; i < children.Count; i++)
+                    total += CountLogicallyVisibleFromNode(children[i]);
+            }
+
+            return total;
+        }
+
+        private int CountLogicallyVisibleWholeTree()
+        {
+            var roots = SelectedPathTreeView?.RootNodes;
+            if (roots == null || roots.Count == 0) return 0;
+
+            int total = 0;
+            for (int i = 0; i < roots.Count; i++)
+                total += CountLogicallyVisibleFromNode(roots[i]);
+
+            return total;
+        }*/
+
+
         #endregion
+
+        private void SelectedPathTreeView_DragStarting(UIElement sender, DragStartingEventArgs e)
+        {
+            e.Cancel = true;
+        }
+
+        private void SelectedPathTreeView_DragOver(object sender, DragEventArgs e)
+        {
+            e.AcceptedOperation = Windows.ApplicationModel.DataTransfer.DataPackageOperation.None;
+            e.Handled = true;
+        }
+
+        private void SelectedPathTreeView_Drop(object sender, DragEventArgs e)
+        {
+            e.Handled = true;
+        }
 
 
         private void OnCheckBoxClicked(object sender, RoutedEventArgs e)
@@ -283,5 +432,6 @@ namespace miCompressor.ui
                 }
             }
         });
+
     }
 }

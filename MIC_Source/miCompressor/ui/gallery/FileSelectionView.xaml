@@ -116,6 +116,7 @@
                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
                       ScrollViewer.VerticalScrollMode="Auto"
                       ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  ScrollViewer.IsVerticalScrollChainingEnabled="True"
                   Visibility="{x:Bind IsEmptyViewVisible, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" >
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
