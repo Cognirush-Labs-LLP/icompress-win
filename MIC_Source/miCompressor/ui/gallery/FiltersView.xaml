@@ -117,9 +117,9 @@
                 <Button Name="ApplyFilterButton" Content="Apply Filter" HorizontalAlignment="Right" Margin="6,6,0,0" Click="ApplyFilterButton_Click" />
             </StackPanel> -->
             </Grid>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Visibility="{x:Bind IsEmptyViewVisible, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" >
                 <TextBlock Text="{x:Bind FilterText, Mode=OneWay}" Foreground="{StaticResource Primary_70}" FontSize="{StaticResource TextSmall}"  VerticalAlignment="Center" />
-                <HyperlinkButton NavigateUri="https://chatgpt.com/g/g-67e1cb51197081919275342ce9c697c8-mass-image-compressor-windows" FontSize="{StaticResource TextXSmall}"  VerticalAlignment="Center">Need help setting filters?</HyperlinkButton>
+                <HyperlinkButton NavigateUri="https://mic.cognirush.com/docs/windows/file-selection-filters-quick-guide/" FontSize="{StaticResource TextXSmall}"  VerticalAlignment="Center">Need help setting filters?</HyperlinkButton>
             </StackPanel>
         </StackPanel>
     </ScrollView>

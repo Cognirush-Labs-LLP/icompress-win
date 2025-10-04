@@ -22,17 +22,8 @@ using Windows.Foundation.Collections;
 
 namespace miCompressor.ui
 {
-    public sealed partial class FiltersView : UserControl, INotifyPropertyChanged
+    public sealed partial class FiltersView : UserControl
     {
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        protected void OnPropertyChanged(string propertyName)
-        {
-            UIThreadHelper.RunOnUIThread(() =>
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            });
-        }
 
         #region dependency properties
         /// <summary>
@@ -44,6 +35,9 @@ namespace miCompressor.ui
             get => (bool)GetValue(IsOpenProperty);
             set => SetValue(IsOpenProperty, value);
         }
+
+        [AutoNotify] private bool isEmptyViewVisible = true;
+
 
         /// <summary>
         /// DP backing field for <see cref="IsOpen"/>.
@@ -85,6 +79,16 @@ namespace miCompressor.ui
             App.CurrentState.SelectionFilter.PropertyChanged -= SelectionFilter_PropertyChanged;
             App.CurrentState.SelectionFilter.PropertyChanged += SelectionFilter_PropertyChanged;
             this.Unloaded += FiltersView_Unloaded;
+
+            App.FileStoreInstance.PropertyChanged -= FileStore_PropertyChanged;
+            App.FileStoreInstance.PropertyChanged += FileStore_PropertyChanged;
+            IsEmptyViewVisible = !App.FileStoreInstance.SelectedPaths.Any();
+        }
+
+        private void FileStore_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(FileStore.SelectedPaths))
+                IsEmptyViewVisible = !App.FileStoreInstance.SelectedPaths.Any();
         }
 
         private void SelectionFilter_PropertyChanged(object? sender, PropertyChangedEventArgs e)
