@@ -11,6 +11,8 @@ namespace miCompressor.core
     {
 
         public const bool IsForStoreDistribution = true;
+        public const string Version = "4.2.0";
+        public static string ShortVersion => string.Join('.', Version.Split('.').Take(2));
 
         /// <summary>
         /// Size of Thumbnail in pixels to show image list in UI

@@ -35,6 +35,8 @@
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
     <SelfContained>true</SelfContained>
     <PublishTrimmed>false</PublishTrimmed>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -312,7 +314,7 @@
     <IncludeSymbols>False</IncludeSymbols>
     <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
     <AssemblyName>Mass Image Compressor</AssemblyName>
-    <Version>4.1.0</Version>
+    <Version>4.2.0</Version>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>

@@ -18,7 +18,7 @@ namespace miCompressor
             this.InitializeComponent();
             PersistentSettings.RestoreWindowSize(this);
 
-            this.Title = "Mass Image Compressor 4.1";
+            this.Title = $"Mass Image Compressor {CodeConsts.ShortVersion}";
             this.AppWindow.SetIcon("Assets/mic_win_4.ico");
 
             this.Content = new MasterView();
