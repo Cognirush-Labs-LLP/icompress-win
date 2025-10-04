@@ -33,33 +33,12 @@ public class PNGOptimizer
     /// </summary>
     /// <param name="imagePath">The full path of the PNG image to optimize.</param>
     /// <returns>The exit code of the process, or -1 if the image is an APNG.</returns>
-    public int Optimize(string imagePath)
+    public int Optimize(string imagePath, bool isPreview)
     {
         if (string.IsNullOrWhiteSpace(imagePath) || !File.Exists(imagePath))
             throw new FileNotFoundException("Image file not found", imagePath);
 
-        /*
-        if (IsAnimatedPng(imagePath))
-        {
-            Console.WriteLine("The image appears to be an animated PNG (APNG). Skipping optimization.");
-            return -1;
-        }*/
-
-        // Build the argument string:
-        // - Use one thread (-t 1)
-        // - Set optimization level to 4 (-o 4)
-        // - Strip safely removable chunks (--strip safe)
-
-        int threadCount = 1;
-
-        try
-        {
-            var threadCountString = MagickNET.GetEnvironmentVariable("OMP_NUM_THREADS");
-            int envThreadCount;
-            if (int.TryParse(threadCountString, out envThreadCount))
-                threadCount = envThreadCount;
-        } catch { }
-
+        int threadCount = isPreview ? Environment.ProcessorCount : 1;
         string arguments = $"-t {threadCount} -o 4 --strip safe \"{imagePath}\"";
 
         return _executor.Execute(arguments, waitForExit: true);

@@ -23,7 +23,10 @@ namespace miCompressor.ui
         public bool CanShowGeneralInfo => !vm.CompressionInProgress && vm.TotalFilesFailedToCompress == 0 && vm.TotalFilesCancelled == 0 && vm.TotalFilesCompressed > 0;
 
         private bool HasPreCompressionWarnings => warningAndError.HasPreCompressionWarnings;
-        
+        private bool HasFileOverwritePreCompWarnings => warningAndError.HasFileOverwritePreCompWarnings;
+
+        private OutputSettings OutputSettings => App.OutputSettingsInstance;
+
         private bool _showErrorView = false;
         public bool ShowErrorView
         {
@@ -97,6 +100,7 @@ namespace miCompressor.ui
             OnPropertyChanged(nameof(ShowBackButton));
             OnPropertyChanged(nameof(ShowErrorOrWarningView));
             OnPropertyChanged(nameof(HasPreCompressionWarnings));
+            OnPropertyChanged(nameof(HasFileOverwritePreCompWarnings));
         }
 
         private void CompressionProgress_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -106,6 +110,7 @@ namespace miCompressor.ui
                 OnPropertyChanged(nameof(ShowBackButton));
                 OnPropertyChanged(nameof(ShowErrorOrWarningView));
                 OnPropertyChanged(nameof(HasPreCompressionWarnings));
+                OnPropertyChanged(nameof(HasFileOverwritePreCompWarnings));
                 OnPropertyChanged(nameof(CanShowGeneralInfo));
             }
         }
@@ -128,6 +133,7 @@ namespace miCompressor.ui
                 OnPropertyChanged(nameof(ShowBackButton));
                 OnPropertyChanged(nameof(ShowErrorOrWarningView));
                 OnPropertyChanged(nameof(HasPreCompressionWarnings));
+                OnPropertyChanged(nameof(HasFileOverwritePreCompWarnings));
                 OnPropertyChanged(nameof(CanShowError));
                 OnPropertyChanged(nameof(CanShowWarning));
                 OnPropertyChanged(nameof(CanShowGeneralInfo));
@@ -136,6 +142,7 @@ namespace miCompressor.ui
 
         private async void CancelButton_Click(object sender, RoutedEventArgs e)
         {
+            CancelButton.Label = "Canceling, please wait...";
             if (ShowErrorView)
                 ShowErrorView = false;
             else if (ShowWarningView)
@@ -160,6 +167,7 @@ namespace miCompressor.ui
         {
             vm.OverridePreCompressionWarningsAndStartCompression();
             OnPropertyChanged(nameof(HasPreCompressionWarnings));
+            OnPropertyChanged(nameof(HasFileOverwritePreCompWarnings));
             OnPropertyChanged(nameof(ShowErrorOrWarningView));            
         }
 
@@ -168,6 +176,7 @@ namespace miCompressor.ui
             vm.CancelAsPreCompressionWarnings();
             App.CurrentState.ShowCompressionProgress = false;
             OnPropertyChanged(nameof(HasPreCompressionWarnings));
+            OnPropertyChanged(nameof(HasFileOverwritePreCompWarnings));
         }
 
         private async void OpenOutputFolderButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
@@ -206,6 +215,11 @@ namespace miCompressor.ui
         {
             var uri = new Uri("https://github.com/Cognirush-Labs-LLP/icompress-win");
             await Windows.System.Launcher.LaunchUriAsync(uri);
+        }
+
+        private async void CheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            await vm.RetryAndStartCompression();
         }
     }
 }

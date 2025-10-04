@@ -200,6 +200,7 @@ public partial class WarningHelper : INotifyPropertyChanged
 
     public bool HasWarnings => postCompressionWarnings.Count > 0;
     public bool HasPreCompressionWarnings => preCompressionWarnings.Count > 0;
+    public bool HasFileOverwritePreCompWarnings => preCompressionWarnings.ContainsKey(PreCompressionWarningType.FileAlreadyExists);
     public bool HasErrors => compressionErrors.Count > 0;
 
     public int WarningCount => postCompressionWarnings.Values.Sum(list => list.Count);

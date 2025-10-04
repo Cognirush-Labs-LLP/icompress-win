@@ -20,21 +20,31 @@
                 </CommandBar>
 
                 <StackPanel Visibility="{x:Bind HasPreCompressionWarnings, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" >
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10" Spacing="20" BorderBrush="{StaticResource Acccent_50}" BorderThickness="2" Padding="20"  CornerRadius="20">
-                        <TextBlock Text="I understand, " VerticalAlignment="Center" />
-                        <Button HorizontalContentAlignment="Center" HorizontalAlignment="Center" Background="{StaticResource Acccent_70}" x:Name="CancelCompression" Click="CancelCompression_Click" >
+                    <StackPanel HorizontalAlignment="Center" Margin="10" Spacing="20" BorderBrush="{StaticResource Acccent_50}" BorderThickness="2" Padding="20"  CornerRadius="20">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="I understand, " VerticalAlignment="Center" />
+                        <Button HorizontalContentAlignment="Center" HorizontalAlignment="Center" Background="{StaticResource Acccent_70}" x:Name="CancelCompression" Click="CancelCompression_Click" 
+                                IsEnabled="{x:Bind vm.CreatingPreCompressionWarnings, Mode=OneWay, Converter={StaticResource BooleanNegationConverter}}"
+                                >
                             <StackPanel Orientation="Horizontal">
                                 <FontIcon Glyph="&#xE711;" />
-                                <TextBlock HorizontalAlignment="Center" Margin="10,5" Text="Cancel" />
+                                <TextBlock x:Name="CancelCompressionText" HorizontalAlignment="Center" Margin="10,5" Text="Cancel" />
                             </StackPanel>
                         </Button>
-                        <Button HorizontalContentAlignment="Center" HorizontalAlignment="Center" x:Name="CompressDespiteWarnings" Click="CompressDespiteWarnings_Click" >
+                            <Button HorizontalContentAlignment="Center" HorizontalAlignment="Center" x:Name="CompressDespiteWarnings" Click="CompressDespiteWarnings_Click" IsEnabled="{x:Bind vm.CreatingPreCompressionWarnings, Mode=OneWay, Converter={StaticResource BooleanNegationConverter}}">
                             <StackPanel Orientation="Horizontal">
                                 <FontIcon Glyph="&#xE7BA;" />
                                 <TextBlock HorizontalAlignment="Center" Margin="10,5" Text="Compress All, Despite Warnings" />
                             </StackPanel>
                         </Button>
                         <Border BorderThickness="0,1,0,0" BorderBrush="{StaticResource Primary_50}" />
+                    </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2" Content="Skip if compressed (safely removes overwrite warnings)" Click="CheckBox_Click" VerticalContentAlignment="Center" IsChecked="{x:Bind OutputSettings.SkipIfFileExists, Mode=TwoWay}"  Visibility="{x:Bind HasFileOverwritePreCompWarnings,  Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                      IsEnabled="{x:Bind vm.CreatingPreCompressionWarnings, Mode=OneWay, Converter={StaticResource BooleanNegationConverter}}"/>
+                            
+                        </StackPanel>
+
                     </StackPanel>
                     <local:ErrorAndWarnings Kind="Pre Compression Warnings" />
                 </StackPanel>
@@ -117,7 +127,7 @@
                 </StackPanel>
 
                 <StackPanel  Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="4"  HorizontalAlignment="Center" >
-                    <TextBlock Text="Processing.." Style="{StaticResource TextBlockH2}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    <TextBlock Text="Processing..." Style="{StaticResource TextBlockH2}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
                     <TextBlock Text="Done!" Style="{StaticResource TextBlockH2}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" />
                 </StackPanel >
 
@@ -170,24 +180,27 @@
                     <TextBlock Grid.Column="0" Grid.Row="3" Text="Processed" Style="{StaticResource LabelStyle}" />
                     <TextBlock Grid.Column="1" Grid.Row="3" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.TotalFilesCompressed, Mode=OneWay}" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="4" Text="Failed" Style="{StaticResource LabelStyle}" />
-                    <TextBlock Grid.Column="1" Grid.Row="4" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.TotalFilesFailedToCompress, Mode=OneWay}" />
+                    <TextBlock Grid.Column="0" Grid.Row="4" Text="Skipped" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Grid.Column="1" Grid.Row="4" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.TotalFilesSkipped, Mode=OneWay}" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="5" Text="Cancelled" Style="{StaticResource LabelStyle}" />
-                    <TextBlock Grid.Column="1" Grid.Row="5" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.TotalFilesCancelled, Mode=OneWay}" />
+                    <TextBlock Grid.Column="0" Grid.Row="5" Text="Failed" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Grid.Column="1" Grid.Row="5" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.TotalFilesFailedToCompress, Mode=OneWay}" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="6" Text="Original Size" Style="{StaticResource LabelStyle}" />
-                    <TextBlock Grid.Column="1" Grid.Row="6" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.OriginalSize, Mode=OneWay}" MinWidth="120" />
+                    <TextBlock Grid.Column="0" Grid.Row="6" Text="Cancelled" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Grid.Column="1" Grid.Row="6" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.TotalFilesCancelled, Mode=OneWay}" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="7" Text="Compressed Size" Style="{StaticResource LabelStyle}" />
-                    <TextBlock Grid.Column="1" Grid.Row="7" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.CompressedSize, Mode=OneWay}" />
+                    <TextBlock Grid.Column="0" Grid.Row="7" Text="Original Size" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Grid.Column="1" Grid.Row="7" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.OriginalSize, Mode=OneWay}" MinWidth="120" />
 
-                    <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="8" CornerRadius="20"  BorderThickness="1" BorderBrush="{StaticResource Acccent_20}" Background="{StaticResource Acccent_05}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" />
-                    <TextBlock Grid.Column="0" Grid.Row="8" Text="Reduced" Style="{StaticResource LabelStyle}" />
-                    <TextBlock Grid.Column="1" Grid.Row="8" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.PercentageReduction, Mode=OneWay}" />
+                    <TextBlock Grid.Column="0" Grid.Row="8" Text="Compressed Size" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Grid.Column="1" Grid.Row="8" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.CompressedSize, Mode=OneWay}" />
+
+                    <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="9" CornerRadius="20"  BorderThickness="1" BorderBrush="{StaticResource Acccent_20}" Background="{StaticResource Acccent_05}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" />
+                    <TextBlock Grid.Column="0" Grid.Row="9" Text="Reduced" Style="{StaticResource LabelStyle}" />
+                    <TextBlock Grid.Column="1" Grid.Row="9" Style="{StaticResource ValueStyle}" Text="{x:Bind vm.PercentageReduction, Mode=OneWay}" />
 
 
-                    <Button Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="9" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Margin="20" x:Name="OpenOutputFolderButton" Click="OpenOutputFolderButton_Click" 
+                    <Button Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="10" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Margin="20" x:Name="OpenOutputFolderButton" Click="OpenOutputFolderButton_Click" 
                         Visibility="{x:Bind ShowOutputFolderLink, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                         <StackPanel Orientation="Horizontal">
                             <FontIcon Glyph="&#xE838;" />

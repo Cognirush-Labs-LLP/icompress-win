@@ -26,6 +26,14 @@ namespace miCompressor.core
         [AutoNotify]
         public OutputFormat format = OutputFormat.KeepSame;
 
+        /// <summary>
+        /// If true, existing files in the output directory will not be overwritten. 
+        /// Useful for incremental compression where previously compressed images 
+        /// should be preserved.
+        /// </summary>
+        [AutoNotify]
+        public bool skipIfFileExists = false;
+
         #region Dimension
         /// <summary>
         /// Dimension reduction strategy for reducing image size.
@@ -288,6 +296,7 @@ namespace miCompressor.core
 
             CopyMetadata = other.copyMetadata;
             SkipSensitiveMetadata = other.skipSensitiveMetadata;
+            SkipIfFileExists = other.skipIfFileExists;
             CopyIPTC = other.copyIPTC;
             CopyXMP = other.copyXMP;
             RetainDateTime = other.retainDateTime;

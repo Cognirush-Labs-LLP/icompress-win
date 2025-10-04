@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ImageMagick;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -513,7 +514,7 @@ namespace miCompressor.core
             }
         }
 
-        public void GeneratePreCompressionWarnings(OutputSettings settings, bool multipleSelectedPath)
+        public async Task GeneratePreCompressionWarnings(OutputSettings settings, bool multipleSelectedPath)
         {
             WarningHelper.Instance.ClearPreCompressionWarning();
 
@@ -531,7 +532,7 @@ namespace miCompressor.core
                     }
                 }
 
-                if (File.Exists(outputPath))
+                if (!settings.SkipIfFileExists && File.Exists(outputPath))
                 {
                     WarningHelper.Instance.AddPreWarning(PreCompressionWarningType.FileAlreadyExists, file);
                     continue; //don't want to put more warning for same file.

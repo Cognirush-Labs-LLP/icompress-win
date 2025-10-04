@@ -40,6 +40,18 @@ namespace miCompressor.ui
     }
 
     /// <summary>
+    /// Converts negative value of the bool. 
+    /// </summary>
+    public class BooleanNegationConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+            => value is bool b ? !b : value;
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+            => value is bool b ? !b : value;
+    }
+
+    /// <summary>
     /// Converts a boolean value to a Visibility value, where true results in Collapsed and false results in Visible.
     /// </summary>
     public class ReverseBoolToVisibilityConverter : IValueConverter

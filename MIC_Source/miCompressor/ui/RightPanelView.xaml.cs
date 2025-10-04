@@ -58,7 +58,7 @@ public sealed partial class RightPanelView : UserControl
             }
         }
 
-        (bool alreadyInProgress, bool nothingToCompres) = CurrentState.CompressionViewModel.StartCompression();
+        (bool alreadyInProgress, bool nothingToCompres) = await CurrentState.CompressionViewModel.StartCompression();
 
         if (nothingToCompres)
             ShowNothingToCompressMessageDialog();

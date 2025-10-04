@@ -54,6 +54,9 @@
             </Button>
             
         </Grid>
-        <TextBlock Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="1" Text="{x:Bind FolderPathError,  Mode=OneWay}" Visibility="{x:Bind FolderPathError,  Mode=OneWay, Converter={StaticResource StringEmptyToVisibilityConverter}}" FontSize="{StaticResource TextSmall}" TextWrapping="WrapWholeWords" Foreground="{StaticResource SystemErrorTextColor}" />
+        <TextBlock Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="1" Text="{x:Bind FolderPathError,  Mode=OneWay}" Visibility="{x:Bind FolderPathError,  Mode=OneWay, Converter={StaticResource StringEmptyToVisibilityConverter}}" FontSize="{StaticResource TextSmall}" TextWrapping="WrapWholeWords" Foreground="{StaticResource SystemErrorTextColor}"  />
+
+
+        <CheckBox Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2" Margin="8,0,0,10" Content="Skip if compressed" VerticalContentAlignment="Center" IsChecked="{x:Bind OutputSettings.SkipIfFileExists, Mode=TwoWay}"  Visibility="{x:Bind IsReplaceOperation,  Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" />
     </Grid>
 </UserControl>

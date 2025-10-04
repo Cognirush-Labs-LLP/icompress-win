@@ -39,6 +39,8 @@ namespace miCompressor.ui
         }
         public OutputSettings OutputSettings { get; set; }
 
+        public bool IsReplaceOperation => this.OutputSettings.OutputLocationSettings == OutputLocationSetting.ReplaceOriginal;
+
         public List<OutputLocationSettingsItem> OutputLocationSettings { get; }
 
         private OutputLocationSettingsItem _outputLocationSettingsItem;
@@ -82,11 +84,17 @@ namespace miCompressor.ui
             }
             if (e.PropertyName == nameof(OutputSettings.OutputFolder))
                 FoderPathTextBox.Text = OutputSettings.OutputFolder;
+            else
+            {
+                FolderPathError = String.Empty;
+                OnPropertyChanged(nameof(FolderPathError));
+            }
 
             if (e.PropertyName == nameof(OutputSettings.Prefix) || e.PropertyName == nameof(OutputSettings.Suffix))
                 SetSuggestionText();
 
             OnPropertyChanged(nameof(ShowOutputFolderUI));
+            OnPropertyChanged(nameof(IsReplaceOperation));            
         }
 
         private void SetSuggestionText()

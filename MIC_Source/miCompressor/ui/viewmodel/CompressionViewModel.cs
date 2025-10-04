@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Timers;
 
 namespace miCompressor.ui.viewmodel
@@ -19,9 +20,11 @@ namespace miCompressor.ui.viewmodel
 
         [AutoNotify] private int totalFilesToCompress = 0;
         [AutoNotify] private int totalFilesCompressed = 0;
+        [AutoNotify] private int totalFilesSkipped = 0;
         [AutoNotify] private int totalFilesFailedToCompress = 0;
         [AutoNotify] private int totalFilesCancelled = 0;
         [AutoNotify] private bool compressionInProgress = false;
+        [AutoNotify] private bool creatingPreCompressionWarnings = false;
         [AutoNotify] private bool overridePreCompressionWarnings = false;
 
 
@@ -72,6 +75,7 @@ namespace miCompressor.ui.viewmodel
         {
             TotalFilesToCompress = 0;
             TotalFilesCompressed = 0;
+            TotalFilesSkipped = 0;
             TotalFilesFailedToCompress = 0;
             TotalFilesCancelled = 0;
             TotalOriginalSize = 0;
@@ -97,7 +101,7 @@ namespace miCompressor.ui.viewmodel
         /// Starts compression of all selected files.
         /// </summary>
         /// <returns>flags if compression couldn't start.</returns>
-        public (bool alreadyInProgress, bool nothingToCompress) StartCompression()
+        public async Task<(bool alreadyInProgress, bool nothingToCompress)> StartCompression()
         {
 
             Reset();
@@ -121,7 +125,17 @@ namespace miCompressor.ui.viewmodel
             TotalFilesToCompress = imagesToCompress.Count;
 
             if (!overridePreCompressionWarnings)
-                store.GeneratePreCompressionWarnings(settings, store.SelectedPaths.Count > 1);
+            {
+                try
+                {
+                    CreatingPreCompressionWarnings = true;
+                    await store.GeneratePreCompressionWarnings(settings, store.SelectedPaths.Count > 1);
+                }
+                finally
+                {
+                    CreatingPreCompressionWarnings = false;
+                }
+            }
 
             if (!WarningHelper.Instance.PreCompressionWarnings.Any() || overridePreCompressionWarnings)
             {
@@ -136,11 +150,20 @@ namespace miCompressor.ui.viewmodel
         /// <summary>
         /// Call this when user selected to compress despite pre-compression warning.
         /// </summary>
-        public void OverridePreCompressionWarningsAndStartCompression()
+        public async Task OverridePreCompressionWarningsAndStartCompression()
         {
             this.overridePreCompressionWarnings = true;
             CompressionInProgress = false;
-            StartCompression();
+            await StartCompression();
+        }
+
+        /// <summary>
+        /// Recalculate compression warning based on modified output settings (Such as Skip if file exists)
+        /// </summary>
+        public async Task RetryAndStartCompression()
+        {
+            CompressionInProgress = false;
+            await StartCompression();
         }
 
         /// <summary>
@@ -160,30 +183,40 @@ namespace miCompressor.ui.viewmodel
             compressor.CancelCompression();
         }
 
+        private object lockObj = new();
+
         private void Compressor_CompressionCompleted(object? sender, CompressionCompletedEventArgs e)
         {
-            CompressionInProgress = false;
-            StopTimer();
+            lock (lockObj)
+            {
+                CompressionInProgress = false;
+                StopTimer();
+            }
         }
 
         private void Compressor_ImageCompressed(object? sender, ImageCompressedEventArgs e)
         {
-            if (e.Success)
+            lock (lockObj)
             {
-                TotalFilesCompressed++;
-                if (e.FileInfo.CompressedFileSize > 0)
+                if (e.Success)
                 {
-                    totalOriginalSize += e.FileInfo.FileSize;
-                    totalCompressedSize += e.FileInfo.CompressedFileSize;
-                    OnPropertyChanged(nameof(OriginalSize));
-                    OnPropertyChanged(nameof(CompressedSize));
-                    OnPropertyChanged(nameof(PercentageReduction));
+                    TotalFilesCompressed++;
+                    if (e.FileInfo.CompressedFileSize > 0)
+                    {
+                        totalOriginalSize += e.FileInfo.FileSize;
+                        totalCompressedSize += e.FileInfo.CompressedFileSize;
+                        OnPropertyChanged(nameof(OriginalSize));
+                        OnPropertyChanged(nameof(CompressedSize));
+                        OnPropertyChanged(nameof(PercentageReduction));
+                    }
                 }
+                else if (e.Skipped)
+                    TotalFilesSkipped++;
+                else if (e.Error == CompressionErrorType.Cancelled)
+                    TotalFilesCancelled++;
+                else
+                    TotalFilesFailedToCompress++;
             }
-            else if (e.Error == CompressionErrorType.Cancelled)
-                TotalFilesCancelled++;
-            else
-                TotalFilesFailedToCompress++;
         }
 
         #region Timer

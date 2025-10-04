@@ -38,6 +38,8 @@ public class ImageCompressor
         stop = true;
     }
 
+    private const string SKIPPED = "SKIPPED";
+
     /// <summary>
     /// Compress and convert a collection of images according to the given settings.
     /// </summary>
@@ -51,18 +53,7 @@ public class ImageCompressor
 
         if (files == null) throw new ArgumentNullException(nameof(files));
         // Determine max degree of parallelism (half the CPU core count)
-        int maxParallel = Math.Max(1, Environment.ProcessorCount / 2);
-
-        if (forPreview || files.Count() < Environment.ProcessorCount)
-        {
-            int parallelismInUnitOfWork = Math.Max(1, (int)Math.Ceiling(Environment.ProcessorCount / (double)files.Count()));
-            //MagickNET.SetEnvironmentVariable("OMP_NUM_THREADS", parallelismInUnitOfWork.ToString());
-        }
-        else
-        {
-            //MagickNET.SetEnvironmentVariable("OMP_NUM_THREADS", "2");
-        }
-
+        int maxParallel = Environment.ProcessorCount;
 
 #if DEBUG
         //MagickNET.SetEnvironmentVariable("OMP_NUM_THREADS", "2");
@@ -71,22 +62,31 @@ public class ImageCompressor
         int total = files.Count();
         int errorCount = 0;
         int processedCount = 0;
+        int skipped = 0;
 
         // Use a semaphore to limit parallel tasks
         using SemaphoreSlim sem = new(maxParallel);
-        var tasks = new List<Task>();
+        var compressionTasks = new List<Task>();
 
         WarningHelper.Instance.ClearAll();
 
         foreach (MediaFileInfo file in files)
         {
             await sem.WaitAsync().ConfigureAwait(false);
-            tasks.Add(Task.Run(async () =>
+            var t = Task.Run(async () =>
             {
                 try
                 {
-                    await ProcessSingleFileAsync(file, fromMultipleSelectPath
+                    var outputpath = await ProcessSingleFileAsync(file, fromMultipleSelectPath
                         , outputSettings, forPreview).ConfigureAwait(false);
+
+                    if (outputpath == SKIPPED)
+                    {
+                        ImageCompressedEventArgs args = new(file, null, success: false, skipped: true);
+                        ImageCompressed?.Invoke(this, args);
+                        Interlocked.Decrement(ref processedCount); //disregard this is 'processed' (finally increments processedCount). Not proud but safer than making a lot of code change now.
+                        Interlocked.Increment(ref skipped);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -96,7 +96,7 @@ public class ImageCompressor
                     WarningHelper.Instance.AddCompressionError(CompressionErrorType.FailedToCompress, file);
                     Interlocked.Increment(ref errorCount);
                     // Fire event for this file failure
-                    ImageCompressedEventArgs args = new(file, null, success: false);
+                    ImageCompressedEventArgs args = new(file, null, success: false, skipped: false);
                     ImageCompressed?.Invoke(this, args);
                 }
                 finally
@@ -104,14 +104,21 @@ public class ImageCompressor
                     Interlocked.Increment(ref processedCount);
                     sem.Release();
                 }
-            }));
+            });
+
+            compressionTasks.Add(t);
+            if (compressionTasks.Count >= maxParallel * 4)
+            {
+                var finished = await Task.WhenAny(compressionTasks).ConfigureAwait(false);
+                compressionTasks.Remove(finished);
+            }
         }
 
         // Wait for all files to finish processing
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        await Task.WhenAll(compressionTasks).ConfigureAwait(false);
 
         // Fire completion event with summary
-        int successCount = total - Volatile.Read(ref errorCount);
+        int successCount = total - Volatile.Read(ref errorCount) - Volatile.Read(ref skipped);
         CompressionCompletedEventArgs completedArgs = new(total, successCount, Volatile.Read(ref errorCount));
         CompressionCompleted?.Invoke(this, completedArgs);
     }
@@ -124,7 +131,7 @@ public class ImageCompressor
 
     private void RaiseCancellationEvent(MediaFileInfo mediaInfo)
     {
-        ImageCompressedEventArgs evtArgs = new(mediaInfo, "", false, CompressionErrorType.Cancelled);
+        ImageCompressedEventArgs evtArgs = new(mediaInfo, "", false, false, CompressionErrorType.Cancelled);
         ImageCompressed?.Invoke(this, evtArgs);
     }
 
@@ -143,6 +150,11 @@ public class ImageCompressor
 
         string sourcePath = mediaInfo.FilePath;
         string outputPath = mediaInfo.GetOutputPath(settings, multipleSelectPaths, forPreview);
+
+        if (!forPreview && settings.SkipIfFileExists && settings.OutputLocationSettings != OutputLocationSetting.ReplaceOriginal && !mediaInfo.IsReplaceOperation && File.Exists(outputPath))
+        {
+            return SKIPPED;
+        }
 
         if (IsGIFToPNG(mediaInfo, outputPath))
         {
@@ -362,7 +374,7 @@ public class ImageCompressor
                 return null;
             }
 
-            OptimizeIfPNG(outputPath);
+            OptimizeIfPNG(outputPath, forPreview);
             OptimizeIfGIF(mediaInfo.FilePath, outputPath);
 
             if (!forPreview)
@@ -394,7 +406,7 @@ public class ImageCompressor
             }
 
             // Emit event for this file's completion
-            ImageCompressedEventArgs evtArgs = new(mediaInfo, outputPath, success);
+            ImageCompressedEventArgs evtArgs = new(mediaInfo, outputPath, success, skipped: false);
             ImageCompressed?.Invoke(this, evtArgs);
             return outputPath;
         }
@@ -471,12 +483,14 @@ public class ImageCompressor
         }
     }
 
-    private void OptimizeIfPNG(string outputFilePath)
+    private void OptimizeIfPNG(string outputFilePath, bool isPreview)
     {
         try
         {
             if (IsPNG(outputFilePath))
-                (new PNGOptimizer()).Optimize(outputFilePath);
+            {
+                (new PNGOptimizer()).Optimize(outputFilePath, isPreview);
+            }
         }
         catch (Exception ex)
         {
@@ -537,12 +551,14 @@ public class ImageCompressedEventArgs : EventArgs
     public MediaFileInfo FileInfo { get; }
     public string? OutputPath { get; }
     public bool Success { get; }
+    public bool Skipped { get; }
     public CompressionErrorType Error { get; }
-    public ImageCompressedEventArgs(MediaFileInfo file, string? outputPath, bool success, CompressionErrorType error = CompressionErrorType.None)
+    public ImageCompressedEventArgs(MediaFileInfo file, string? outputPath, bool success, bool skipped, CompressionErrorType error = CompressionErrorType.None)
     {
         FileInfo = file;
         OutputPath = outputPath;
         Success = success;
+        Skipped = skipped;
         Error = error;
     }
 }
