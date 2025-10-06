@@ -73,12 +73,12 @@ Mass Image Compressor for macOS is written in Swift by us but it is closed sourc
 ## 🖼️ Screenshots
 
 <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-  <a href="screenshots/4.1.0/landing.png">
-    <img src="screenshots/4.1.0/landing.png" alt="Mass Image Compressor Landing Page" width="300"/>
+  <a href="screenshots/4.2.0/landing.png">
+    <img src="screenshots/4.2.0/landing.png" alt="Mass Image Compressor Landing Page" width="300"/>
   </a>
  
-  <a href="screenshots/4.1.0/gallary.png">
-    <img src="screenshots/4.1.0/gallary.png" alt="Gallery" width="300"/>
+  <a href="screenshots/4.2.0/gallary.png">
+    <img src="screenshots/4.2.0/gallary.png" alt="Gallery" width="300"/>
   </a>
    <a href="screenshots/4.1.0/preview.png">
     <img src="screenshots/4.1.0/preview.png" alt="Compression Preview" width="300"/>
