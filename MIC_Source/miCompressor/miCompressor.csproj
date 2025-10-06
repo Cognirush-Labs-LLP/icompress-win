@@ -12,15 +12,12 @@
     <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
     <Platform Condition="'$(Platform)' == ''">x64</Platform>
 
-    <!-- <PublishProfile>win-$(Platform).pubxml</PublishProfile> -->
     <PublishProfile>win-x64.pubxml</PublishProfile>
-
+    
     <UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
     <Nullable>enable</Nullable>
-
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <WindowsPackageType>MSIX</WindowsPackageType>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
@@ -28,9 +25,9 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <!--<WindowsPackageType>MSIX</WindowsPackageType>
-    <GenerateAppxPackageOnBuild>true</GenerateAppxPackageOnBuild> -->
-    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsPackageType>MSIX</WindowsPackageType>
+    <GenerateAppxPackageOnBuild>true</GenerateAppxPackageOnBuild>
+    <!-- <WindowsPackageType>None</WindowsPackageType> -->
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
     <SelfContained>true</SelfContained>
@@ -54,7 +51,7 @@
   <PropertyGroup>
     <ApplicationIcon>Assets\mic_win_4.ico</ApplicationIcon>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <Compile Remove="Assets - Copy\**" />
     <Compile Remove="Assets\Icons\source\output\**" />
@@ -179,7 +176,7 @@
   <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
     <ProjectCapability Include="Msix" />
   </ItemGroup>
-
+  
   <ItemGroup Condition="'$(Platform)' == 'x64'">
     <PackageReference Include="Magick.NET-Q8-OpenMP-x64" Version="14.8.2" />
   </ItemGroup>
@@ -311,8 +308,8 @@
     <PackageId>MassImageCompressor</PackageId>
     <Product>Mass Image Compressor</Product>
     <Description>Compress, Convert &amp; Resize Photos in batch with Mass Image Compressor</Description>
-    <IncludeSymbols>False</IncludeSymbols>
-    <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
+    <IncludeSymbols>True</IncludeSymbols>
+    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <AssemblyName>Mass Image Compressor</AssemblyName>
     <Version>4.2.0</Version>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
@@ -411,7 +408,7 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
-  <ItemGroup>
+  <!-- <ItemGroup>
     <PRIResource Remove="Assets - Copy\**" />
-  </ItemGroup>
+  </ItemGroup> -->
 </Project>
