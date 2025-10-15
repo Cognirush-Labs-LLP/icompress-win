@@ -86,10 +86,10 @@ public class MetadataCopyHelper
             // Get the file's Created Date (NTFS timestamp)
             DateTime createdDate = File.GetCreationTime(copyFromImagePath);
             DateTime modifiedDate = File.GetLastWriteTime(copyFromImagePath);
-
+            
             // Format as "YYYY:mm:dd HH:MM:SS±HH:MM"
             string formattedCreatedDate = createdDate.ToString("yyyy:MM:dd HH:mm:sszzz");
-            string formattedModifiedDate = createdDate.ToString("yyyy:MM:dd HH:mm:sszzz");
+            string formattedModifiedDate = modifiedDate.ToString("yyyy:MM:dd HH:mm:sszzz");
 
             arguments += $" -FileModifyDate=\"<{formattedModifiedDate}\" -FileCreateDate=\"<{formattedCreatedDate}\" ";
         }
