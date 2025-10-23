@@ -297,19 +297,22 @@ public class ImageCompressor
 
                     Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
 
-                    // Write all frames to output file
-                    var writeDefine = MagickHelper.GetWriteDefinesFor(settings.Format, outputPath, true, settings.Quality, mediaInfo);
-
-                    if (OutputFormatHelper.GetOutputFormatFor(outputPath) == OutputFormat.Gif)
+                    if (!LosslessVsLossyWriter.TryWrite(collection, settings, mediaInfo, outputPath))
                     {
-                        collection.Optimize();
-                        collection.OptimizeTransparency();
-                    }
+                        // Write all frames to output file
+                        var writeDefine = MagickHelper.GetWriteDefinesFor(settings.Format, outputPath, true, settings.Quality, mediaInfo);
 
-                    if (writeDefine != null)
-                        collection.Write(outputPath, writeDefine);
-                    else
-                        collection.Write(outputPath, MagickHelper.GetMagickFormat(settings.Format, outputPath, isMultiframed: true));
+                        if (OutputFormatHelper.GetOutputFormatFor(outputPath) == OutputFormat.Gif)
+                        {
+                            collection.Optimize();
+                            collection.OptimizeTransparency();
+                        }
+
+                        if (writeDefine != null)
+                            collection.Write(outputPath, writeDefine);
+                        else
+                            collection.Write(outputPath, MagickHelper.GetMagickFormat(settings.Format, outputPath, isMultiframed: true));
+                    }
 
                     OptimizeIfAnimatedPNG(outputPath);
                 }
@@ -337,14 +340,17 @@ public class ImageCompressor
                     // Write image to output file (format is determined by outputPath extension)
                     Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
 
-                    var writeDefine = MagickHelper.GetWriteDefinesFor(settings.Format, outputPath, false, settings.Quality, mediaInfo);
+                    if (!LosslessVsLossyWriter.TryWrite(image, settings, mediaInfo, outputPath))
+                    {
+                        var writeDefine = MagickHelper.GetWriteDefinesFor(settings.Format, outputPath, false, settings.Quality, mediaInfo);
 
-                    image.Strip();
+                        image.Strip();
 
-                    if (writeDefine != null)
-                        image.Write(outputPath, writeDefine);
-                    else
-                        image.Write(outputPath, MagickHelper.GetMagickFormat(settings.Format, outputPath, isMultiframed: false));
+                        if (writeDefine != null)
+                            image.Write(outputPath, writeDefine);
+                        else
+                            image.Write(outputPath, MagickHelper.GetMagickFormat(settings.Format, outputPath, isMultiframed: false));
+                    }
 
                     QuantizeIfPNGAndAllowedToReduceColors(outputPath, settings);
                 }
