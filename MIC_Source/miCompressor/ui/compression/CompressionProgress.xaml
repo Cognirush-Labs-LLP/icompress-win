@@ -239,9 +239,9 @@
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Opacity="0.8">
                             <HyperlinkButton NavigateUri="{x:Bind CurrentState.SoftwareRatingLink}" Visibility="{x:Bind CurrentState.IsOnMicrosoftStore, Converter={StaticResource ReverseBoolToVisibilityConverter}}">Rate/Review</HyperlinkButton>
-                            <HyperlinkButton NavigateUri="https://mic.cognirush.com/mass-image-compressor-for-windows/">Feedback</HyperlinkButton>
+                            <HyperlinkButton NavigateUri="https://mic.cognirush.com/mass-image-compressor-for-windows/">Feedback (comment)</HyperlinkButton>
                             <HyperlinkButton NavigateUri="https://mic.cognirush.com/contact-us/?operating-system=Windows">Contact Us</HyperlinkButton>
-                            <HyperlinkButton NavigateUri="https://mic.cognirush.com/macos" >Mac Version</HyperlinkButton>
+                            <HyperlinkButton NavigateUri="https://mic.cognirush.com/macos" Visibility="{x:Bind CurrentState.IsOnMicrosoftStore, Converter={StaticResource ReverseBoolToVisibilityConverter}}">Mac Version</HyperlinkButton>
                         </StackPanel>
                     </StackPanel>
                 </Grid>
