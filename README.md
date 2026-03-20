@@ -19,18 +19,22 @@ This official source code of modern version of Mass Image Compressor hosted at [
 ### Windows 10 and above, Windows Server 2019 and above
 Use one of these methods to install Mass Image Compressor.
 
-#### Option 1: SourceForge.net
+#### [Download latest Release (installer)](https://github.com/Cognirush-Labs-LLP/icompress-win/releases/download/V4.2.0/MassImageCompressorInstallerV4_2_0.exe)
+#### [Download latest Release (Portable)](https://github.com/Cognirush-Labs-LLP/icompress-win/releases/download/V4.2.0/MassImageCompressorPortableV4_2_0.zip)
+
+Other options,
+
+#### Option 2: SourceForge.net
 Download latest unsigned installer from [SourceForge.net](https://sourceforge.net/projects/icompress/) (free). As the installer is unsigned and releases first, Windows security may kick-in and may have to take additional steps to install this. Choose other options if you are not comfortable. 
 
-#### Option 2: Github or Winget 
-You can download the installer from this Github project (see [releases](https://github.com/Cognirush-Labs-LLP/icompress-win/releases)) or use below script to install via winget. 
+#### Option 3: Winget 
 ```bash
 winget source update
 winget install --id=Cognirush.MassImageCompressor -e
 ```
 More details [here](https://mic.cognirush.com/install-via-winget/)
 
-#### Option 3: Use Microsoft Store
+#### Option 4: Use Microsoft Store
 Get signed installer from [Microsoft Store](https://apps.microsoft.com/detail/9NF6R54S63L3?launch=true&mode=full?cid=git) (one-time cost of a coffee). You get auto-update feature and Windows security is cool with it as the installer is signed.
 
 <a href="https://apps.microsoft.com/detail/9NF6R54S63L3?launch=true&mode=full?cid=git">
