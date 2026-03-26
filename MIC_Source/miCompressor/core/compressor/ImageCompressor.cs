@@ -264,7 +264,7 @@ public class ImageCompressor
                 if (settings.format == OutputFormat.KeepSame)
                 {
                     string origExt = Path.GetExtension(sourcePath).ToLowerInvariant();
-                    bool origSupported = CodeConsts.SupportedOutputExtensions.Contains(origExt.TrimStart('.'));
+                    bool origSupported = origExt.TrimStart('.') == "jpeg" || CodeConsts.SupportedOutputExtensions.Contains(origExt.TrimStart('.'));
                     if (!origSupported)
                     {
                         WarningHelper.Instance.AddPostWarning(PostCompressionWarningType.FileFormatChanged, mediaInfo);
