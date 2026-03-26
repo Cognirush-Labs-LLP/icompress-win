@@ -153,13 +153,16 @@ namespace miCompressor.ui
 
         private async void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            if(ShowWarningView || ShowErrorView)
+            if (ShowWarningView || ShowErrorView)
             {
                 ShowWarningView = false;
                 ShowErrorView = false;
             }
-            else 
+            else
+            {
                 App.CurrentState.ShowCompressionProgress = false;
+                CancelButton.Label = "Cancel";
+            }
         }
 
 
