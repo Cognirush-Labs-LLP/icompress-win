@@ -30,7 +30,7 @@ use strict;
 use vars qw($VERSION $AUTOLOAD);
 use Image::ExifTool qw(:DataAccess :Utils);
 
-$VERSION = '1.70';
+$VERSION = '1.73';
 
 sub ConvertTimecode($);
 sub ProcessSGLT($$$);
@@ -391,7 +391,7 @@ my %code2charset = (
     smpl => { #16
         Name => 'Sampler',
         SubDirectory => { TagTable => 'Image::ExifTool::RIFF::Sampler' },
-    },        
+    },
     inst => { #16
         Name => 'Instrument',
         SubDirectory => { TagTable => 'Image::ExifTool::RIFF::Instrument' },
@@ -546,7 +546,11 @@ my %code2charset = (
    'id3 ' => {
         Name => 'ID3',
         SubDirectory => { TagTable => 'Image::ExifTool::ID3::Main' },
-    },        
+    },
+   'ID3 ' => { # (NC)
+        Name => 'ID3-2',
+        SubDirectory => { TagTable => 'Image::ExifTool::ID3::Main' },
+    },
 #
 # WebP-specific tags
 #
@@ -668,6 +672,9 @@ my %code2charset = (
         Name => 'SEAL',
         SubDirectory => { TagTable => 'Image::ExifTool::XMP::SEAL' },
     },
+    # LGWV - written by Logic Pro
+    # minf, elm1, regn, umid, DGDA - written by Pro Tools
+    # MXrt, muma, chrp - written by Sequoia Pro
 );
 
 # the maker notes used by some digital cameras
@@ -844,6 +851,7 @@ my %code2charset = (
         Name => 'DateCreated',
         Groups => { 2 => 'Time' },
         ValueConv => '$_=$val; s/-/:/g; $_',
+        PrintConv => '$self->ConvertDateTime($val)',
     },
     ICRP => 'Cropped',
     IDIM => 'Dimensions',
@@ -1554,9 +1562,9 @@ my %code2charset = (
         Name => 'Duration',
         Require => {
             0 => 'RIFF:AvgBytesPerSec',
-            1 => 'FileSize',
         },
         Desire => {
+            1 => 'FileSize', # (only used if 'data' length isn't available)
             # check FrameCount because this calculation only applies
             # to audio-only files (eg. WAV)
             2 => 'FrameCount',
@@ -1564,8 +1572,9 @@ my %code2charset = (
         },
         # (can't calculate duration like this for compressed audio types)
         RawConv => q{
-            return undef if $$self{FileType} =~ /^(LA|OFR|PAC|WV)$/;
-            return(($val[0] and not ($val[2] or $val[3])) ? $val[1] / $val[0] : undef);
+            return undef if $$self{FileType} =~ /^(LA|OFR|PAC|WV)$/ or $val[2] or $val[3];
+            return undef unless $val[0] and ($$self{RIFFDataLen} or $val[1]);
+            return(($$self{RIFFDataLen} || $val[1]) / $val[0]);
         },
         PrintConv => 'ConvertDuration($val)',
     },
@@ -2023,6 +2032,7 @@ sub ProcessRIFF($$)
     my $validate = $et->Options('Validate');
     my $ee = $et->Options('ExtractEmbedded');
     my $hash = $$et{ImageDataHash};
+    my $base = 0;
 
     # verify this is a valid RIFF file
     return 0 unless $raf->Read($buff, 12) == 12;
@@ -2034,7 +2044,8 @@ sub ProcessRIFF($$)
         return 0 unless $buff =~ /^(LA0[234]|OFR |LPAC|wvpk)/ and $raf->Read($buf2, 1024);
         $type = $riffType{$1};
         $buff .= $buf2;
-        return 0 unless $buff =~ /WAVE(.{4})?fmt /sg and $raf->Seek(pos($buff) - 4, 0);
+        return 0 unless $buff =~ /WAVE(.{4})?(junk|fmt )/sg and $raf->Seek(pos($buff) - 4, 0);
+        $base = pos($buff) - 16;
     }
     $$raf{NoBuffer} = 1 if $et->Options('FastScan'); # disable buffering in FastScan mode
     $mime = $riffMimeType{$type} if $type;
@@ -2098,8 +2109,9 @@ sub ProcessRIFF($$)
             $pos += 4;
             $tag .= "_$buff";
             $len -= 4;  # already read 4 bytes (the LIST type)
-        } elsif ($tag eq 'data' and $len == 0xffffffff and $$et{DataSize64}) {
-            $len = $$et{DataSize64};
+        } elsif ($tag eq 'data') {
+            $len = $$et{DataSize64} if $len == 0xffffffff and $$et{DataSize64};
+            $$et{RIFFDataLen} = ($$et{RIFFDataLen} || 0) + $len;
         }
         $et->VPrint(0, "RIFF '${tag}' chunk ($len bytes of data):\n");
         if ($len <= 0) {
@@ -2150,7 +2162,7 @@ sub ProcessRIFF($$)
                 DataPos => 0,   # (relative to Base)
                 Start   => 0,
                 Size    => $len,
-                Base    => $pos,
+                Base    => $pos + $base,
             );
             if ($setGroups) {
                 delete $$et{SET_GROUP0};
@@ -2224,7 +2236,7 @@ including AVI videos, WAV audio files and WEBP images.
 
 =head1 AUTHOR
 
-Copyright 2003-2025, Phil Harvey (philharvey66 at gmail.com)
+Copyright 2003-2026, Phil Harvey (philharvey66 at gmail.com)
 
 This library is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

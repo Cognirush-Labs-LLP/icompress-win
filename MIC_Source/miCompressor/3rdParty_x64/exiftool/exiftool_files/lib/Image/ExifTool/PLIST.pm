@@ -21,7 +21,7 @@ use Image::ExifTool qw(:DataAccess :Utils);
 use Image::ExifTool::XMP;
 use Image::ExifTool::GPS;
 
-$VERSION = '1.15';
+$VERSION = '1.16';
 
 sub ExtractObject($$;$);
 sub Get24u($$);
@@ -299,7 +299,7 @@ sub ExtractObject($$;$)
         } elsif ($type == 6) {  # UCS-2BE string
             $size *= 2;
             $raf->Read($buff, $size) == $size or return undef;
-            $val = $et->Decode($buff, 'UCS2');
+            $val = $et->Decode($buff, 'UTF16'); # (might as well support surrogates too)
         } elsif ($type == 10 or $type == 12 or $type == 13) { # array, set or dict
             # the remaining types store a list of references
             my $refSize = $$plistInfo{RefSize};
@@ -513,7 +513,7 @@ This module decodes both the binary and XML-based PLIST format.
 
 =head1 AUTHOR
 
-Copyright 2003-2025, Phil Harvey (philharvey66 at gmail.com)
+Copyright 2003-2026, Phil Harvey (philharvey66 at gmail.com)
 
 This library is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

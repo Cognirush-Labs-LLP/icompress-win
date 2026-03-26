@@ -11,7 +11,7 @@ use strict;
 use vars qw($VERSION);
 use Image::ExifTool qw(:DataAccess :Utils);
 
-$VERSION = '1.39';
+$VERSION = '1.40';
 
 sub ProcessOcad($$$);
 sub ProcessJPEG_HDR($$$);
@@ -213,6 +213,10 @@ sub ProcessJPEG_HDR($$$);
         Condition => '$$valPt =~ /^PENTAX \0/',
         SubDirectory => { TagTable => 'Image::ExifTool::Pentax::Main' },
       }, {
+        Name => 'Ricoh',
+        Condition => '$$valPt =~ /^RICOH\0/',
+        SubDirectory => { TagTable => 'Image::ExifTool::Pentax::Main' },
+      }, {
         Name => 'Huawei',
         Condition => '$$valPt =~ /^HUAWEI\0\0/',
         SubDirectory => { TagTable => 'Image::ExifTool::Unknown::Main' },
@@ -260,15 +264,9 @@ sub ProcessJPEG_HDR($$$);
         Condition => '$$valPt =~ /^UNICODE\0/',
         Notes => 'PhotoStudio Unicode comment',
       }, {
-        Name => 'HDRGainCurve', #PH (NC)
+        Name => 'HDRGainInfo', #PH (NC)
         Condition => '$$valPt =~ /^AROT\0\0.{4}/s',
-        Groups => { 1 => 'APP10', 2 => 'Image' },
-        ValueConv => q{
-            my $n = unpack('x6N', $val);
-            return '<truncated AROT data>' if length($val)-6 < $n * 4;
-            my $str = join ' ', unpack("x10V$n", $val);
-            return \$str;
-        },
+        SubDirectory => { TagTable => 'Image::ExifTool::JPEG::HDRGainInfo' },
     }],
     APP11 => [{
         Name => 'JPEG-HDR',
@@ -348,6 +346,9 @@ sub ProcessJPEG_HDR($$$);
         },
         SubDirectory => { TagTable => 'Image::ExifTool::MIE::Main' },
       }, {
+        Name => 'MPF',
+        SubDirectory => { TagTable => 'Image::ExifTool::MPF::Main' },
+      }, {
         Name => 'Samsung',
         Condition => '$$valPt =~ /QDIOBS$/',
         SubDirectory => { TagTable => 'Image::ExifTool::Samsung::Trailer' },
@@ -380,6 +381,21 @@ sub ProcessJPEG_HDR($$$);
         Condition => '$$valPt =~ /^\xff\xd8\xff/',
         Writable => 2,  # (for docs only)
     }],
+);
+
+# HDR gain information (ref PH)
+%Image::ExifTool::JPEG::HDRGainInfo = (
+    PROCESS_PROC => \&Image::ExifTool::ProcessBinaryData,
+    GROUPS => { 0 => 'APP10', 1 => 'AROT', 2 => 'Image' },
+    6 => {
+        Name => 'HDRGainCurveSize',
+        Format => 'int32u',
+    },
+    10 => {
+        Name => 'HDRGainCurve', # (NC)
+        Format => 'int32uRev[$val{6}]',
+        Binary => 1,
+    },
 );
 
 # JPS APP3 segment (ref http://paulbourke.net/stereographics/stereoimage/)
@@ -553,7 +569,7 @@ sub ProcessJPEG_HDR($$$);
 # APP9 Media Jukebox segment (ref PH)
 %Image::ExifTool::JPEG::MediaJukebox = (
     GROUPS => { 0 => 'XML', 1 => 'MediaJukebox', 2 => 'Image' },
-    VARS => { NO_ID => 1 },
+    VARS => { ID_FMT => 'none' },
     NOTES => 'Tags found in the XML metadata of the APP9 "Media Jukebox" segment.',
     Date => {
         Groups => { 2 => 'Time' },
@@ -805,7 +821,7 @@ segments are included in the Image::ExifTool module itself.
 
 =head1 AUTHOR
 
-Copyright 2003-2025, Phil Harvey (philharvey66 at gmail.com)
+Copyright 2003-2026, Phil Harvey (philharvey66 at gmail.com)
 
 This library is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

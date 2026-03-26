@@ -21,7 +21,7 @@ SYNOPSIS
     exiftool [*OPTIONS*] [-*TAG*...] [--*TAG*...] *FILE*...
 
   Writing
-    exiftool [*OPTIONS*] -*TAG*[+-<]=[*VALUE*]... *FILE*...
+    exiftool [*OPTIONS*] -*TAG*[+-^<]=[*VALUE*]... *FILE*...
 
   Copying
     exiftool [*OPTIONS*] -tagsFromFile *SRCFILE* [-[*DSTTAG*<]*SRCTAG*...]
@@ -63,50 +63,52 @@ DESCRIPTION
 
       File Types
       ------------+-------------+-------------+-------------+------------
-      360   r/w   | DOCX  r     | ITC   r     | NUMBERS r   | RAM   r
-      3FR   r     | DPX   r     | J2C   r     | NXD   r     | RAR   r
-      3G2   r/w   | DR4   r/w/c | JNG   r/w   | O     r     | RAW   r/w
-      3GP   r/w   | DSS   r     | JP2   r/w   | ODP   r     | RIFF  r
-      7Z    r     | DV    r     | JPEG  r/w   | ODS   r     | RSRC  r
-      A     r     | DVB   r/w   | JSON  r     | ODT   r     | RTF   r
-      AA    r     | DVR-MS r    | JXL   r/w   | OFR   r     | RW2   r/w
-      AAC   r     | DYLIB r     | K25   r     | OGG   r     | RWL   r/w
-      AAE   r     | EIP   r     | KDC   r     | OGV   r     | RWZ   r
-      AAX   r/w   | EPS   r/w   | KEY   r     | ONP   r     | RM    r
-      ACR   r     | EPUB  r     | LA    r     | OPUS  r     | SEQ   r
-      AFM   r     | ERF   r/w   | LFP   r     | ORF   r/w   | SKETCH r
-      AI    r/w   | EXE   r     | LIF   r     | ORI   r/w   | SO    r
-      AIFF  r     | EXIF  r/w/c | LNK   r     | OTF   r     | SR2   r/w
-      APE   r     | EXR   r     | LRV   r/w   | PAC   r     | SRF   r
-      ARQ   r/w   | EXV   r/w/c | M2TS  r     | PAGES r     | SRW   r/w
-      ARW   r/w   | F4A/V r/w   | M4A/V r/w   | PBM   r/w   | SVG   r
-      ASF   r     | FFF   r/w   | MACOS r     | PCAP  r     | SWF   r
-      AVI   r     | FITS  r     | MAX   r     | PCAPNG r    | THM   r/w
-      AVIF  r/w   | FLA   r     | MEF   r/w   | PCD   r     | TIFF  r/w
-      AZW   r     | FLAC  r     | MIE   r/w/c | PCX   r     | TORRENT r
-      BMP   r     | FLIF  r/w   | MIFF  r     | PDB   r     | TTC   r
-      BPG   r     | FLV   r     | MKA   r     | PDF   r/w   | TTF   r
-      BTF   r     | FPF   r     | MKS   r     | PEF   r/w   | TXT   r
-      C2PA  r     | FPX   r     | MKV   r     | PFA   r     | VCF   r
-      CHM   r     | GIF   r/w   | MNG   r/w   | PFB   r     | VNT   r
-      COS   r     | GLV   r/w   | MOBI  r     | PFM   r     | VRD   r/w/c
-      CR2   r/w   | GPR   r/w   | MODD  r     | PGF   r     | VSD   r
-      CR3   r/w   | GZ    r     | MOI   r     | PGM   r/w   | WAV   r
-      CRM   r/w   | HDP   r/w   | MOS   r/w   | PLIST r     | WDP   r/w
-      CRW   r/w   | HDR   r     | MOV   r/w   | PICT  r     | WEBP  r/w
-      CS1   r/w   | HEIC  r/w   | MP3   r     | PMP   r     | WEBM  r
-      CSV   r     | HEIF  r/w   | MP4   r/w   | PNG   r/w   | WMA   r
-      CUR   r     | HTML  r     | MPC   r     | PPM   r/w   | WMV   r
-      CZI   r     | ICC   r/w/c | MPG   r     | PPT   r     | WPG   r
-      DCM   r     | ICO   r     | MPO   r/w   | PPTX  r     | WTV   r
-      DCP   r/w   | ICS   r     | MQV   r/w   | PS    r/w   | WV    r
-      DCR   r     | IDML  r     | MRC   r     | PSB   r/w   | X3F   r/w
-      DFONT r     | IIQ   r/w   | MRW   r/w   | PSD   r/w   | XCF   r
-      DIVX  r     | IND   r/w   | MXF   r     | PSP   r     | XISF  r
-      DJVU  r     | INSP  r/w   | NEF   r/w   | QTIF  r/w   | XLS   r
-      DLL   r     | INSV  r     | NKA   r     | R3D   r     | XLSX  r
-      DNG   r/w   | INX   r     | NKSC  r/w   | RA    r     | XMP   r/w/c
-      DOC   r     | ISO   r     | NRW   r/w   | RAF   r/w   | ZIP   r
+      360   r/w   | DR4   r/w/c | JP2   r/w   | ODS   r     | RW2   r/w
+      3FR   r     | DSF   r     | JPEG  r/w   | ODT   r     | RWL   r/w
+      3G2   r/w   | DSS   r     | JSON  r     | OFR   r     | RWZ   r
+      3GP   r/w   | DV    r     | JXL   r/w   | OGG   r     | RM    r
+      7Z    r     | DVB   r/w   | K25   r     | OGV   r     | SEQ   r
+      A     r     | DVR-MS r    | KDC   r     | ONP   r     | SKETCH r
+      AA    r     | DYLIB r     | KEY   r     | OPUS  r     | SO    r
+      AAC   r     | EIP   r     | KVAR  r     | ORF   r/w   | SR2   r/w
+      AAE   r     | EPS   r/w   | LA    r     | ORI   r/w   | SRF   r
+      AAX   r/w   | EPUB  r     | LFP   r     | OTF   r     | SRW   r/w
+      ACR   r     | ERF   r/w   | LIF   r     | PAC   r     | SVG   r
+      AFM   r     | EXE   r     | LNK   r     | PAGES r     | SWF   r
+      AI    r/w   | EXIF  r/w/c | LRV   r/w   | PBM   r/w   | THM   r/w
+      AIFF  r     | EXR   r     | M2TS  r     | PCAP  r     | TIFF  r/w
+      APE   r     | EXV   r/w/c | M4A/V r/w   | PCAPNG r    | TNEF  r
+      ARQ   r/w   | F4A/V r/w   | MACOS r     | PCD   r     | TORRENT r
+      ARW   r/w   | FFF   r/w   | MAX   r     | PCX   r     | TTC   r
+      ASF   r     | FITS  r     | MEF   r/w   | PDB   r     | TTF   r
+      AVI   r     | FLA   r     | MIE   r/w/c | PDF   r/w   | TXT   r
+      AVIF  r/w   | FLAC  r     | MIFF  r     | PEF   r/w   | URL   r
+      AZW   r     | FLIF  r/w   | MKA   r     | PFA   r     | VCF   r
+      BMP   r     | FLV   r     | MKS   r     | PFB   r     | VNT   r
+      BPG   r     | FPF   r     | MKV   r     | PFM   r     | VRD   r/w/c
+      BTF   r     | FPX   r     | MNG   r/w   | PGF   r     | VSD   r
+      C2PA  r     | GIF   r/w   | MOBI  r     | PGM   r/w   | VSDX  r
+      CHM   r     | GLV   r/w   | MODD  r     | PLIST r     | WAV   r
+      COS   r     | GPR   r/w   | MOI   r     | PICT  r     | WDP   r/w
+      CR2   r/w   | GZ    r     | MOS   r/w   | PMP   r     | WEBP  r/w
+      CR3   r/w   | HDP   r/w   | MOV   r/w   | PNG   r/w   | WEBM  r
+      CRM   r/w   | HDR   r     | MP3   r     | PPM   r/w   | WMA   r
+      CRW   r/w   | HEIC  r/w   | MP4   r/w   | PPT   r     | WMV   r
+      CS1   r/w   | HEIF  r/w   | MPC   r     | PPTX  r     | WOFF  r
+      CSV   r     | HTML  r     | MPG   r     | PS    r/w   | WOFF2 r
+      CUR   r     | ICC   r/w/c | MPO   r/w   | PSB   r/w   | WPG   r
+      CZI   r     | ICO   r     | MQV   r/w   | PSD   r/w   | WTV   r
+      DCM   r     | ICS   r     | MRC   r     | PSP   r     | WV    r
+      DCP   r/w   | IDML  r     | MRW   r/w   | QTIF  r/w   | X3F   r/w
+      DCR   r     | IIQ   r/w   | MXF   r     | R3D   r     | XCF   r
+      DFONT r     | IND   r/w   | NEF   r/w   | RA    r     | XISF  r
+      DIVX  r     | INSP  r/w   | NKA   r     | RAF   r/w   | XLS   r
+      DJVU  r     | INSV  r     | NKSC  r/w   | RAM   r     | XLSX  r
+      DLL   r     | INX   r     | NRW   r/w   | RAR   r     | XMP   r/w/c
+      DNG   r/w   | ISO   r     | NUMBERS r   | RAW   r/w   | ZIP   r
+      DOC   r     | ITC   r     | NXD   r     | RIFF  r     |
+      DOCX  r     | J2C   r     | O     r     | RSRC  r     |
+      DPX   r     | JNG   r/w   | ODP   r     | RTF   r     |
 
       Meta Information
       ----------------------+----------------------+---------------------
@@ -289,9 +291,10 @@ OPTIONS
     --*TAG*
          Exclude specified tag from extracted information. Same as the -x
          option. Group names and wildcards are permitted as described above
-         for -TAG. Once excluded from the output, a tag may not be
-         re-included by a subsequent option. May also be used following a
-         -tagsFromFile option to exclude tags from being copied (when
+         for -*TAG*. Once excluded from the output, a tag may not be
+         re-included by a subsequent option. Also note that this excludes
+         the tag from being used in a "-if" condition. May be used following
+         a -tagsFromFile option to exclude tags from being copied (when
          redirecting to another tag, it is the source tag that should be
          excluded), or to exclude groups from being deleted when deleting
          all information (eg. "-all= --exif:all" deletes all but EXIF
@@ -319,8 +322,8 @@ OPTIONS
          may be used to conditionally delete or replace a tag (see "WRITING
          EXAMPLES" for examples). "^=" is used to write an empty string
          instead of deleting the tag when no *VALUE* is given, but otherwise
-         it is equivalent to "=". (Note that the caret must be quoted on the
-         Windows command line.)
+         it is equivalent to "=". (Note that the caret must be quoted in the
+         Windows CMD shell.)
 
          *TAG* may contain one or more leading family 0, 1, 2 or 7 group
          names, prefixed by optional family numbers, and separated colons.
@@ -417,7 +420,7 @@ OPTIONS
          contains a "<" symbol. If *DATFILE*/*FMT* is not provided, the
          effect is the same as "-TAG=", and the tag is simply deleted. "+<="
          or "-<=" may also be used to add or delete specific list entries,
-         or to shift date/time values.
+         to conditionally delete/replace tags, or to shift date/time values.
 
     -tagsFromFile *SRCFILE* or *FMT*
          Copy tag values from *SRCFILE* to *FILE*. Tag names on the command
@@ -475,9 +478,9 @@ OPTIONS
          preferred group. Whitespace around the ">" or "<" is ignored. As a
          convenience, "-tagsFromFile @" is assumed for any redirected tags
          which are specified without a prior -tagsFromFile option. Copied
-         tags may also be added or deleted from a list with arguments of the
-         form "-*SRCTAG*+<*DSTTAG*" or "-*SRCTAG*-<*DSTTAG*" (but see Note 5
-         below).
+         tags may also be added or deleted from a list, or conditionally
+         deleted/replaced with arguments of the form "'-*SRCTAG*+<*DSTTAG*'"
+         or "'-*SRCTAG*-<*DSTTAG*'" (but see Note 5 below).
 
          An extension of the redirection feature allows strings involving
          tag names to be used on the right hand side of the "<" symbol with
@@ -489,7 +492,7 @@ OPTIONS
          from the contents of a file. A single space at the start of the
          string is removed if it exists, but all other whitespace in the
          string is preserved. See note 8 below about using the redirection
-         feature with list-type stags, shortcuts or when using wildcards in
+         feature with list-type tags, shortcuts or when using wildcards in
          tag names.
 
          See "COPYING EXAMPLES" for examples using -tagsFromFile.
@@ -533,12 +536,21 @@ OPTIONS
          also prevents values of different tags from being copied into the
          same list when this is the intent. To accumulate values from
          different operations into the same list, add a "+" after the
-         initial "-" of the argument. For example:
+         initial "-" of the argument or use the -addTagsFromFile option. For
+         example:
 
              exiftool -tagsfromfile @ '-subject<make' '-+subject<model' ...
 
-         Similarly, "-+DSTTAG" must be used when conditionally replacing a
-         tag to prevent overriding earlier conditions.
+         or
+
+             exiftool -addtagsfromfile @ '-subject<make' '-subject<model' ...
+
+         Similarly, "-+DSTTAG" or -addTagsFromFile must be used when
+         conditionally replacing a tag to prevent overriding earlier
+         conditions.
+
+         Other than these differences, the -tagsFromFile and
+         -addTagsFromFile options are equivalent.
 
          6) The -a option (allow duplicate tags) is always in effect when
          copying tags from *SRCFILE*, but the highest priority tag is always
@@ -556,7 +568,7 @@ OPTIONS
          they were separate assignments). However, when interpolated inside
          a string, list items and the values of shortcut tags are
          concatenated (with a separator set by the -sep option), and
-         wildcards are not allowed.Another difference is that a minor
+         wildcards are not allowed. Another difference is that a minor
          warning is generated if a tag doesn't exist when interpolating its
          value in a string (with "$"), but isn't when copying the tag
          directly.
@@ -611,11 +623,13 @@ OPTIONS
          useful for some text strings since control characters (such as
          newlines) are not replaced by '.' as they are in the default
          output. By default, list items are separated by a newline when
-         extracted with the -b option, but this may be changed (see the -sep
-         option for details). May be combined with -j, -php or -X to extract
-         binary data in JSON, PHP or XML format, but note that "Unsafe" tags
-         are not extracted as binary unless they are specified explicitly or
-         the API RequestAll option is set to 3 or higher.
+         extracted with the -b option and no terminator is added after each
+         tag value, but the list separator may be changed with a -sep option
+         and a terminator may be set by adding a second -sep option (see the
+         -sep option for details). May be combined with -j, -php or -X to
+         extract binary data in JSON, PHP or XML format, but note that
+         "Unsafe" tags are not extracted as binary unless they are specified
+         explicitly or the API RequestAll option is set to 3 or higher.
 
          With a leading double dash (--b or --binary), tags which contain
          binary data are suppressed in the output when reading.
@@ -711,11 +725,13 @@ OPTIONS
          names) for each column of the file, and values must be separated by
          commas. A special "SourceFile" column specifies the files
          associated with each row of information (and a SourceFile of "*"
-         may be used to define default tags to be imported for all files
-         which are combined with any tags specified for the specific
-         SourceFile processed). The -csvDelim option may be used to change
-         the input/output field delimiter if something other than a comma is
-         required.
+         may be used to define default tags to be imported for all files,
+         which are then combined with any tags specified for the specific
+         SourceFile processed). To be clear, the imported CSV file acts as a
+         lookup table to obtain the tags for import based on the
+         files/directories and tags specified on the command line. The
+         -csvDelim option may be used to change the input/output field
+         delimiter if something other than a comma is required.
 
          The following examples demonstrate basic use of the -csv option:
 
@@ -736,11 +752,16 @@ OPTIONS
          single command.
 
          Specific tags may be imported from the CSV database by adding
-         -*TAG* options to the command, or excluded with --*TAG*, with
-         exclusions taking priority. Group names and wildcards are allowed.
-         If no tags are specified, then all except FileName and Directory
-         are used. Tags are imported in the same order as the database
-         entries.
+         -*TAG* options to the command after -csv=*CSVFILE*, or excluded
+         with --*TAG*, with exclusions taking priority. Group names and
+         wildcards in tag names are allowed, but the group name must match
+         exactly the group in the CSV file (eg. a "XMP-dc:Subject" column in
+         the CSV file won't match "-XMP:Subject" on the command line. Also,
+         tags from the CSV may be redirected and written to different tags
+         in the target file with support for advanced-formatting expressions
+         using the same syntax as the -tagsFromFile feature. If no tags are
+         specified, then all tags except FileName, Directory and excluded
+         tags are imported (in the same order as the database entries).
 
          When exporting a CSV file, the -g or -G option adds group names to
          the tag headings. If the -a option is used to allow duplicate tag
@@ -765,8 +786,8 @@ OPTIONS
          importing.
 
          Special feature: -csv+=*CSVFILE* may be used to add items to
-         existing lists. This affects only list-type tags. Also applies to
-         the -j option.
+         existing lists in the file. This affects only list-type tags. Also
+         applies to the -j option.
 
          Note that this and the -plot options are fundamentally different
          than all other output format options because they require
@@ -829,11 +850,12 @@ OPTIONS
     -f (-forcePrint)
          Force printing of tags even if they don't exist. This option
          applies to tags specified on the command line, or with the -p, -if
-         or -tagsFromFile options. When -f is used, the value of any missing
-         tag is set to a dash ("-") by default, but this may be configured
-         via the API MissingTagValue option. -f is also used to add a
-         'flags' attribute to the -listx output, or to allow tags to be
-         deleted when writing with the -csv=*CSVFILE* feature.
+         (unless the API UndefTags option is set), -fileNUM or -tagsFromFile
+         options. When -f is used, the value of any missing tag is set to a
+         dash ("-") by default, but this may be configured via the API
+         MissingTagValue option. -f is also used to add a 'flags' attribute
+         to the -listx output, or to allow tags to be deleted when writing
+         with the -csv=*CSVFILE* feature.
 
     -g[*NUM*][:*NUM*...] (-groupHeadings)
          Organize output by tag group. *NUM* specifies a group family
@@ -896,14 +918,16 @@ OPTIONS
          "val" and "id" fields. Adding -l adds a "desc" field, and a "num"
          field if the numerical value is different from the converted "val",
          and "fmt" and "hex" fields for EXIF metadata if the API SaveFormat
-         and SaveBin options are set respectively, and the length of the
-         "hex" output is limited by the API LimitLongValues setting. The -b
-         option may be added to output binary data, encoded in base64 if
-         necessary (indicated by ASCII "base64:" as the first 7 bytes of the
-         value), and -t may be added to include tag table information (see
-         -t for details). The JSON output is UTF-8 regardless of any -L or
-         -charset option setting, but the UTF-8 validation is disabled if a
-         character set other than UTF-8 is specified.
+         and SaveBin options are set respectively. The length of the "hex"
+         output is limited by the API LimitLongValues setting. Setting the
+         SaveBin option also causes the original values of Rational tags to
+         be returned in string form as an extra "rat" field. The -b option
+         may be added to output binary data, encoded in base64 if necessary
+         (indicated by ASCII "base64:" as the first 7 bytes of the value),
+         and -t may be added to include tag table information (see -t for
+         details). The JSON output is UTF-8 regardless of any -L or -charset
+         option setting, but the UTF-8 validation is disabled if a character
+         set other than UTF-8 is specified.
 
          Note that ExifTool quotes JSON values only if they don't look like
          numbers (regardless of the original storage format or the relevant
@@ -915,33 +939,38 @@ OPTIONS
 
              exiftool -j -api structformat=jsonq -sep ", " ...
 
-         If *JSONFILE* is specified, the file is imported and the tag
-         definitions from the file are used to set tag values on a per-file
-         basis. The special "SourceFile" entry in each JSON object
-         associates the information with a specific target file. An object
-         with a missing SourceFile or a SourceFile of "*" defines default
-         tags for all target files which are combined with any tags
-         specified for the specific SourceFile processed. The imported JSON
-         file must have the same format as the exported JSON files with the
-         exception that options exporting JSON objects instead of simple
-         values are not compatible with the import file format (ie. export
-         with -D, -H, -l, or -T is not compatible, and use -G instead of
-         -g). Additionally, tag names in the input JSON file may be suffixed
-         with a "#" to disable print conversion.
+         If *JSONFILE* is specified, the JSON file is imported and the tag
+         definitions from the JSON are used to set tag values on a per-file
+         basis for each file specified on the command line. A special
+         "SourceFile" entry in each JSON object associates the information
+         with a specific target file. An object with a missing SourceFile or
+         a SourceFile of "*" defines default tags for all target files which
+         are combined with any tags specified for the specific SourceFile
+         processed. The imported JSON file must have the same format as the
+         exported JSON files with the exception that options exporting JSON
+         objects instead of simple values are not compatible with the import
+         file format (ie. export with -D, -H, -l, or -T is not compatible,
+         and use -G instead of -g). Additionally, tag names in the input
+         JSON file may be suffixed with a "#" to disable print conversion.
 
          Specific tags may be imported from the JSON database by adding
-         -*TAG* options to the command, or excluded with --*TAG*, with
-         exclusions taking priority. Group names and wildcards are allowed.
-         If no tags are specified, then all except FileName and Directory
-         are used. Tags are imported in the same order as the database
-         entries.
+         -*TAG* options to the command after -j=*JSONFILE*, or excluded with
+         --*TAG*, with exclusions taking priority. Group names and wildcards
+         in tag names are allowed, but the group name must match exactly the
+         group in the JSON file (eg. a "XMP-dc:Subject" entry in the JSON
+         file won't match "-XMP:Subject" on the command line. Also, tags
+         from JSON may be redirected and written to different tags in the
+         target file with support for advanced-formatting expressions using
+         the same syntax as the -tagsFromFile feature. If no tags are
+         specified, then all tags except FileName, Directory and excluded
+         tags are imported (in the same order as the database entries).
 
          Unlike CSV import, empty values are not ignored, and will cause an
          empty value to be written if supported by the specific metadata
          type. Tags are deleted by using the -f option and setting the tag
          value to "-" (or to the MissingTagValue setting if this API option
          was used). Importing with -j+=*JSONFILE* causes new values to be
-         added to existing lists.
+         added to existing lists in the target file.
 
     -l (-long)
          Use long 2-line Canon-style output format. Adds a description and
@@ -1002,8 +1031,7 @@ OPTIONS
          lib/Image/ExifTool/Lang/ru.pm, and search and replace all "MISSING"
          strings in the file with your translations.
 
-         7. Email the module ('ru.pm' in this example) to philharvey66 at
-         gmail.com
+         7. Email the module ('ru.pm' in this example) to exiftool@gmail.com
 
          8. Thank you!!
 
@@ -1012,7 +1040,8 @@ OPTIONS
          index to be extracted. *INDEX* is 0 for the first item in the list.
          Negative indices may also be used to reference items from the end
          of the list. Has no effect on single-valued tags. Also applies to
-         tag values when copying from a tag, and in -if conditions.
+         tag values when copying from a tag, and in -if, -p and -fileNUM
+         arguments.
 
     -n (--printConv)
          Disable print conversion for all tags. By default, extracted values
@@ -1079,7 +1108,7 @@ OPTIONS
 
          produces output like this:
 
-             -- Generated by ExifTool 13.25 --
+             -- Generated by ExifTool 13.53 --
              File: a.jpg - 2003:10:31 15:44:19
              (f/5.6, 1/60s, ISO 100)
              File: b.jpg - 2006:05:23 11:57:38
@@ -1583,9 +1612,10 @@ OPTIONS
          ignored. Use multiple -i options to ignore more than one directory
          name. A special *DIR* value of "SYMLINKS" may be specified to avoid
          recursing into directories which are symbolic links when the -r
-         option is used. As well, a value of "HIDDEN" may be used to ignore
-         files with names that start with a "." (ie. hidden files on Unix
-         systems) when scanning a directory.
+         option is used (note this does not currently work under Windows).
+         As well, a value of "HIDDEN" may be used to ignore files with names
+         that start with a "." (ie. hidden files on Unix systems) when
+         scanning a directory.
 
     -if[*NUM*] *EXPR*
          Specify a condition to be evaluated before processing each *FILE*.
@@ -1635,11 +1665,8 @@ OPTIONS
 
          1) The -n and -b options also apply to tags used in *EXPR*.
 
-         2) Some binary data blocks are not extracted unless specified
-         explicitly. These tags are not available for use in the -if
-         condition unless they are also specified on the command line. The
-         alternative is to use the $GROUP:all syntax. (eg. Use $exif:all
-         instead of $exif in *EXPR* to test for the existence of EXIF tags.)
+         2) The API RequestTags option is automatically set for all tags
+         used in the -if condition.
 
          3) Tags in the string are interpolated in a similar way to -p
          before the expression is evaluated. In this interpolation, $/ is
@@ -1661,8 +1688,12 @@ OPTIONS
          previous command when -execute was used, and may be used like any
          other tag in the condition (ie. "$OK").
 
-         7) The API RequestTags option is automatically set for all tags
-         used in the -if condition.
+         7) The values of undefined tags in the expression are affected by
+         the -f and -m options unless the API UndefTags option is also set.
+
+         8) The condition fails if a Perl error occurs. This could happen
+         for instance if an undefined value (eg. a missing tag) is used
+         improperly.
 
     -m (-ignoreMinorErrors)
          Ignore minor errors and warnings. This enables writing to files
@@ -1674,8 +1705,9 @@ OPTIONS
          indicated by "[minor]" at the start of the message. Warnings which
          affect processing when ignored are indicated by "[Minor]" (with a
          capital "M"). Note that this causes missing values in
-         -tagsFromFile, -p and -if strings to be set to an empty string
-         rather than an undefined value.
+         -tagsFromFile, -p, -if and -fileNUM strings to be set to an empty
+         string rather than an undefined value (but this may be avoided for
+         -if using the API UndefTags option).
 
     -o *OUTFILE* or *FMT* (-out)
          Set the output file or directory name when writing information.
@@ -1894,9 +1926,10 @@ OPTIONS
          with -listf, -listr or -listwf to add file descriptions to the
          list. The -lang option may be combined with -listx to output
          descriptions in a single language, and the -sort and/or -lang
-         options may be combined with -listgeo. Also, the API GeolocMinPop,
-         GeolocFeature and GeolocAltNames options apply to the -listgeo
-         output. Here are some examples:
+         options may be combined with -listgeo (installation of the
+         alternate database is required for the additional languages). Also,
+         the API GeolocMinPop, GeolocFeature and GeolocAltNames options
+         apply to the -listgeo output. Here are some examples:
 
              -list               # list all tag names
              -list -EXIF:All     # list all EXIF tags
@@ -1936,7 +1969,7 @@ OPTIONS
          Compare metadata in *FILE* with *FILE2*. The *FILE2* name may
          include filename formatting codes (see the -w option). All
          extracted tags from the files are compared, but the extracted tags
-         may be controlled by adding -TAG or --TAG options. For example,
+         may be controlled by adding -*TAG* or --*TAG* options. For example,
          below is a command to compare all the same-named files in two
          different directories, ignoring the System tags:
 
@@ -1955,13 +1988,15 @@ OPTIONS
          -geotag option is equivalent to writing a value to the "Geotag"
          tag. The GPS position is interpolated from the track at a time
          specified by the value written to the "Geotime" tag. If "Geotime"
-         is not specified, the value is copied from "DateTimeOriginal#" (the
-         "#" is added to copy the unformatted value, avoiding potential
-         conflicts with the -d option). For example, the following two
-         commands are equivalent:
+         is not specified, the value is copied from
+         "SubSecDateTimeOriginal#" if it exists, otherwise
+         "DateTimeOriginal#" (the "#" is added to copy the unformatted
+         value, avoiding potential conflicts with the -d option). For
+         example, the following two commands are equivalent if
+         SubSecDateTimeOriginal exists in the file:
 
              exiftool -geotag trk.log image.jpg
-             exiftool -geotag trk.log "-Geotime<DateTimeOriginal#" image.jpg
+             exiftool -geotag trk.log "-Geotime<SubSecDateTimeOriginal#" image.jpg
 
          If the "Geotime" value does not contain a time zone then the local
          system timezone is assumed. Writing "Geotime" causes the following
@@ -2077,10 +2112,10 @@ OPTIONS
 
     -api [*OPT[[^]=[VAL]]*]
          Set ExifTool API option. *OPT* is an API option name. The option
-         value is set to 1 if *=VAL* is omitted. If *VAL* is omitted, the
-         option value is set to undef if "=" is used, or an empty string
+         value is set to 1 if *=VAL* is omitted. If just *VAL* is omitted,
+         the option value is set to undef if "=" is used, or an empty string
          with "^=". If *OPT* is not specified a list of available options is
-         returned. The option name is not case senstive, but the option
+         returned. The option name is not case sensitive, but the option
          values are. See Image::ExifTool Options for option details. This
          overrides API options set via the config file. Note that the
          exiftool app sets some API options internally, and attempts to
@@ -2157,8 +2192,15 @@ OPTIONS
          first argument accessing tags from the corresponding "FileNUM"
          group.
 
+         *ALTFILE* may also be "@" to access tags from the specified *FILE*,
+         which may be useful when the -srcfile option is used to process a
+         different source file.
+
          User-defined Composite tags may access tags from alternate files
          using the appropriate (case-sensitive) family 8 group name.
+
+         The -fast option, if used, also applies to processing of the
+         alternate files.
 
     -list_dir
          List directories themselves instead of their contents. This option
@@ -2259,31 +2301,32 @@ OPTIONS
          Set user parameter. *PARAM* is an arbitrary user parameter name.
          This is an interface to the API UserParam option (see the
          Image::ExifTool Options documentation), and provides a method to
-         access user-defined parameters in arguments to the -if and -p
-         options as if they were any other tag. Appending a hash tag ("#")
-         to *PARAM* (eg. "-userParam MyTag#=yes") also causes the parameter
-         to be extracted as a normal tag in the UserParam group. Similar to
-         the -api option, the parameter value is set to 1 if *=VAL* is
-         omitted, undef if just *VAL* is omitted with "=", or an empty
-         string if *VAL* is omitted with "^=".
+         access user-defined parameters in arguments to the -if, -p and
+         -fileNUM options as if they were any other tag. Appending a hash
+         tag ("#") to *PARAM* (eg. "-userParam MyTag#=yes") also causes the
+         parameter to be extracted as a normal tag in the UserParam group.
+         Similar to the -api option, the parameter value is set to 1 if
+         *=VAL* is omitted, undef if just *VAL* is omitted with "=", or an
+         empty string if *VAL* is omitted with "^=".
 
              exiftool -p "$test from $filename" -userparam test=Hello FILE
 
    Advanced formatting feature
     An advanced formatting feature allows modification of the value of any
-    tag interpolated within a -if or -p option argument, or a -tagsFromFile
-    redirection string. Tag names within these strings are prefixed by a "$"
-    symbol, and an arbitrary Perl expression may be applied to the tag value
-    by placing braces around the tag name and inserting the expression after
-    the name, separated by a semicolon (ie. "${TAG;EXPR}"). The expression
-    acts on the value of the tag through the default input variable ($_),
-    and has access to the full ExifTool API through the current ExifTool
-    object ($self) and the tag key ($tag). It may contain any valid Perl
-    code, including translation ("tr///") and substitution ("s///")
-    operations, but note that braces within the expression must be balanced.
-    The example below prints the camera Make with spaces translated to
-    underlines, and multiple consecutive underlines replaced by a single
-    underline:
+    tag interpolated within a -if, -p or -fileNUM argument, or a
+    -tagsFromFile redirection string. Tag names within these strings are
+    prefixed by a "$" symbol, and an arbitrary Perl expression may be
+    applied to the tag value by placing braces around the tag name and
+    inserting the expression after the name, separated by a semicolon (ie.
+    "${TAG;EXPR}"). The expression acts on the value of the tag through the
+    default input variable ($_), and has access to the full ExifTool API
+    through the current ExifTool object ($self) and the tag key ($tag). It
+    may contain any valid Perl code, including translation ("tr///") and
+    substitution ("s///") operations, but note that braces within the
+    expression must be balanced. If the expression does not modify $_ the
+    original tag value is returned. The example below prints the camera Make
+    with spaces translated to underlines, and multiple consecutive
+    underlines replaced by a single underline:
 
         exiftool -p "${make;tr/ /_/;s/__+/_/g}" image.jpg
 
@@ -2300,7 +2343,13 @@ OPTIONS
     in Windows file names, so this feature is useful if tag values are used
     in file names.)
 
+    Note that the expression is not evaluated for undefined (non-existant)
+    tags, which may have other values if either the -m or -f command-line
+    option or the API MissingTagValue option is used.
+
    Helper functions
+    Note that function names are case sensitive.
+
     "DateFmt"
 
     Simplifies reformatting of individual date/time values. This function
@@ -2338,8 +2387,6 @@ OPTIONS
     rewritten unnecessarily:
 
         exiftool -sep "##" "-keywords<${keywords;NoDups(1)}" a.jpg
-
-    Note that function names are case sensitive.
 
     ExifTool 12.64 adds an API NoDups option which makes the NoDups helper
     function largely redundant, with all the functionality except the

@@ -86,7 +86,7 @@ sub InflateStruct($$;$)
         my %struct;
         for (;;) {
             last unless $sfmt ? $$obj =~ s/^\s*"(.*?)"\s*://s :
-                                $$obj =~ s/^\s*([-\w:]+#?)\s*=//s;
+                                $$obj =~ s/^\s*([-\w:.]+#?)\s*=//s;
             my $tag = $1;
             my ($v, $w) = InflateStruct($et, $obj, '}');
             $warn = $w if $w and not $warn;
@@ -944,7 +944,7 @@ information.
 
 =head1 AUTHOR
 
-Copyright 2003-2025, Phil Harvey (philharvey66 at gmail.com)
+Copyright 2003-2026, Phil Harvey (philharvey66 at gmail.com)
 
 This library is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

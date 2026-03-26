@@ -11,7 +11,7 @@ package Image::ExifTool::Lang::de;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '1.37';
+$VERSION = '1.38';
 
 %Image::ExifTool::Lang::de::Translate = (
    'AEAperture' => 'AE-Blende',
@@ -5126,6 +5126,7 @@ $VERSION = '1.37';
    'LensType' => {
       Description => 'Objektivtyp',
       PrintConv => {
+        'None' => 'Keiner',
         'Uncoded lens' => 'Nicht kodiertes Objektiv',
       },
     },
@@ -6911,7 +6912,6 @@ $VERSION = '1.37';
    'Rotation' => {
       Description => 'Ausrichtung',
       PrintConv => {
-        'Horizontal (Normal)' => 'Horizontal (normal)',
         'Rotate 180' => '180° gedreht',
         'Rotate 270 CW' => '90° gegen den Uhrzeigersinn',
         'Rotate 90 CW' => '90° im Uhrzeigersinn',
@@ -8702,7 +8702,7 @@ and values.
 
 =head1 AUTHOR
 
-Copyright 2003-2025, Phil Harvey (philharvey66 at gmail.com)
+Copyright 2003-2026, Phil Harvey (philharvey66 at gmail.com)
 
 This library is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

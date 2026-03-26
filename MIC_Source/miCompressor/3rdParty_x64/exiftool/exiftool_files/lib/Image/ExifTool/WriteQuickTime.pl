@@ -95,6 +95,11 @@ my %emptyMeta = (
     hdlr => 'Handler', 'keys' => 'Keys', lang => 'Language', ctry => 'Country', free => 'Free',
 );
 
+# starting word for Keys tags which use a full tag ID
+my %fullKeysID = (
+    com => 1,   xiaomi => 1,    samsung => 1,
+);
+
 # lookup for CTBO ID number based on uuid for Canon CR3 files
 my %ctboID = (
     "\xbe\x7a\xcf\xcb\x97\xa9\x42\xe8\x9c\x71\x99\x94\x91\xe3\xaf\xac" => 1, # XMP
@@ -172,7 +177,7 @@ sub ConvInvISO6709($)
         # requires at least 3 digits after the decimal point
         # (and as of Apr 2021, Google Photos doesn't accept coordinats
         #  with more than 5 digits after the decimal place:
-        #  https://exiftool.org/forum/index.php?topic=11055.msg67171#msg67171 
+        #  https://exiftool.org/forum/index.php?topic=11055.msg67171#msg67171
         #  still a problem Apr 2024: https://exiftool.org/forum/index.php?msg=85761)
         my @fmt = ('%s%02d.%s%s','%s%03d.%s%s','%s%d.%s%s');
         my @limit = (90,180);
@@ -461,7 +466,10 @@ sub WriteKeys($$$)
         next unless $$nvHash{IsCreating} and $et->IsOverwriting($nvHash) and
             defined $et->GetNewValue($nvHash);
         # add new entry to 'keys' data
-        my $val = $id =~ /^com\./ ? $id : "com.apple.quicktime.$id";
+        my $val = $id;
+        unless ($val =~ /^(.*?)\./ and $fullKeysID{$1}) {
+            $val = "com.apple.quicktime.$val";
+        }
         $newData .= Set32u(8 + length($val)) . 'mdta' . $val;
         $et->VPrint(1, "$$et{INDENT}\[adding $keysGrp entry $newIndex '${id}']\n");
         $add{$newIndex++} = $tagInfo;
@@ -1096,13 +1104,17 @@ sub WriteQuickTime($$$)
         }
         if ($got != $size) {
             # ignore up to 256 bytes of garbage at end of file
-            if ($got <= 256 and $size >= 1024 and $tag ne 'mdat') {
+            my $type;
+            if ($got <= 256 and $size >= 1024 and $tag ne 'mdat' or
+                $got < 3000 and pack('N',$size) =~ /^<b[r>]/ and $type = 'extraneous HTML')
+            {
                 my $bytes = $got + length $hdr;
+                $type or $type = 'garbage';
                 if ($$et{OPTIONS}{IgnoreMinorErrors}) {
-                    $et->Warn("Deleted garbage at end of file ($bytes bytes)");
+                    $et->Warn("Deleted $type at end of file ($bytes bytes)");
                     $buff = $hdr = '';
                 } else {
-                    $et->Error("Possible garbage at end of file ($bytes bytes)", 1);
+                    $et->Error("Possible $type at end of file ($bytes bytes)", 1);
                     return $rtnVal;
                 }
             } else {
@@ -1248,6 +1260,8 @@ ItemID2:    foreach $id (reverse sort { $a <=> $b } keys %$items) {
                 my $base = ($$dirInfo{Base} || 0) + $raf->Tell() - $size;
                 my $dPos = 0;
                 my $hdrLen = $start;
+                # handle case where known trailer is the payload of a "DontRead" box (eg. 'inst')
+                $trailer = $$trailer[3] if $$tagInfo{DontRead} and $trailer and $base == $$trailer[1];
                 if ($$subdir{Base}) {
                     my $localBase = eval $$subdir{Base};
                     $dPos -= $localBase;
@@ -1729,6 +1743,14 @@ ItemID2:    foreach $id (reverse sort { $a <=> $b } keys %$items) {
         # (note that $tag may be a binary Keys index here)
         foreach $tag (@addTags) {
             my $tagInfo = $$dirs{$tag} || $$newTags{$tag};
+            unless (ref $tagInfo eq 'HASH') { # (shouldn't happen, but somehow there is forum17260)
+                # (also can happen if Meta exists but Keys does not since 'keys' is an array ref.
+                #  SonyPMW-EX1R.mp4 has a Movie-Meta atom with XML and no Keys that triggers this
+                #  issue.  Note that in this case the Meta HandlerType is 'meta' instead of 'mdta',
+                #  which isn't a problem for ExifTool, but may be for other software?)
+                next unless ref $tagInfo eq 'ARRAY';
+                $tagInfo = $et->GetTagInfo($tagTablePtr, $tag) or next;
+            }
             next if defined $$tagInfo{CanCreate} and not $$tagInfo{CanCreate};
             next if defined $$tagInfo{MediaType} and $$et{MediaType} ne $$tagInfo{MediaType};
             my $subdir = $$tagInfo{SubDirectory};
@@ -2244,7 +2266,7 @@ QuickTime-based file formats like MOV and MP4.
 
 =head1 AUTHOR
 
-Copyright 2003-2025, Phil Harvey (philharvey66 at gmail.com)
+Copyright 2003-2026, Phil Harvey (philharvey66 at gmail.com)
 
 This library is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

@@ -20,7 +20,7 @@ use strict;
 use vars qw($VERSION %uid);
 use Image::ExifTool qw(:DataAccess :Utils);
 
-$VERSION = '1.23';
+$VERSION = '1.24';
 
 # DICOM VR (Value Representation) format conversions
 my %dicomFormat = (
@@ -3794,7 +3794,10 @@ sub ProcessDICOM($$)
             } elsif ($vr eq 'UI') {
                 # add PrintConv to translate registered UID's
                 $val =~ s/\0.*//s; # truncate at null
-                $$tagInfo{PrintConv} = \%uid if $uid{$val} and $tagInfo;
+                if ($tagInfo) {
+                    $$tagInfo{PrintConv} = \%uid if $uid{$val};
+                    $$tagInfo{Hidden} = '' unless defined $$tagInfo{Hidden}; # (don't add PrintConv to -listx output)
+                }
             } elsif ($vr =~ /^(AE|CS|DS|IS|LO|PN|SH)$/) {
                 $val =~ s/ +$//;    # leading/trailing spaces not significant
                 $val =~ s/^ +//;
@@ -3853,7 +3856,7 @@ No translation of special characters sets is done.
 
 =head1 AUTHOR
 
-Copyright 2003-2025, Phil Harvey (philharvey66 at gmail.com)
+Copyright 2003-2026, Phil Harvey (philharvey66 at gmail.com)
 
 This library is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
