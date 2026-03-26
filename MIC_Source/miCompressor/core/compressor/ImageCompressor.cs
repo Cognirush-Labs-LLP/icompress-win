@@ -359,7 +359,6 @@ public class ImageCompressor
             {
                 // If any error during image loading or processing, log and record error
                 MicLog.Exception(ex, $"Failed to process file: {mediaInfo.FilePath}");
-                WarningHelper.Instance.AddCompressionError(CompressionErrorType.FailedToCompress, mediaInfo);
                 throw;  // rethrow to be handled in outer loop
             }
             finally
