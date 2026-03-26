@@ -151,10 +151,15 @@ public class ImageCompressor
         string sourcePath = mediaInfo.FilePath;
         string outputPath = mediaInfo.GetOutputPath(settings, multipleSelectPaths, forPreview);
 
+
         if (!forPreview && settings.SkipIfFileExists && settings.OutputLocationSettings != OutputLocationSetting.ReplaceOriginal && !mediaInfo.IsReplaceOperation && File.Exists(outputPath))
         {
             return SKIPPED;
         }
+
+        // create output directory if doesn't exist.
+        string? dir = Path.GetDirectoryName(outputPath);
+        if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
 
         if (IsGIFToPNG(mediaInfo, outputPath))
         {
