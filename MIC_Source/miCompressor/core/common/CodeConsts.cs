@@ -10,8 +10,8 @@ namespace miCompressor.core
     public static class CodeConsts
     {
 
-        public const bool IsForStoreDistribution = true;
-        public const string Version = "4.2.1";
+        public const bool IsForStoreDistribution = false;
+        public const string Version = "4.2.2";
         public static string ShortVersion => string.Join('.', Version.Split('.').Take(2));
 
         /// <summary>

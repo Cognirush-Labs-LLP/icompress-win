@@ -419,7 +419,7 @@ namespace miCompressor.core
                 // Compression failed, decide whether to copy original
                 if (ShouldCopyOriginal(expectedWidth, expectedHeight, outputPath))
                 {
-                    File.Copy(FileToCompress.FullName, outputPath, overwrite: true);
+                    CopyFile(FileToCompress.FullName, outputPath, overwrite: true);
                     CompressedFileSize = FileSize;
                     return (true, false); // Original file used, output file missing but not corrupt
                 }
@@ -445,7 +445,7 @@ namespace miCompressor.core
                 // The output file might be corrupt
                 if (ShouldCopyOriginal(expectedWidth, expectedHeight, outputPath))
                 {
-                    File.Copy(FileToCompress.FullName, outputPath, overwrite: true);
+                    CopyFile(FileToCompress.FullName, outputPath, overwrite: true);
                     CompressedFileSize = FileSize;
                     return (true, false); // Used original file, output file unreadable but not fatal
                 }
@@ -463,11 +463,13 @@ namespace miCompressor.core
             {
                 if (IsReplaceOperation)
                 {
+                    RemoveReadonly(outputFile.FullName);
                     outputFile.Delete();
                     return (true, false); // Original file used, output file discarded
                 }
 
-                File.Copy(FileToCompress.FullName, outputPath, overwrite: true);
+                CopyFile(FileToCompress.FullName, outputPath, overwrite: true);
+
                 CompressedFileSize = FileSize;
                 return (true, false); // Original file used instead of larger compressed file
             }
@@ -475,6 +477,9 @@ namespace miCompressor.core
             // If it's a replace operation, move the compressed file over the original
             if (IsReplaceOperation)
             {
+                RemoveReadonly(FileToCompress.FullName);
+                RemoveReadonly(outputFile.FullName);
+
                 File.Move(outputFile.FullName, FileToCompress.FullName, overwrite: true);
             }
 
@@ -528,6 +533,26 @@ namespace miCompressor.core
             return Width == width && Height == height;
         }
 
+        private void CopyFile(string from, string to, bool overwrite = true)
+        {
+            RemoveReadonly(to);
+            File.Copy(from, to, overwrite: true);
+        }
+
+        private bool RemoveReadonly(string destFile)
+        {
+            if (File.Exists(destFile))
+            {
+                FileInfo fi = new FileInfo(destFile);
+                // Remove the read-only attribute if it exists
+                if (fi.IsReadOnly)
+                {
+                    fi.IsReadOnly = false;
+                    return true;
+                }
+            }
+            return false;
+        }
 
 
         /// <summary>
@@ -541,6 +566,7 @@ namespace miCompressor.core
             public string? CameraModel { get; set; }
             public DateTimeOffset? DateTaken { get; set; }
         }
+
 
     }
 }
