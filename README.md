@@ -19,8 +19,8 @@ This official source code of modern version of Mass Image Compressor hosted at [
 ### Windows 10 and above, Windows Server 2019 and above
 Use one of these methods to install Mass Image Compressor.
 
-#### [Download latest Release (Installer)](https://github.com/Cognirush-Labs-LLP/icompress-win/releases/download/V4.2.0/MassImageCompressorInstallerV4_2_0.exe)
-#### [Download latest Release (Portable)](https://github.com/Cognirush-Labs-LLP/icompress-win/releases/download/V4.2.0/MassImageCompressorPortableV4_2_0.zip)
+#### [Download latest Release (Installer)](https://github.com/Cognirush-Labs-LLP/icompress-win/releases/download/V4.2.2/MassImageCompressorInstallerV4_2_2.exe)
+#### [Download Portable to unizip and use](https://github.com/Cognirush-Labs-LLP/icompress-win/releases/download/V4.2.2/MassImageCompressorPortableV4_2_2.zip)
 
 Other options,
 
