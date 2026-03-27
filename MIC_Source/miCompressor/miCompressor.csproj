@@ -28,6 +28,7 @@
     <WindowsPackageType>MSIX</WindowsPackageType>
     <GenerateAppxPackageOnBuild>true</GenerateAppxPackageOnBuild>
     <!-- <WindowsPackageType>None</WindowsPackageType> -->
+    <WindowsAppSdkUndockedRegFreeWinRTInitialize>true</WindowsAppSdkUndockedRegFreeWinRTInitialize>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
     <SelfContained>true</SelfContained>
