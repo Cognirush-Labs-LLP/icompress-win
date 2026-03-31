@@ -17,10 +17,7 @@ This official source code of modern version of Mass Image Compressor hosted at [
 ## 📥 Download
 
 ### Windows 10 and above, Windows Server 2019 and above
-Use one of these methods to install Mass Image Compressor.
-
-#### [Download latest Release (Installer)](https://github.com/Cognirush-Labs-LLP/icompress-win/releases/download/V4.2.2/MassImageCompressorInstallerV4_2_2.exe)
-#### [Download Portable to unizip and use](https://github.com/Cognirush-Labs-LLP/icompress-win/releases/download/V4.2.2/MassImageCompressorPortableV4_2_2.zip)
+Use one of these methods to install Mass Image Compressor. See [release page](https://github.com/Cognirush-Labs-LLP/icompress-win/releases/latest) of this project. 
 
 Other options,
 
@@ -42,10 +39,10 @@ Get signed installer from [Microsoft Store](https://apps.microsoft.com/detail/9N
 </a>
 
 ### Using older Windows System? 
-If you are on Windows 7, 8.x, you will need to use [older version (3.3.x)](https://sf.net/projects/icompress/files/icompress/Mass%20Image%20Compressor/MassImageCompressorV3.3.3.msi/download) of Mass Image Compressor which is shared on [SourceForge.net](https://sourceforge.net/projects/icompress/).
+If you are on Windows 7, 8.x, you will need to use [older version (3.3.x)](https://sf.net/projects/icompress/files/icompress/Mass%20Image%20Compressor/) of Mass Image Compressor.
 
 ### macOS 13+
-Mass Image Compressor for macOS is written in Swift by us but it is closed source at present. You can download it from [Mac App Store](https://apps.apple.com/app/apple-store/id6670366523?pt=127286138&ct=WindowsGit&mt=8). It has all required features freely available and purchase is required only for professional features (like watermark or some advanced features).
+Mass Image Compressor for macOS is written in Swift by us but it is closed source at present. Go to [Mac App Store](https://apps.apple.com/app/apple-store/id6670366523?pt=127286138&ct=WindowsGit&mt=8) for more details.
 
 ***NOTE**: Mass Image Compressor is **NOT** available on Android, iOS, iPadOS or as a web application.* 
 
