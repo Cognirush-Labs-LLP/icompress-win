@@ -10,7 +10,7 @@
 # Mass Image Compressor
 
 Mass Image Compressor is a fast, lightweight batch image processing tool that compresses, resizes, watermark and converts images to popular formats like WebP, AVIF, JPEG, PNG, and GIF—reducing file size while preserving quality.
-This official source code of modern version of Mass Image Compressor redesigned with a modern WinUI 3 interface and built on .NET 8 for Windows 10 and 11. We are there on [SourceForge.net](https://sourceforge.net/projects/icompress/) also.
+This official source code of modern version of Mass Image Compressor redesigned with a modern WinUI 3 interface and built on .NET 8 for Windows 10 and 11. This project was originally hosted on  [SourceForge.net](https://sourceforge.net/projects/icompress/) and we still maintain it..
 
 ---
 
