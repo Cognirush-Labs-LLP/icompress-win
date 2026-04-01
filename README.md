@@ -10,36 +10,37 @@
 # Mass Image Compressor
 
 Mass Image Compressor is a fast, lightweight batch image processing tool that compresses, resizes, watermark and converts images to popular formats like WebP, AVIF, JPEG, PNG, and GIF—reducing file size while preserving quality.
-This official source code of modern version of Mass Image Compressor hosted at [SourceForge](https://sourceforge.net/projects/icompress/), redesigned with a modern WinUI 3 interface and built on .NET 8 for Windows 10 and 11 in year 2025. 
+This official source code of modern version of Mass Image Compressor redesigned with a modern WinUI 3 interface and built on .NET 8 for Windows 10 and 11. We are there on [SourceForge.net](https://sourceforge.net/projects/icompress/) also.
 
 ---
 
-## 📥 Download
+## Install
 
 ### Windows 10 and above, Windows Server 2019 and above
-Use one of these methods to install Mass Image Compressor. See [release page](https://github.com/Cognirush-Labs-LLP/icompress-win/releases/latest) of this project. 
+This project releases Installer and Portable (unzip and use) pacakges in it's release.  
 
 Other options,
 
-#### Option 2: SourceForge.net
-Download latest unsigned installer from [SourceForge.net](https://sourceforge.net/projects/icompress/) (free). As the installer is unsigned and releases first, Windows security may kick-in and may have to take additional steps to install this. Choose other options if you are not comfortable. 
+#### Option 2: Winget 
 
-#### Option 3: Winget 
+You can use winget method to install the same build (released on github) with below command. 
+
 ```bash
 winget source update
 winget install --id=Cognirush.MassImageCompressor -e
 ```
+
 More details [here](https://mic.cognirush.com/install-via-winget/)
 
 #### Option 4: Use Microsoft Store
-Get signed installer from [Microsoft Store](https://apps.microsoft.com/detail/9NF6R54S63L3?launch=true&mode=full?cid=git) (one-time cost of a coffee). You get auto-update feature and Windows security is cool with it as the installer is signed.
+Get signed installer from [Microsoft Store](https://apps.microsoft.com/detail/9NF6R54S63L3?cid=git) (one-time purchase to support the project). You get auto-update feature and Windows security is cool with it as the installer is signed. Store build has no other extra features, it is created from the same source.
 
-<a href="https://apps.microsoft.com/detail/9NF6R54S63L3?launch=true&mode=full?cid=git">
+<a href="https://apps.microsoft.com/detail/9NF6R54S63L3?cid=git">
 	<img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200"/>
 </a>
 
 ### Using older Windows System? 
-If you are on Windows 7, 8.x, you will need to use [older version (3.3.x)](https://sf.net/projects/icompress/files/icompress/Mass%20Image%20Compressor/) of Mass Image Compressor.
+If you are on Windows 7, 8.x, you will need to use older version (3.3.x). That is older source (GPLv3) and you will find the build from [SourceForge](https://sf.net/projects/icompress/). 
 
 ### macOS 13+
 Mass Image Compressor for macOS is written in Swift by us but it is closed source at present. Go to [Mac App Store](https://apps.apple.com/app/apple-store/id6670366523?pt=127286138&ct=WindowsGit&mt=8) for more details.
@@ -48,7 +49,7 @@ Mass Image Compressor for macOS is written in Swift by us but it is closed sourc
 
 ---
 
-## 🔧 Features
+## Features
 
 - Compress multiple folders and files in one go (including optional subfolders)
 - Seamless Windows Explorer integration via the "Send To" menu (enabled if application is launched atleast once)
@@ -71,7 +72,7 @@ Mass Image Compressor for macOS is written in Swift by us but it is closed sourc
 - Watermark Image (v4.1.0 and above)
 
 ---
-## 🖼️ Screenshots
+## Screenshots
 
 <div style="display: flex; flex-wrap: wrap; gap: 10px;">
   <a href="screenshots/4.2.0/landing.png">
@@ -93,7 +94,7 @@ Mass Image Compressor for macOS is written in Swift by us but it is closed sourc
 </div>
 
 ---
-## 📦 Built With & Credits
+## Built With & Credits
 
 This project makes use of the following libraries and tools:
 
@@ -117,21 +118,16 @@ Other tools & credits used during development:
 ---
 
 
-## 👥 Community & Feedback
+## Community & Feedback
 
 We're collecting feedback during this rewrite phase. Join the discussion or report issues to help stabilize the new generation of Mass Image Compressor. If you have a functional feedback, provide it [here](https://mic.cognirush.com/mass-image-compressor-for-windows/).
 
 ---
-## 💖 Support Development
+## Support Development
 
 If you find this project helpful, consider supporting its development. Test, Report Bugs, or just share it with friends!
 
 Please read [LICENSE](./LICENSE) and [NOTICE.txt](./NOTICE.txt). If you're sharing a custom build, just make sure to remove the Cognirush Labs support email or contact links, otherwise folks might email/contact me about something I didn't build, and I won't be able to help (or worse, give them the wrong advice). Appreciate the understanding!
-
-Also, your donation helps keep the project active and maintained.  
-[☕ Donate via PayPal](https://www.paypal.com/paypalme/Yogendrasinh)
-
-or, purchase from [Microsoft Store](https://apps.microsoft.com/detail/9NF6R54S63L3?launch=true&mode=full?cid=git) to make contribution and get automatic updates.
 
 ---
 Have a great image compression today! 
