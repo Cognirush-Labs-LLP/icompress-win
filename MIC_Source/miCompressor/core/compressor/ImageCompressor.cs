@@ -13,6 +13,9 @@ namespace miCompressor.core;
 /// </summary>
 public class ImageCompressor
 {
+    private sealed class OutputLocationException(string directory, Exception innerException)
+        : IOException($"Cannot write to output directory '{directory}'.", innerException);
+
     /// <summary>
     /// Event fired when an image has been processed (success or failure).
     /// </summary>
@@ -93,10 +96,13 @@ public class ImageCompressor
                     // Log unexpected error and mark as failure
                     MicLog.Exception(ex, $"Exception compressing file: {file.FilePath}");
                     // Record a compression error for user notification
-                    WarningHelper.Instance.AddCompressionError(CompressionErrorType.FailedToCompress, file);
+                    CompressionErrorType errorType = ex is OutputLocationException
+                        ? CompressionErrorType.AccessDenied
+                        : CompressionErrorType.FailedToCompress;
+                    WarningHelper.Instance.AddCompressionError(errorType, file);
                     Interlocked.Increment(ref errorCount);
                     // Fire event for this file failure
-                    ImageCompressedEventArgs args = new(file, null, success: false, skipped: false);
+                    ImageCompressedEventArgs args = new(file, null, success: false, skipped: false, errorType);
                     ImageCompressed?.Invoke(this, args);
                 }
                 finally
@@ -159,7 +165,17 @@ public class ImageCompressor
 
         // create output directory if doesn't exist.
         string? dir = Path.GetDirectoryName(outputPath);
-        if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
+        if (!string.IsNullOrEmpty(dir))
+        {
+            try
+            {
+                Directory.CreateDirectory(dir);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                throw new OutputLocationException(dir, ex);
+            }
+        }
 
         if (IsGIFToPNG(mediaInfo, outputPath))
         {
