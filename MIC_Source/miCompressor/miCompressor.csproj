@@ -409,6 +409,15 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
+
+  <Target Name="CopyApplicationPriToPortablePublish"
+          AfterTargets="Publish"
+          Condition="'$(WindowsPackageType)' == 'None' and Exists('$(TargetDir)$(AssemblyName).pri')">
+    <Copy SourceFiles="$(TargetDir)$(AssemblyName).pri"
+          DestinationFolder="$(PublishDir)"
+          SkipUnchangedFiles="true" />
+  </Target>
+
   <!-- <ItemGroup>
     <PRIResource Remove="Assets - Copy\**" />
   </ItemGroup> -->
