@@ -7,7 +7,7 @@
 
 # Mass Image Compressor
 
-Mass Image Compressor is a fast, lightweight batch image processing tool that compresses, resizes, watermark and converts images to popular formats like WebP, AVIF, JPEG, PNG, and GIF—reducing file size while preserving quality.
+Mass Image Compressor is a fast, lightweight batch image processing tool that compresses, resizes, watermark and converts images to popular formats like JPEG XL, WebP, AVIF, JPEG, PNG, and GIF—reducing file size while preserving quality.
 This official source code of modern version of Mass Image Compressor redesigned with a modern WinUI 3 interface and built on .NET 8 for Windows 10 and 11. This project is originally hosted on  [SourceForge.net](https://sourceforge.net/projects/icompress/) and we still maintain it on SourceForge. Github repo also maintains exact same source code and it helps us support distribution channels such as Winget.
 
 Project website: https://mic.cognirush.com/windows/
@@ -56,7 +56,7 @@ Mass Image Compressor for macOS is written in Swift by us but it is closed sourc
 - Seamless Windows Explorer integration via the "Send To" menu (enabled if application is launched atleast once)
 - Advanced metadata copy settings (EXIF, XMP, IPTC) with filtering (e.g., strip GPS, serial numbers)
 - Full support for **Animated Images** (GIF, PNG, WebP)
-- Output to modern formats like **WebP** and **AVIF**
+- Output to modern formats like **JPEG XL**, **WebP** and **AVIF**
 - Regex filters for filenames and size-based exclusions
 - Suffix/Prefix options and filename text replacement for output files
 - Powerful Preview UI with pixel-level image comparison (`CTRL + T`)

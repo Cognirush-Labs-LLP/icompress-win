@@ -166,7 +166,7 @@ public static class EnumDescriptionProvider<T> where T : Enum
                 {
                     { CompressionErrorType.None, "No error occurred during compression." },
                     { CompressionErrorType.FailedToCompress, "Compression failed due to unsupported format features or file corruption." },
-                    { CompressionErrorType.AccessDenied, "Access denied to the output location." },
+                    { CompressionErrorType.AccessDenied, "Cannot write to the output location. Check folder permissions or Windows Security's Controlled Folder Access." },
                     { CompressionErrorType.Cancelled, "Compression was canceled." }
                 };
 
