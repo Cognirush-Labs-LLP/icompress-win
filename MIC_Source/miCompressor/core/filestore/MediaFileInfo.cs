@@ -264,19 +264,56 @@ namespace miCompressor.core
                 StorageFile file = await StorageFile.GetFileFromPathAsync(filePath);
                 ImageProperties properties = await file.Properties.GetImagePropertiesAsync();
 
-                return new ImageMetadata
+                if (properties.Width > 0 && properties.Height > 0)
                 {
-                    Width = properties.Width,
-                    Height = properties.Height,
-                    FileSize = loadFileSize ? (ulong)new FileInfo(filePath).Length : 0,
-                    //CameraModel = properties.CameraModel,
-                    //DateTaken = properties.DateTaken
-                };
+                    return new ImageMetadata
+                    {
+                        Width = properties.Width,
+                        Height = properties.Height,
+                        FileSize = loadFileSize ? (ulong)new FileInfo(filePath).Length : 0,
+                        //CameraModel = properties.CameraModel,
+                        //DateTaken = properties.DateTaken
+                    };
+                }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error loading metadata for {filePath}: {ex.Message}");
-                return null; // Return null if metadata loading fails
+            }
+
+            // Windows does not provide image properties for every format (notably
+            // JPEG XL). Magick.NET is already the application's decoding fallback,
+            // so use it to validate the output and obtain its dimensions.
+            try
+            {
+                MagickImageInfo imageInfo = new MagickImageInfo(filePath);
+                uint imageWidth = imageInfo.Width;
+                uint imageHeight = imageInfo.Height;
+
+                switch (imageInfo.Orientation)
+                {
+                    case OrientationType.LeftTop:
+                    case OrientationType.RightTop:
+                    case OrientationType.RightBottom:
+                    case OrientationType.LeftBottom:
+                        (imageWidth, imageHeight) = (imageHeight, imageWidth);
+                        break;
+                }
+
+                if (imageWidth == 0 || imageHeight == 0)
+                    return null;
+
+                return new ImageMetadata
+                {
+                    Width = imageWidth,
+                    Height = imageHeight,
+                    FileSize = loadFileSize ? (ulong)new FileInfo(filePath).Length : 0
+                };
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Magick.NET could not load metadata for {filePath}: {ex.Message}");
+                return null;
             }
         }
 

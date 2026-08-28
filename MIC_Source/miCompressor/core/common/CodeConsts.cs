@@ -55,7 +55,7 @@ namespace miCompressor.core
         /// <summary>
         /// Supported lower cased output file extensions without dot. i.e. "jpg", "png", "webp"
         /// </summary>
-        public static string[] SupportedOutputExtensions = ["jpg", "png", "webp", "tiff", "avif"];
+        public static string[] SupportedOutputExtensions = ["jpg", "png", "webp", "tiff", "avif", "jxl"];
 
 /// <summary>
         /// Generated from <![CDATA[SupportedInputExtensions]]> but file extensions with dot. i.e. ".jpg", ".jpeg", ".png", ".webp"
