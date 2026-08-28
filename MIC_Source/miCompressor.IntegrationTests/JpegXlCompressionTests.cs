@@ -104,6 +104,30 @@ public class JpegXlCompressionTests : IDisposable
         Assert.Equal("JPEG XL integration test", ReadMetadataTag(outputPath, "Artist"));
     }
 
+    [Fact]
+    public async Task UnwritableOutputLocation_IsReportedAsAccessDenied()
+    {
+        string inputPath = CreateSourceImage("access-denied.png", MagickFormat.Png);
+        string fileUsedAsOutputDirectory = Path.Combine(_testRoot, "not-a-directory");
+        File.WriteAllText(fileUsedAsOutputDirectory, "block directory creation");
+        OutputSettings settings = CreateSettings(OutputFormat.Jxl, 80);
+        settings.OutputLocationSettings = OutputLocationSetting.UserSpecificFolder;
+        settings.OutputFolder = fileUsedAsOutputDirectory;
+
+        var media = await CreateMediaFileInfoAsync(inputPath);
+        ImageCompressedEventArgs? result = null;
+        var compressor = new ImageCompressor();
+        compressor.ImageCompressed += (_, args) => result = args;
+
+        await compressor.CompressImagesAsync([media], fromMultipleSelectPath: false, settings, forPreview: false);
+
+        Assert.NotNull(result);
+        Assert.Equal(CompressionErrorType.AccessDenied, result.Error);
+        Assert.Contains(
+            media,
+            WarningHelper.Instance.CompressionErrors[CompressionErrorType.AccessDenied]);
+    }
+
     private async Task<string> ConvertForPreviewAsync(string inputPath, OutputSettings settings)
     {
         var media = await CreateMediaFileInfoAsync(inputPath);
