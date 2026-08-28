@@ -45,6 +45,13 @@ namespace miCompressor.core
                         Lossless = (targetQuality > 95)
                     };
                     break;
+                case OutputFormat.Jxl:
+                    return new JxlWriteDefines
+                    {
+                        // libjxl's recommended balanced effort. Quality 100 is
+                        // pixel-lossless; lower values use Magick.NET's lossy mapping.
+                        Effort = 7
+                    };
                 /*case OutputFormat.Tiff:
                     return null;
                     return new TiffWriteDefines
@@ -67,7 +74,8 @@ namespace miCompressor.core
                 //OutputFormat.Tiff => MagickFormat.Tiff,
                 //OutputFormat.heic => MagickFormat.Heic,
                 OutputFormat.avif => MagickFormat.Avif,
-                OutputFormat.Gif => MagickFormat.Gif
+                OutputFormat.Gif => MagickFormat.Gif,
+                OutputFormat.Jxl => MagickFormat.Jxl
             };
         }
 
@@ -82,7 +90,8 @@ namespace miCompressor.core
                 //OutputFormat.Tiff => false,
                 //OutputFormat.heic => true,
                 OutputFormat.avif => true,
-                OutputFormat.Gif => false
+                OutputFormat.Gif => false,
+                OutputFormat.Jxl => true
             };
         }
     }

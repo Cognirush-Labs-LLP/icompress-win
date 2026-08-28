@@ -27,6 +27,9 @@ public class MetadataCopyHelper
     public int Copy(string copyFromImagePath, string copyToImagePath, OutputSettings settings)
     {
         string arguments = "";
+        // Magick.NET writes a bare JXL codestream. ExifTool needs permission to
+        // wrap it in an ISO BMFF container before EXIF/XMP can be written.
+        string formatOptions = OutputFormatHelper.GetOutputFormatFor(copyToImagePath) == OutputFormat.Jxl ? " -m " : "";
 
         if (settings.CopyMetadata)
         {
@@ -35,7 +38,7 @@ public class MetadataCopyHelper
             if (string.IsNullOrWhiteSpace(copyToImagePath) || !File.Exists(copyToImagePath))
                 throw new FileNotFoundException("Image file to copy metadata to, not found", copyToImagePath);
 
-            arguments = $"-exif:all= -tagsfromfile @ -exif:all -thumbnailimage -unsafe -overwrite_original \"{copyToImagePath}\""; //required mainly for WebP image, when created from RAW
+            arguments = $"{formatOptions} -exif:all= -tagsfromfile @ -exif:all -thumbnailimage -unsafe -overwrite_original \"{copyToImagePath}\""; //required mainly for WebP image, when created from RAW
 
             _executor.Execute(arguments, waitForExit: true);
 
@@ -74,11 +77,11 @@ public class MetadataCopyHelper
             if (String.IsNullOrEmpty(options)) //nothing to copy
                 return 0;
 
-            arguments = $" -tagsFromFile \"{copyFromImagePath}\" {options} -Orientation#=0  -overwrite_original \"{copyToImagePath}\" ";
+            arguments = $"{formatOptions} -tagsFromFile \"{copyFromImagePath}\" {options} -Orientation#=0  -overwrite_original \"{copyToImagePath}\" ";
         }
         else
         {
-            arguments = $" -all:all= -overwrite_original \"{copyToImagePath}\" ";
+            arguments = $"{formatOptions} -all:all= -overwrite_original \"{copyToImagePath}\" ";
         }
 
         if (settings.RetainDateTime)

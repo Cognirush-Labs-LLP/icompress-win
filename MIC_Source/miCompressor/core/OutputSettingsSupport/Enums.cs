@@ -26,22 +26,27 @@ namespace miCompressor.core
         /// <summary>
         /// PNG format (.png, .PNG)
         /// </summary>
-        Png,
+        Png = 2,
 
         /// <summary>
         /// WebP format (.webp, .WEBP)
         /// </summary>
-        Webp,        // WebP format (.webp, .WEBP)
+        Webp = 3,        // WebP format (.webp, .WEBP)
 
         /// <summary>
         /// AVID (very slow, experimental)
         /// </summary>
-        avif,
+        avif = 4,
 
         /// <summary>
         /// Gif 
         /// </summary>
-        Gif
+        Gif = 5,
+
+        /// <summary>
+        /// JPEG XL format (.jxl, .JXL)
+        /// </summary>
+        Jxl = 6
     }
 
     /// <summary>
@@ -72,6 +77,7 @@ namespace miCompressor.core
                 //OutputFormat.heic => IsHeic(originalExtension) ? originalExtension : ".heic",
                 OutputFormat.avif => IsAvif(originalExtension) ? originalExtension : ".avif",
                 OutputFormat.Gif => IsGif(originalExtension) ? originalExtension : ".gif",
+                OutputFormat.Jxl => IsJxl(originalExtension) ? originalExtension : ".jxl",
                 OutputFormat.KeepSame => isSupportedAsOutput(originalExtension) ? originalExtension : AdvancedSettings.Instance.defaultImageExtension.GetOutputExtension(originalFilePath),
                 _ => throw new ArgumentOutOfRangeException(nameof(format), "Unsupported format.")
             };
@@ -79,7 +85,7 @@ namespace miCompressor.core
 
         private static bool isSupportedAsOutput(string originalExtension)
         {
-            return IsJpeg(originalExtension) || IsPng(originalExtension) || IsGif(originalExtension) || IsWebp(originalExtension) || IsAvif(originalExtension);
+            return IsJpeg(originalExtension) || IsPng(originalExtension) || IsGif(originalExtension) || IsWebp(originalExtension) || IsAvif(originalExtension) || IsJxl(originalExtension);
         }
 
         private static bool IsJpeg(string ext) => ext.Equals(".jpg", StringComparison.OrdinalIgnoreCase) || ext.Equals(".jpeg", StringComparison.OrdinalIgnoreCase);
@@ -87,6 +93,7 @@ namespace miCompressor.core
         private static bool IsWebp(string ext) => ext.Equals(".webp", StringComparison.OrdinalIgnoreCase);
         private static bool IsAvif(string ext) => ext.Equals(".avif", StringComparison.OrdinalIgnoreCase);
         private static bool IsGif(string ext) => ext.Equals(".gif", StringComparison.OrdinalIgnoreCase);
+        private static bool IsJxl(string ext) => ext.Equals(".jxl", StringComparison.OrdinalIgnoreCase);
 
 
         /// <summary>
@@ -105,7 +112,8 @@ namespace miCompressor.core
                 OutputFormat.Webp => "WebP",
                 //OutputFormat.heic => "HEIC", //Not supported by Magick.NET
                 OutputFormat.avif => "AVIF",
-                OutputFormat.Gif => "GIF"
+                OutputFormat.Gif => "GIF",
+                OutputFormat.Jxl => "JPEG XL"
             };
         }
 
@@ -125,6 +133,7 @@ namespace miCompressor.core
             //if (IsHeic(requiredExtension)) return OutputFormat.heic;
             if (IsAvif(requiredExtension)) return OutputFormat.avif;
             if (IsGif(requiredExtension)) return OutputFormat.Gif;
+            if (IsJxl(requiredExtension)) return OutputFormat.Jxl;
             return OutputFormat.Jpg;
         }
 

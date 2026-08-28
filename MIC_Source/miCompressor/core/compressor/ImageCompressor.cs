@@ -28,7 +28,7 @@ public class ImageCompressor
     /// </summary>
     private bool stop = false;
 
-    string[] MultiFrameSupportedFormats = [".gif", ".webp", ".tif", ".tiff", ".png", ".apng", ".heic", ".avif", ".jp2"];
+    string[] MultiFrameSupportedFormats = [".gif", ".webp", ".tif", ".tiff", ".png", ".apng", ".heic", ".avif", ".jp2", ".jxl"];
 
     /// <summary>
     /// Cancel any on-going compression.
