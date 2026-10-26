@@ -7,7 +7,7 @@
 
 # Mass Image Compressor
 
-Mass Image Compressor is a fast, lightweight batch image processing tool that compresses, resizes, watermark and converts images to popular formats like WebP, AVIF, JPEG, PNG, and GIF—reducing file size while preserving quality.
+Mass Image Compressor is a fast, lightweight batch image processing tool that compresses, resizes, watermark and converts images to popular formats like WebP, AVIF, JPEG, PNG, and GIF — reducing file size while preserving quality.
 This official source code of modern version of Mass Image Compressor redesigned with a modern WinUI 3 interface and built on .NET 8 for Windows 10 and 11. This project is originally hosted on  [SourceForge.net](https://sourceforge.net/projects/icompress/) and we still maintain it on SourceForge. Github repo also maintains exact same source code and it helps us support distribution channels such as Winget.
 
 Project website: https://mic.cognirush.com/windows/
@@ -40,13 +40,16 @@ Get signed installer from [Microsoft Store](https://apps.microsoft.com/detail/9N
 </a>
 
 ### Related software (not this source repository) 
-#### Using older Windows System? 
-If you are on Windows 7, 8.x, you will need to use older version (3.3.3). That is older source (GPLv3) and you will find the build from [SourceForge Release list](https://sourceforge.net/projects/icompress/files/icompress/Mass%20Image%20Compressor/). 
+We have built Mass Image Compressor for other platforms too. Each is a separate project with its own source and distribution.
+
+#### Windows 7, 8.x (v3.3.3)
+Mass Image Compressor 3.x is old version that supports Windows 7 and 8. It is available from our [SourceForge project](https://sourceforge.net/projects/icompress/). Source (GPLv3) is in its [SVN repo](https://sourceforge.net/p/icompress/code/HEAD/tree/). Version 3 is no longer actively maintained.
 
 #### macOS 13+
-Mass Image Compressor for macOS is written in Swift by us but it is closed source at present. Go to [Mac App Store](https://apps.apple.com/app/apple-store/id6670366523?pt=127286138&ct=WindowsGit&mt=8) for more details.
+Written in Swift by us, closed source at present. Get it from the [Mac App Store](https://apps.apple.com/app/apple-store/id6670366523?pt=127286138&ct=WindowsGit&mt=8).
 
-***NOTE**: Mass Image Compressor is **NOT** available on Android, iOS, iPadOS or as a web application.* 
+#### Web app (PWA)
+Works on Android and in browsers (iOS/iPadOS in testing). Live at [massimg.com](https://massimg.com), source (AGPLv3) at [massimg-web](https://github.com/Cognirush-Labs-LLP/massimg-web).
 
 ---
 
