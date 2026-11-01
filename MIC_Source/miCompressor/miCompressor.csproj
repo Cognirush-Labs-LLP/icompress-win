@@ -179,22 +179,18 @@
   </ItemGroup>
   
   <ItemGroup Condition="'$(Platform)' == 'x64'">
-    <PackageReference Include="Magick.NET-Q8-OpenMP-x64" Version="14.11.1" />
+    <PackageReference Include="Magick.NET-Q8-OpenMP-x64" Version="14.17.2" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(Platform)' == 'arm64'">
-    <PackageReference Include="Magick.NET-Q8-OpenMP-arm64" Version="14.8.2" />
+    <PackageReference Include="Magick.NET-Q8-OpenMP-arm64" Version="14.17.2" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.251219" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7705" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260317003" />
-    <PackageReference Include="Serilog" Version="4.3.1" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.9457" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260921001" />
+    <PackageReference Include="Serilog" Version="4.4.0" />
     <PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
   </ItemGroup>
