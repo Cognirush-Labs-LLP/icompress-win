@@ -46,11 +46,17 @@ namespace miCompressor.core
                     };
                     break;
                 case OutputFormat.Jxl:
+                    // Effort 7 is libjxl's balanced default; lower it for large images to keep encoding time reasonable.
+                    // Quality 100 is pixel-lossless; lower values use Magick.NET's lossy mapping.
+                    int effort = 7;
+                    ulong jxlPixels = fileinfo == null ? 0 : (ulong)fileinfo.Width * fileinfo.Height;
+
+                    if (jxlPixels > 4_200_000) effort = 5;
+                    else if (jxlPixels > 2_100_000) effort = 6; // Full HD (1920x1080) and smaller stays at 7
+
                     return new JxlWriteDefines
                     {
-                        // libjxl's recommended balanced effort. Quality 100 is
-                        // pixel-lossless; lower values use Magick.NET's lossy mapping.
-                        Effort = 7
+                        Effort = effort
                     };
                 /*case OutputFormat.Tiff:
                     return null;
