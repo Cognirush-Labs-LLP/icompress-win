@@ -33,17 +33,20 @@ namespace miCompressor.core
         /// <summary>
         /// Resize all frames in a MagickImageCollection according to the provided settings.
         /// Ensures all frames maintain consistent dimensions after resizing.
+        /// keepPartialFrames: when nothing is resized, leave partial (sub-rectangle) frames as they are
+        /// instead of coalescing them, for encoders that store partial frames as-is (JXL).
         /// </summary>
-        public static void ResizeFrames(MagickImageCollection frames, OutputSettings settings)
+        public static void ResizeFrames(MagickImageCollection frames, OutputSettings settings, bool keepPartialFrames = false)
         {
             var isDiffSizedFrames = frames.Any(f => f.Height != frames[0].Height || f.Height != frames[0].Width);
+            bool resize = settings.dimensionStrategy != DimensionReductionStrategy.KeepSame;
 
-            if (isDiffSizedFrames)
+            if (isDiffSizedFrames && (resize || !keepPartialFrames))
             {
                 frames.Coalesce();
             }
 
-            if (settings.dimensionStrategy == DimensionReductionStrategy.KeepSame)
+            if (!resize)
                 return;
             if (frames.Count == 0) return;
 

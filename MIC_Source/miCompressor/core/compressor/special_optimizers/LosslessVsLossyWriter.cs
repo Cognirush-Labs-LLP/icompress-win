@@ -8,25 +8,49 @@ namespace miCompressor.core
 {
     /// <summary>
     /// Encapsulates the "try lossy vs lossless and pick the smaller" write flow.
-    /// Applies to WebP and AVIF only. JPEG is excluded; PNG remains single-pass.
+    /// Applies to WebP and JXL only. JPEG is excluded; PNG remains single-pass.
     /// </summary>
     internal static class LosslessVsLossyWriter
     {
+        // Lossless only beats lossy on low color content (flat graphics, UI, logos). On real images, both WebP and JXL
+        // lossless won up to ~2000 colors and lost from ~2600 up (photos and screenshots have many thousands).
+        private const uint MaxColorsForLossless = 2048;
+        // Larger images are judged by their center section only, to keep the color count cheap.
+        private const uint ColorSampleSize = 1000;
+
         // ---------------------------- Public API ----------------------------
 
         /// <summary>
         /// Decide whether a lossy-vs-lossless comparison should be attempted for the given settings.
-        /// Thread-safety: pure function; safe for concurrent use.
+        /// Thread-safety: does not mutate <paramref name="firstFrame"/>; safe for concurrent use on different images.
         /// </summary>
-        public static bool ShouldTryLosslessVsLossy(MediaFileInfo mediaInfo, OutputSettings settings)
+        public static bool ShouldTryLosslessVsLossy(OutputSettings settings, string outputPath, IMagickImage<byte> firstFrame)
         {
+            if (settings.quality >= 100) // already lossless
+                return false;
+
             // Only formats where a true lossless encode exists and can be smaller than a lossy encode.
             // Exclude JPEG; PNG stays single-pass (quantization already handled downstream).
-            OutputFormat[] allowedInputFormatForLossyVsLosslessCheck = [OutputFormat.Png, OutputFormat.Webp, OutputFormat.Gif];
+            var format = OutputFormatHelper.GetOutputFormatFor(outputPath);
+            return format is OutputFormat.Webp or OutputFormat.Jxl
+                && CountSampleColors(firstFrame) <= MaxColorsForLossless;
+        }
 
-            return (settings.format == OutputFormat.Webp)
-                && allowedInputFormatForLossyVsLosslessCheck.Contains(OutputFormatHelper.GetOutputFormatFor(mediaInfo.FilePath))
-                && settings.quality < 100; // user asked for lossy; we will probe if lossless is even smaller
+        private static uint CountSampleColors(IMagickImage<byte> image)
+        {
+            if (image.Width <= ColorSampleSize && image.Height <= ColorSampleSize)
+                return image.TotalColors;
+
+            using var sample = image.Clone();
+            sample.Crop(new MagickGeometry(ColorSampleSize, ColorSampleSize), Gravity.Center);
+            return sample.TotalColors;
+        }
+
+        // JXL has no lossless define; quality 100 is what selects its lossless mode.
+        private static void PrepareLossless(IMagickImage<byte> image, string outputPath)
+        {
+            if (OutputFormatHelper.GetOutputFormatFor(outputPath) == OutputFormat.Jxl)
+                image.Quality = 100;
         }
 
         /// <summary>
@@ -42,7 +66,7 @@ namespace miCompressor.core
         /// <returns>True if this method handled the write; false if format not applicable.</returns>
         public static bool TryWrite(MagickImage? src, OutputSettings settings, MediaFileInfo mediaInfo, string outputPath)
         {
-            if (!ShouldTryLosslessVsLossy(mediaInfo, settings) || src == null)
+            if (src == null || !ShouldTryLosslessVsLossy(settings, outputPath, src))
                 return false;
 
             // Build lossy defines using the app’s existing helper (keeps your global policy centralized).
@@ -56,6 +80,7 @@ namespace miCompressor.core
             // Explicit, consistent metadata state across both encodes.
             lossyImg.Strip();
             losslessImg.Strip();
+            PrepareLossless(losslessImg, outputPath);
 
             // Encode to memory and compare — no double disk I/O.
             using var lossyMs = new MemoryStream();
@@ -79,7 +104,7 @@ namespace miCompressor.core
         /// </summary>
         public static bool TryWrite(MagickImageCollection collection, OutputSettings settings, MediaFileInfo mediaInfo, string outputPath)
         {
-            if (!ShouldTryLosslessVsLossy(mediaInfo, settings))
+            if (collection.Count == 0 || !ShouldTryLosslessVsLossy(settings, outputPath, collection[0]))
                 return false;
 
             var lossyDefines = MagickHelper.GetWriteDefinesFor(settings.format, outputPath, true, settings.quality, mediaInfo);
@@ -90,7 +115,7 @@ namespace miCompressor.core
 
             // Strip metadata for consistency
             foreach (var f in lossyCol) f.Strip();
-            foreach (var f in lossCol) f.Strip();
+            foreach (var f in lossCol) { f.Strip(); PrepareLossless(f, outputPath); }
 
             using var lossyMs = new MemoryStream();
             using var losslessMs = new MemoryStream();

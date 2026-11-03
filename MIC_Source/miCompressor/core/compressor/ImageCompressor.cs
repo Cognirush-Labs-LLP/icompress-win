@@ -132,7 +132,7 @@ public class ImageCompressor
 
     OutputFormat[] MultiFrameOutputFormats = [OutputFormat.Webp, OutputFormat.Png, 
         //OutputFormat.heic, 
-        OutputFormat.avif, OutputFormat.Gif];
+        OutputFormat.avif, OutputFormat.Gif, OutputFormat.Jxl];
 
 
     private void RaiseCancellationEvent(MediaFileInfo mediaInfo)
@@ -292,9 +292,28 @@ public class ImageCompressor
                 if (collection != null)
                 {
                     ImageOrientationHelper.CorrectOrientation(collection);
+                    // Magick's JXL writer draws each frame over the previous one and stores frames as given.
+                    // Partial frames that only draw over the previous frame are kept as-is (coalescing would bloat the file);
+                    // APNG is excluded as its frames may replace their area instead, which Magick doesn't expose.
+                    bool isJxlOutput = OutputFormatHelper.GetOutputFormatFor(outputPath) == OutputFormat.Jxl;
+                    bool keepPartialFrames = isJxlOutput
+                        && settings.dimensionStrategy == DimensionReductionStrategy.KeepSame
+                        && !settings.ApplyWatermark
+                        && collection[0].Format != MagickFormat.APng
+                        && collection.All(f => f.GifDisposeMethod is GifDisposeMethod.None or GifDisposeMethod.Undefined);
+                    bool coalesceForJxl = isJxlOutput && !keepPartialFrames;
+                    if (coalesceForJxl)
+                    {
+                        // Full frames must replace the previous frame, else semi-transparent pixels get blended twice.
+                        // Done before resize/watermark, so their coalescing leaves these frames unchanged.
+                        collection.Coalesce();
+                        SetFramesToReplacePrevious(collection);
+                    }
                     // Resize all frames according to settings
-                    ResizeHelper.ResizeFrames(collection, settings);
+                    ResizeHelper.ResizeFrames(collection, settings, keepPartialFrames);
                     WatermarkHelper.WatermarkAllFrames(collection, settings);
+                    if (coalesceForJxl)
+                        SetFramesToReplacePrevious(collection); // coalescing in resize/watermark resets it
 
                     foreach (var frame in collection)
                     {
@@ -443,6 +462,12 @@ public class ImageCompressor
             //WarningHelper.Instance.AddCompressionError(CompressionErrorType.FailedToCompress, mediaInfo);
             throw;  // rethrow to be handled in outer loop
         }
+    }
+
+    private static void SetFramesToReplacePrevious(MagickImageCollection collection)
+    {
+        foreach (var frame in collection)
+            frame.GifDisposeMethod = GifDisposeMethod.Background;
     }
 
     private bool IsGIF(string filePath)
