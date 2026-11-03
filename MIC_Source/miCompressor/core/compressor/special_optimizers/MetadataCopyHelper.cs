@@ -50,7 +50,8 @@ public class MetadataCopyHelper
             if (settings.CopyXMP && !settings.SkipSensitiveMetadata)
                 options += " -XMP:all ";
 
-            options += " -ThumbnailImage= -Software=\"Mass Image Compressor\" -ICC_Profile -trailer:all= -unsafe ";
+            // ICC profile is not copied: the compressor already wrote the one matching output pixels (which may be converted to sRGB).
+            options += " -ThumbnailImage= -Software=\"Mass Image Compressor\" -trailer:all= -unsafe ";
 
             if (settings.SkipSensitiveMetadata)
             {
@@ -81,7 +82,8 @@ public class MetadataCopyHelper
         }
         else
         {
-            arguments = $"{formatOptions} -all:all= -overwrite_original \"{copyToImagePath}\" ";
+            // Colour information isn't metadata: removing it changes how colours render.
+            arguments = $"{formatOptions} -all:all= -tagsFromFile @ -ICC_Profile -PNG:Gamma -PNG:SRGBRendering -overwrite_original \"{copyToImagePath}\" ";
         }
 
         if (settings.RetainDateTime)

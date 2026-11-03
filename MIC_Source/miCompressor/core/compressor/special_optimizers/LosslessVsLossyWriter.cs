@@ -77,10 +77,10 @@ namespace miCompressor.core
             using var lossyImg = src.Clone();
             using var losslessImg = src.Clone();
 
-            // Explicit, consistent metadata state across both encodes.
-            lossyImg.Strip();
-            losslessImg.Strip();
+            // Explicit, consistent metadata state across both encodes. Quality is set first, as it decides how colours are kept.
             PrepareLossless(losslessImg, outputPath);
+            ColorProfileHelper.StripMetadata(lossyImg, outputPath);
+            ColorProfileHelper.StripMetadata(losslessImg, outputPath);
 
             // Encode to memory and compare — no double disk I/O.
             using var lossyMs = new MemoryStream();
@@ -114,8 +114,8 @@ namespace miCompressor.core
             using var lossCol = new MagickImageCollection(collection.Select(f => (MagickImage)f.Clone()));
 
             // Strip metadata for consistency
-            foreach (var f in lossyCol) f.Strip();
-            foreach (var f in lossCol) { f.Strip(); PrepareLossless(f, outputPath); }
+            foreach (var f in lossyCol) ColorProfileHelper.StripMetadata(f, outputPath);
+            foreach (var f in lossCol) { PrepareLossless(f, outputPath); ColorProfileHelper.StripMetadata(f, outputPath); }
 
             using var lossyMs = new MemoryStream();
             using var losslessMs = new MemoryStream();

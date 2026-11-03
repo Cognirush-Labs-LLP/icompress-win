@@ -29,7 +29,7 @@ public class PNGOptimizer
 
     /// <summary>
     /// Optimizes a single PNG image using one thread, level 4 optimization,
-    /// and safely strips removable chunks. Skips processing if the image appears to be animated (APNG).
+    /// and strips chunks that don't affect how the image renders.
     /// </summary>
     /// <param name="imagePath">The full path of the PNG image to optimize.</param>
     /// <returns>The exit code of the process, or -1 if the image is an APNG.</returns>
@@ -39,7 +39,11 @@ public class PNGOptimizer
             throw new FileNotFoundException("Image file not found", imagePath);
 
         int threadCount = isPreview ? Environment.ProcessorCount : 1;
-        string arguments = $"-t {threadCount} -o 4 --strip safe \"{imagePath}\"";
+        // 'safe' stripping keeps iCCP, sRGB and cICP but drops gAMA and cHRM, which matter when nothing overrides them.
+        var colorChunks = PngColorChunks.TypesIn(imagePath);
+        bool gammaDecidesColors = colorChunks.Contains("gAMA") && !colorChunks.Overlaps(["iCCP", "sRGB", "cICP"]);
+        string strip = gammaDecidesColors ? "--keep display,gAMA,cHRM" : "--strip safe";
+        string arguments = $"-t {threadCount} -o 4 {strip} \"{imagePath}\"";
 
         return _executor.Execute(arguments, waitForExit: true);
     }

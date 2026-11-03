@@ -214,6 +214,7 @@ public class ImageCompressor
 
                     if (collection.Count > 1)
                     {
+                        ColorProfileHelper.ApplyProfileToAllFrames(collection, sourcePath);
                         // Input has multiple frames
                         if (!outputSupportsMulti)
                         {
@@ -315,10 +316,6 @@ public class ImageCompressor
                     if (coalesceForJxl)
                         SetFramesToReplacePrevious(collection); // coalescing in resize/watermark resets it
 
-                    foreach (var frame in collection)
-                    {
-                        frame.Strip();
-                    }
                     // If output format is WebP or other lossy, set quality for each frame
                     if (MagickHelper.CanSetQuality(settings.Format, outputPath))
                     {
@@ -339,6 +336,11 @@ public class ImageCompressor
 
                     if (!LosslessVsLossyWriter.TryWrite(collection, settings, mediaInfo, outputPath))
                     {
+                        foreach (var frame in collection)
+                        {
+                            ColorProfileHelper.StripMetadata(frame, outputPath);
+                        }
+
                         // Write all frames to output file
                         var writeDefine = MagickHelper.GetWriteDefinesFor(settings.Format, outputPath, true, settings.Quality, mediaInfo);
 
@@ -384,7 +386,7 @@ public class ImageCompressor
                     {
                         var writeDefine = MagickHelper.GetWriteDefinesFor(settings.Format, outputPath, false, settings.Quality, mediaInfo);
 
-                        image.Strip();
+                        ColorProfileHelper.StripMetadata(image, outputPath);
 
                         if (writeDefine != null)
                             image.Write(outputPath, writeDefine);

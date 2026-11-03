@@ -44,6 +44,7 @@ public class APNGOptimizer
 
         if (exitCode == 0 && File.Exists(tempFile))
         {
+            PngColorChunks.Restore(tempFile, PngColorChunks.Read(apngImagePath)); // apngopt drops them
             File.Copy(tempFile, apngImagePath, overwrite: true);
             File.Delete(tempFile);
         }
