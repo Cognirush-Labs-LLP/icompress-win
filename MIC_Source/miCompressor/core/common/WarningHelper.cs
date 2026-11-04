@@ -198,6 +198,11 @@ public partial class WarningHelper : INotifyPropertyChanged
     private Dictionary<PreCompressionWarningType, List<MediaFileInfo>> preCompressionWarnings = new();
     private Dictionary<CompressionErrorType, List<MediaFileInfo>> compressionErrors = new();
 
+    /// <summary>
+    /// Every (type, file) pair listed above, so each is listed once: a file retried after running out of memory may report the same warning again.
+    /// </summary>
+    private readonly HashSet<(object type, MediaFileInfo file)> listed = new();
+
     public bool HasWarnings => postCompressionWarnings.Count > 0;
     public bool HasPreCompressionWarnings => preCompressionWarnings.Count > 0;
     public bool HasFileOverwritePreCompWarnings => preCompressionWarnings.ContainsKey(PreCompressionWarningType.FileAlreadyExists);
@@ -220,6 +225,8 @@ public partial class WarningHelper : INotifyPropertyChanged
     {
         lock (_lock)
         {
+            if (!listed.Add((type, info)))
+                return;
             if (!dict.TryGetValue(type, out var list))
             {
                 list = new List<MediaFileInfo>();
@@ -290,8 +297,11 @@ public partial class WarningHelper : INotifyPropertyChanged
 
     public void ClearPreCompressionWarning()
     {
-        lock (_lock) 
+        lock (_lock)
+        {
             preCompressionWarnings.Clear();
+            listed.RemoveWhere(entry => entry.type is PreCompressionWarningType);
+        }
         OnPropertyChanged(nameof(PreCompressionWarnings));
     }
 
@@ -302,6 +312,7 @@ public partial class WarningHelper : INotifyPropertyChanged
             postCompressionWarnings.Clear();
             preCompressionWarnings.Clear();
             compressionErrors.Clear();
+            listed.Clear();
         }
 
         OnPropertyChanged(nameof(PostCompressionWarnings));

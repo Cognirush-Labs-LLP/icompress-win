@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace miCompressor.core;
 
@@ -21,6 +22,11 @@ public class ProcessExecutor
     /// Base directory where 3rd-party executables are located.
     /// </summary>
     public static readonly string ThirdPartyBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Get3rdPartyDir());
+
+    /// <summary>
+    /// Longest the tool may run before it is stopped, so a tool stuck on a broken file can't hold up a batch forever.
+    /// </summary>
+    public TimeSpan Timeout { get; init; } = TimeSpan.FromMinutes(10);
 
     /// <summary>
     /// Initializes a new instance of <see cref="ProcessExecutor"/> with the given executable name.
@@ -47,7 +53,7 @@ public class ProcessExecutor
     /// If true, the method waits for the process to complete and returns the exit code;
     /// if false, the process is started and the method returns immediately.
     /// </param>
-    /// <returns>Exit code if waited; otherwise, 0.</returns>
+    /// <returns>Exit code if waited; otherwise, 0. -1 if the process could not run or was stopped after <see cref="Timeout"/>.</returns>
     public int Execute(string arguments, bool waitForExit = true)
     {
         try
@@ -71,10 +77,26 @@ public class ProcessExecutor
                 if (waitForExit)
                 {
                     // Optionally, you can capture output for logging or error handling.
-                    string output = process.StandardOutput.ReadToEnd();
-                    string error = process.StandardError.ReadToEnd();
-                    process.WaitForExit();
+                    // Both outputs are read at the same time: a tool that fills one pipe while we wait on the other never exits
+                    // (broken files can make tools print a warning per frame).
+                    Task<string> outputReader = process.StandardOutput.ReadToEndAsync();
+                    Task<string> errorReader = process.StandardError.ReadToEndAsync();
 
+                    // A stuck tool is stopped and reported as failed (-1); callers already handle a failed tool.
+                    bool exited = process.WaitForExit(Timeout);
+                    if (!exited)
+                    {
+                        process.Kill(entireProcessTree: true);
+                        process.WaitForExit();
+                    }
+                    // The pipes close once the tool has exited; the wait is bounded in case something it started keeps them open.
+                    Task.WaitAll([outputReader, errorReader], TimeSpan.FromSeconds(30));
+
+                    if (!exited)
+                    {
+                        MicLog.Error($"Stopped {ExePath} after {Timeout.TotalMinutes:0.#} minutes, arguments: {arguments}");
+                        return -1;
+                    }
                     return process.ExitCode;
                 }
                 else

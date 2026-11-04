@@ -1,5 +1,6 @@
 ﻿using ImageMagick;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -44,6 +45,22 @@ public class ImageCompressor
     private const string SKIPPED = "SKIPPED";
 
     /// <summary>
+    /// Upper limit of images compressed at the same time.
+    /// </summary>
+    protected virtual int ProcessorCount => Environment.ProcessorCount;
+
+    /// <summary>
+    /// Free physical memory in bytes, null if unknown.
+    /// </summary>
+    protected virtual ulong? GetAvailableMemoryBytes() => SystemMemory.GetAvailableBytes();
+
+    /// <summary>
+    /// Estimated peak memory needed to compress the file.
+    /// </summary>
+    protected virtual ulong EstimateMemoryBytes(MediaFileInfo file, OutputSettings settings)
+        => BatchMemoryPlanner.EstimateBytes(file, settings);
+
+    /// <summary>
     /// Compress and convert a collection of images according to the given settings.
     /// </summary>
     /// <param name="files">List of MediaFileInfo objects to compress.</param>
@@ -55,73 +72,103 @@ public class ImageCompressor
         stop = false;
 
         if (files == null) throw new ArgumentNullException(nameof(files));
-        // Determine max degree of parallelism (half the CPU core count)
-        int maxParallel = Environment.ProcessorCount;
+        List<MediaFileInfo> fileList = files.ToList();
 
+        // Callers start this from the UI thread; planning and retries are long running, so none of it may run there.
+        await Task.Run(() => CompressImagesInBackgroundAsync(fileList, fromMultipleSelectPath, outputSettings, forPreview)).ConfigureAwait(false);
+    }
+
+    private async Task CompressImagesInBackgroundAsync(List<MediaFileInfo> fileList, bool fromMultipleSelectPath, OutputSettings outputSettings, bool forPreview)
+    {
 #if DEBUG
         //MagickNET.SetEnvironmentVariable("OMP_NUM_THREADS", "2");
-        //maxParallel = 1;
 #endif
-        int total = files.Count();
+        int total = fileList.Count;
         int errorCount = 0;
-        int processedCount = 0;
         int skipped = 0;
 
-        // Use a semaphore to limit parallel tasks
-        using SemaphoreSlim sem = new(maxParallel);
+        // Starts images as CPU cores and free memory allow; see MemoryGate for the rule.
+        MemoryGate gate = new(ProcessorCount, GetAvailableMemoryBytes);
+        if (gate.BudgetBytes != ulong.MaxValue)
+            MicLog.Info($"Compressing {total} images, up to {ProcessorCount} at a time within a memory budget of {gate.BudgetBytes / (1024 * 1024)} MB.");
         var compressionTasks = new List<Task>();
+        // Files that ran out of memory; they are tried again one at a time once the rest of the batch is done.
+        var retryQueue = new ConcurrentQueue<MediaFileInfo>();
 
         WarningHelper.Instance.ClearAll();
 
-        foreach (MediaFileInfo file in files)
+        // Returns false if the file ran out of memory and should be tried again later. Any other outcome is reported.
+        async Task<bool> TryCompressAsync(MediaFileInfo file, bool isRetry)
         {
-            await sem.WaitAsync().ConfigureAwait(false);
-            var t = Task.Run(async () =>
+            try
+            {
+                var outputpath = await ProcessSingleFileAsync(file, fromMultipleSelectPath
+                    , outputSettings, forPreview, isRetry).ConfigureAwait(false);
+
+                if (outputpath == SKIPPED)
+                {
+                    ImageCompressedEventArgs args = new(file, null, success: false, skipped: true);
+                    ImageCompressed?.Invoke(this, args);
+                    Interlocked.Increment(ref skipped);
+                }
+                return true;
+            }
+            catch (Exception ex) when (!isRetry && !stop && BatchMemoryPlanner.IsOutOfMemory(ex))
+            {
+                MicLog.Warning($"Ran out of memory compressing {file.FilePath}, will try again after other images. {ex.Message}");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                // Log unexpected error and mark as failure
+                MicLog.Exception(ex, $"Exception compressing file: {file.FilePath}");
+                // Record a compression error for user notification
+                CompressionErrorType errorType = ex is OutputLocationException
+                    ? CompressionErrorType.AccessDenied
+                    : CompressionErrorType.FailedToCompress;
+                WarningHelper.Instance.AddCompressionError(errorType, file);
+                Interlocked.Increment(ref errorCount);
+                // Fire event for this file failure
+                ImageCompressedEventArgs args = new(file, null, success: false, skipped: false, errorType);
+                ImageCompressed?.Invoke(this, args);
+                return true;
+            }
+        }
+
+        foreach (MediaFileInfo file in fileList)
+        {
+            ulong memoryEstimate = EstimateMemoryBytes(file, outputSettings);
+            if (await gate.WaitToStartAsync(memoryEstimate).ConfigureAwait(false))
+                MicLog.Info($"Low memory: compressing {file.FilePath} alone.");
+
+            // Keep only tasks still running (or failed, so WhenAll reports them): batches of 100K+ images must not hold every finished task.
+            compressionTasks.RemoveAll(t => t.IsCompletedSuccessfully);
+            compressionTasks.Add(Task.Run(async () =>
             {
                 try
                 {
-                    var outputpath = await ProcessSingleFileAsync(file, fromMultipleSelectPath
-                        , outputSettings, forPreview).ConfigureAwait(false);
-
-                    if (outputpath == SKIPPED)
-                    {
-                        ImageCompressedEventArgs args = new(file, null, success: false, skipped: true);
-                        ImageCompressed?.Invoke(this, args);
-                        Interlocked.Decrement(ref processedCount); //disregard this is 'processed' (finally increments processedCount). Not proud but safer than making a lot of code change now.
-                        Interlocked.Increment(ref skipped);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // Log unexpected error and mark as failure
-                    MicLog.Exception(ex, $"Exception compressing file: {file.FilePath}");
-                    // Record a compression error for user notification
-                    CompressionErrorType errorType = ex is OutputLocationException
-                        ? CompressionErrorType.AccessDenied
-                        : CompressionErrorType.FailedToCompress;
-                    WarningHelper.Instance.AddCompressionError(errorType, file);
-                    Interlocked.Increment(ref errorCount);
-                    // Fire event for this file failure
-                    ImageCompressedEventArgs args = new(file, null, success: false, skipped: false, errorType);
-                    ImageCompressed?.Invoke(this, args);
+                    if (!await TryCompressAsync(file, isRetry: false).ConfigureAwait(false))
+                        retryQueue.Enqueue(file);
                 }
                 finally
                 {
-                    Interlocked.Increment(ref processedCount);
-                    sem.Release();
+                    gate.Finished(memoryEstimate);
                 }
-            });
-
-            compressionTasks.Add(t);
-            if (compressionTasks.Count >= maxParallel * 4)
-            {
-                var finished = await Task.WhenAny(compressionTasks).ConfigureAwait(false);
-                compressionTasks.Remove(finished);
-            }
+            }));
         }
 
         // Wait for all files to finish processing
         await Task.WhenAll(compressionTasks).ConfigureAwait(false);
+
+        if (!retryQueue.IsEmpty)
+        {
+            MicLog.Info($"Retrying {retryQueue.Count} image(s) one at a time after running out of memory.");
+            // Free Magick images that were not disposed but are no longer used, before images run alone.
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            foreach (MediaFileInfo file in retryQueue)
+                await TryCompressAsync(file, isRetry: true).ConfigureAwait(false);
+        }
 
         // Fire completion event with summary
         int successCount = total - Volatile.Read(ref errorCount) - Volatile.Read(ref skipped);
@@ -146,7 +193,13 @@ public class ImageCompressor
     /// multipleSelectPaths helps determine whether to create parent folder in specific output folder or not. 
     /// </summary>
     /// <returns>Return output path where compressed image is created, this can be temporary path and image may NOT exist if it is is a replace operation.</returns>
-    public async Task<string> ProcessSingleFileAsync(MediaFileInfo mediaInfo, bool multipleSelectPaths, OutputSettings settings, bool forPreview)
+    public Task<string> ProcessSingleFileAsync(MediaFileInfo mediaInfo, bool multipleSelectPaths, OutputSettings settings, bool forPreview)
+        => ProcessSingleFileAsync(mediaInfo, multipleSelectPaths, settings, forPreview, isRetry: false);
+
+    /// <inheritdoc cref="ProcessSingleFileAsync(MediaFileInfo, bool, OutputSettings, bool)"/>
+    /// <remarks><paramref name="isRetry"/> is true if this file ran out of memory earlier in the same batch. It already passed the 'skip if file exists' check then, and
+    /// the output it may have partially written must be overwritten instead of being skipped.</remarks>
+    protected virtual async Task<string> ProcessSingleFileAsync(MediaFileInfo mediaInfo, bool multipleSelectPaths, OutputSettings settings, bool forPreview, bool isRetry)
     {
         if (stop)
         {
@@ -158,7 +211,7 @@ public class ImageCompressor
         string outputPath = mediaInfo.GetOutputPath(settings, multipleSelectPaths, forPreview);
 
 
-        if (!forPreview && settings.SkipIfFileExists && settings.OutputLocationSettings != OutputLocationSetting.ReplaceOriginal && !mediaInfo.IsReplaceOperation && File.Exists(outputPath))
+        if (!isRetry && !forPreview && settings.SkipIfFileExists && settings.OutputLocationSettings != OutputLocationSetting.ReplaceOriginal && !mediaInfo.IsReplaceOperation && File.Exists(outputPath))
         {
             return SKIPPED;
         }
@@ -219,9 +272,7 @@ public class ImageCompressor
                         if (!outputSupportsMulti)
                         {
                             // Output format does not support animation: use first frame and warn user
-                            image = new MagickImage(collection[0]);  // take first frame
-                                                                     // Detach first frame from collection so we can dispose collection without disposing the image
-                            collection.RemoveAt(0);
+                            image = new MagickImage(collection[0]);  // take first frame, a copy, so disposing the collection doesn't dispose the image
                             collection.Dispose();
                             collection = null;
                             // Log and warn that animation will be lost
@@ -238,7 +289,8 @@ public class ImageCompressor
                     {
                         // Only one frame in input
                         image = new MagickImage(collection[0]);
-                        //collection.Dispose(); //is this ok?
+                        // image is a copy: free the decoded frame now, else it holds memory until the garbage collector finalizes it.
+                        collection.Dispose();
                         collection = null;
                     }
                 }
