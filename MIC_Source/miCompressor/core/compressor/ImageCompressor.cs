@@ -45,9 +45,9 @@ public class ImageCompressor
     private const string SKIPPED = "SKIPPED";
 
     /// <summary>
-    /// Upper limit of images compressed at the same time.
+    /// Upper limit of images compressed at the same time: half of the logical cores, which on hyper-threaded CPUs is the number of real cores.
     /// </summary>
-    protected virtual int ProcessorCount => Environment.ProcessorCount;
+    protected virtual int MaxImagesAtOnce => Math.Max(1, Environment.ProcessorCount / 2);
 
     /// <summary>
     /// Free physical memory in bytes, null if unknown.
@@ -87,10 +87,13 @@ public class ImageCompressor
         int errorCount = 0;
         int skipped = 0;
 
-        // Starts images as CPU cores and free memory allow; see MemoryGate for the rule.
-        MemoryGate gate = new(ProcessorCount, GetAvailableMemoryBytes);
+        // Read before each image starts, so the user can turn 'go slow' on or off during the batch.
+        int MaxRunning() => outputSettings.goSlow ? 1 : MaxImagesAtOnce;
+
+        // Starts images as the limit above and free memory allow; see MemoryGate for the rule.
+        MemoryGate gate = new(MaxRunning, GetAvailableMemoryBytes);
         if (gate.BudgetBytes != ulong.MaxValue)
-            MicLog.Info($"Compressing {total} images, up to {ProcessorCount} at a time within a memory budget of {gate.BudgetBytes / (1024 * 1024)} MB.");
+            MicLog.Info($"Compressing {total} images, up to {MaxRunning()} at a time within a memory budget of {gate.BudgetBytes / (1024 * 1024)} MB.");
         var compressionTasks = new List<Task>();
         // Files that ran out of memory; they are tried again one at a time once the rest of the batch is done.
         var retryQueue = new ConcurrentQueue<MediaFileInfo>();

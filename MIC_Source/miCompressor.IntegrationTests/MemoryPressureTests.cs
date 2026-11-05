@@ -129,7 +129,7 @@ public class MemoryPressureTests : IDisposable
     [Fact]
     public async Task Gate_EnoughMemory_StartsAsManyImagesAsCores()
     {
-        var gate = new MemoryGate(3, () => 64 * GB);
+        var gate = new MemoryGate(() => 3, () => 64 * GB);
 
         Assert.False(await Started(gate.WaitToStartAsync(100 * MB)));
         Assert.False(await Started(gate.WaitToStartAsync(100 * MB)));
@@ -142,9 +142,37 @@ public class MemoryPressureTests : IDisposable
     }
 
     [Fact]
+    public async Task Gate_MaxRunningChangesDuringBatch_AppliesToNextImage()
+    {
+        int maxRunning = 3;
+        var gate = new MemoryGate(() => maxRunning, () => 64 * GB);
+
+        Assert.False(await Started(gate.WaitToStartAsync(100 * MB)));
+        Assert.False(await Started(gate.WaitToStartAsync(100 * MB)));
+
+        maxRunning = 1; // going slow: running images finish, the next starts only when nothing is running
+        Task<bool> third = gate.WaitToStartAsync(100 * MB);
+        Assert.False(third.IsCompleted);
+        gate.Finished(100 * MB);
+        await Task.Delay(50);
+        Assert.False(third.IsCompleted);
+        gate.Finished(100 * MB);
+        Assert.False(await Started(third));
+
+        Task<bool> fourth = gate.WaitToStartAsync(100 * MB);
+        Assert.False(fourth.IsCompleted);
+
+        maxRunning = 3; // back to full speed: applies once a running image finishes, then the batch ramps up
+        gate.Finished(100 * MB);
+        Assert.False(await Started(fourth));
+        Assert.False(await Started(gate.WaitToStartAsync(100 * MB)));
+        Assert.False(await Started(gate.WaitToStartAsync(100 * MB)));
+    }
+
+    [Fact]
     public async Task Gate_StartsOnlyWhatFitsInBudget()
     {
-        var gate = new MemoryGate(8, () => 1000 * MB); // budget 900 MB
+        var gate = new MemoryGate(() => 8, () => 1000 * MB); // budget 900 MB
 
         Assert.False(await Started(gate.WaitToStartAsync(400 * MB)));
         Assert.False(await Started(gate.WaitToStartAsync(400 * MB)));
@@ -158,7 +186,7 @@ public class MemoryPressureTests : IDisposable
     [Fact]
     public async Task Gate_ImageBiggerThanBudget_WaitsForOthers_ThenRunsAlone()
     {
-        var gate = new MemoryGate(8, () => 1000 * MB); // budget 900 MB
+        var gate = new MemoryGate(() => 8, () => 1000 * MB); // budget 900 MB
 
         Assert.False(await Started(gate.WaitToStartAsync(100 * MB)));
         Task<bool> big = gate.WaitToStartAsync(2 * GB);
@@ -179,7 +207,7 @@ public class MemoryPressureTests : IDisposable
     public async Task Gate_LowFreeMemoryNow_ImageWaitsForOthers_ThenRunsAlone()
     {
         ulong freeNow = 64 * GB;
-        var gate = new MemoryGate(8, () => freeNow);
+        var gate = new MemoryGate(() => 8, () => freeNow);
 
         Assert.False(await Started(gate.WaitToStartAsync(100 * MB)));
         freeNow = 300 * MB; // another app took memory: 100 MB more would leave less than the 256 MB reserve
@@ -199,7 +227,7 @@ public class MemoryPressureTests : IDisposable
     [Fact]
     public async Task Gate_UnknownFreeMemory_OnlyCoresLimit()
     {
-        var gate = new MemoryGate(3, () => null);
+        var gate = new MemoryGate(() => 3, () => null);
 
         Assert.Equal(ulong.MaxValue, gate.BudgetBytes);
         for (int i = 0; i < 3; i++)
@@ -214,7 +242,7 @@ public class MemoryPressureTests : IDisposable
     [Fact]
     public async Task Gate_HugeEstimateFromCorruptFile_DoesNotOverflow()
     {
-        var gate = new MemoryGate(8, () => 16 * GB);
+        var gate = new MemoryGate(() => 8, () => 16 * GB);
 
         Assert.True(await Started(gate.WaitToStartAsync(ulong.MaxValue)));
         Task<bool> small = gate.WaitToStartAsync(10 * MB);
@@ -233,7 +261,7 @@ public class MemoryPressureTests : IDisposable
     public async Task Gate_RandomImages_NeverBreakTheRule_AndNeverGetStuck()
     {
         const int cores = 4;
-        var gate = new MemoryGate(cores, () => 1000 * MB);
+        var gate = new MemoryGate(() => cores, () => 1000 * MB);
         var random = new Random(1);
         object check = new();
         int running = 0;
@@ -282,6 +310,30 @@ public class MemoryPressureTests : IDisposable
     #endregion
 
     #region Batch behaviour
+
+    [Fact]
+    public async Task Batch_GoSlow_CompressesOneImageAtATime()
+    {
+        var compressor = new FakeCompressor { Cores = 4 };
+
+        await compressor.CompressImagesAsync(CreateMediaFiles(6), false, new OutputSettings { goSlow = true }, forPreview: false);
+
+        Assert.Equal(6, compressor.Attempts.Count);
+        Assert.Equal(1, compressor.MaxRunning);
+    }
+
+    [Fact]
+    public void Settings_GoSlow_DefaultsOff_AndSurvivesSaveAndRestore()
+    {
+        Assert.False(new OutputSettings().goSlow);
+
+        // Same JSON round trip as SaveForFuture/RestoreFromLastSaved.
+        string saved = System.Text.Json.JsonSerializer.Serialize(new OutputSettings { goSlow = true });
+        Assert.True(System.Text.Json.JsonSerializer.Deserialize<OutputSettings>(saved)!.GoSlow);
+
+        // Settings saved by older versions don't have it.
+        Assert.False(System.Text.Json.JsonSerializer.Deserialize<OutputSettings>("{}")!.GoSlow);
+    }
 
     [Fact]
     public async Task Batch_OutOfMemoryFile_IsRetriedAloneAfterOthers_AndSucceeds()
@@ -619,7 +671,7 @@ public class MemoryPressureTests : IDisposable
         /// <summary>Estimates the batch asked for, so they are counted without calling <see cref="Estimate"/> again.</summary>
         private readonly ConcurrentDictionary<MediaFileInfo, ulong> _estimates = new();
 
-        protected override int ProcessorCount => Cores;
+        protected override int MaxImagesAtOnce => Cores;
         protected override ulong? GetAvailableMemoryBytes() => AvailableMemory();
         protected override ulong EstimateMemoryBytes(MediaFileInfo file, OutputSettings settings)
             => _estimates[file] = Estimate(file);

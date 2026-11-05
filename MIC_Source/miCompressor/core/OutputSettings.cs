@@ -34,6 +34,12 @@ namespace miCompressor.core
         [AutoNotify]
         public bool skipIfFileExists = false;
 
+        /// <summary>
+        /// If true, a batch compresses one image at a time, to keep the PC responsive. Can change during a batch.
+        /// </summary>
+        [AutoNotify]
+        public bool goSlow = false;
+
         #region Dimension
         /// <summary>
         /// Dimension reduction strategy for reducing image size.
@@ -297,6 +303,7 @@ namespace miCompressor.core
             CopyMetadata = other.copyMetadata;
             SkipSensitiveMetadata = other.skipSensitiveMetadata;
             SkipIfFileExists = other.skipIfFileExists;
+            GoSlow = other.goSlow;
             CopyIPTC = other.copyIPTC;
             CopyXMP = other.copyXMP;
             RetainDateTime = other.retainDateTime;

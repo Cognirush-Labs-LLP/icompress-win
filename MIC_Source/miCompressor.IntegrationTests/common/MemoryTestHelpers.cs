@@ -42,7 +42,7 @@ internal sealed class RamBallast : IDisposable
 internal sealed class RecordingCompressor : ImageCompressor
 {
     public int? Cores { get; init; }
-    /// <summary>Reports free memory as unknown, so the batch runs on all cores: used to measure real memory use.</summary>
+    /// <summary>Reports free memory as unknown, so only the image limit applies: used to measure real memory use.</summary>
     public bool DisableMemoryPlanning { get; init; }
     public ConcurrentQueue<(MediaFileInfo file, bool isRetry)> Attempts { get; } = new();
     public ConcurrentQueue<string> Errors { get; } = new();
@@ -57,7 +57,7 @@ internal sealed class RecordingCompressor : ImageCompressor
     /// <summary>Free memory readings: the first plans the batch, then one before each image starts.</summary>
     public ConcurrentQueue<ulong?> MemoryReadings { get; } = new();
 
-    protected override int ProcessorCount => Cores ?? base.ProcessorCount;
+    protected override int MaxImagesAtOnce => Cores ?? base.MaxImagesAtOnce;
 
     protected override ulong? GetAvailableMemoryBytes()
     {

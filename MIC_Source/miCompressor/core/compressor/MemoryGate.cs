@@ -7,7 +7,7 @@ namespace miCompressor.core;
 /// <summary>
 /// Decides when the next image of a batch may start, so a big batch doesn't run out of memory.
 /// <para>
-/// The rule: an image starts when nothing is running, or when a CPU core is free, its memory estimate fits in what is left of the budget,
+/// The rule: an image starts when nothing is running, or when fewer images than the limit are running, its memory estimate fits in what is left of the budget,
 /// Windows still has enough free memory for it, and no image is running alone.
 /// An image that doesn't fit waits until nothing is running, then runs alone: nothing starts beside it until it is done.
 /// </para>
@@ -29,7 +29,7 @@ public sealed class MemoryGate
     /// </summary>
     private readonly SemaphoreSlim _imageFinished = new(0);
 
-    private readonly int _maxRunning;
+    private readonly Func<int> _getMaxRunning;
     private readonly Func<ulong?> _getFreeMemoryBytes;
 
     private int _running;
@@ -41,11 +41,11 @@ public sealed class MemoryGate
     /// </summary>
     public ulong BudgetBytes { get; }
 
-    /// <param name="maxRunning">Most images running at once: the number of CPU cores.</param>
-    /// <param name="getFreeMemoryBytes">Reads free physical memory now, null if unknown (then only <paramref name="maxRunning"/> limits the batch).</param>
-    public MemoryGate(int maxRunning, Func<ulong?> getFreeMemoryBytes)
+    /// <param name="getMaxRunning">Reads the most images allowed to run at once. Read before each start, so it can change during a batch; images already running are not stopped.</param>
+    /// <param name="getFreeMemoryBytes">Reads free physical memory now, null if unknown (then only <paramref name="getMaxRunning"/> limits the batch).</param>
+    public MemoryGate(Func<int> getMaxRunning, Func<ulong?> getFreeMemoryBytes)
     {
-        _maxRunning = Math.Max(1, maxRunning);
+        _getMaxRunning = getMaxRunning;
         _getFreeMemoryBytes = getFreeMemoryBytes;
         BudgetBytes = getFreeMemoryBytes() is ulong free ? BatchMemoryPlanner.Budget(free) : ulong.MaxValue;
     }
@@ -59,10 +59,11 @@ public sealed class MemoryGate
         while (true)
         {
             bool lowOnMemoryNow = BatchMemoryPlanner.IsUnderPressure(estimateBytes, _getFreeMemoryBytes());
+            int maxRunning = _getMaxRunning();
             lock (_lock)
             {
                 bool fits = FitsInBudget(estimateBytes) && !lowOnMemoryNow;
-                if (_running == 0 || (fits && _running < _maxRunning && !_aloneRunning))
+                if (_running == 0 || (fits && _running < maxRunning && !_aloneRunning))
                 {
                     _running++;
                     _reservedBytes += estimateBytes; // can't overflow: either nothing was reserved, or it fits in the budget
@@ -75,7 +76,7 @@ public sealed class MemoryGate
     }
 
     /// <summary>
-    /// Called once by each started image when it is done: frees its core and gives its estimate back to the budget.
+    /// Called once by each started image when it is done: frees its slot and gives its estimate back to the budget.
     /// </summary>
     public void Finished(ulong estimateBytes)
     {

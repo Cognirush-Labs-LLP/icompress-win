@@ -28,7 +28,7 @@ public class PNGOptimizer
     }
 
     /// <summary>
-    /// Optimizes a single PNG image using one thread, level 4 optimization,
+    /// Optimizes a single PNG image using two threads (all of them for a preview), level 4 optimization,
     /// and strips chunks that don't affect how the image renders.
     /// </summary>
     /// <param name="imagePath">The full path of the PNG image to optimize.</param>
@@ -39,7 +39,7 @@ public class PNGOptimizer
         if (string.IsNullOrWhiteSpace(imagePath) || !File.Exists(imagePath))
             throw new FileNotFoundException("Image file not found", imagePath);
 
-        int threadCount = isPreview ? Environment.ProcessorCount : 1;
+        int threadCount = isPreview ? Environment.ProcessorCount : 2;
         // 'safe' stripping keeps iCCP, sRGB and cICP but drops gAMA and cHRM, which matter when nothing overrides them.
         var colorChunks = PngColorChunks.TypesIn(imagePath);
         bool gammaDecidesColors = colorChunks.Contains("gAMA") && !colorChunks.Overlaps(["iCCP", "sRGB", "cICP"]);

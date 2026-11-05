@@ -106,7 +106,7 @@ public class RealMemoryPressureTests : IDisposable
         MediaFileInfo big = (await CreateImagesAsync(1, 10000, 10000, "big"))[0];
         files.Insert(8, big);
         var settings = CreateSettings();
-        var compressor = new RecordingCompressor(); // real core count, real memory readings
+        var compressor = new RecordingCompressor { Cores = Environment.ProcessorCount }; // above the usual limit, so only low RAM can reduce parallel images; real memory readings
         CompressionCompletedEventArgs? completed = null;
         compressor.CompressionCompleted += (_, e) => completed = e;
 

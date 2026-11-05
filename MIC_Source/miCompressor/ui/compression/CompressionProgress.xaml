@@ -129,6 +129,10 @@
                 <StackPanel  Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="4"  HorizontalAlignment="Center" >
                     <TextBlock Text="Processing..." Style="{StaticResource TextBlockH2}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
                     <TextBlock Text="Done!" Style="{StaticResource TextBlockH2}" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" />
+                    <StackPanel HorizontalAlignment="Center" Margin="0,10,0,0" Visibility="{x:Bind vm.CompressionInProgress, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <CheckBox Content="Go slow, use less CPU" FontSize="12" Padding="8,0,0,0" VerticalContentAlignment="Center" IsChecked="{x:Bind OutputSettings.GoSlow, Mode=TwoWay}" />
+                        <TextBlock Text="Changes may take some time to take effect." TextWrapping="Wrap" FontSize="{StaticResource TextSmall}" Foreground="{StaticResource Primary_50}" />
+                    </StackPanel>
                 </StackPanel >
 
 
