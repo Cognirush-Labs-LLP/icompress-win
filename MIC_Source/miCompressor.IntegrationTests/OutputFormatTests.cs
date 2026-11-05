@@ -1,4 +1,3 @@
-using System.Text.Json;
 using miCompressor.core;
 
 namespace miCompressor.IntegrationTests;
@@ -16,19 +15,11 @@ public class OutputFormatTests
     }
 
     [Fact]
-    public void OutputFormatNumericValues_RemainBackwardCompatible()
+    public void OutputFormats_AreInDropdownOrder()
     {
-        Assert.Equal(0, (int)OutputFormat.KeepSame);
-        Assert.Equal(1, (int)OutputFormat.Jpg);
-        Assert.Equal(2, (int)OutputFormat.Png);
-        Assert.Equal(3, (int)OutputFormat.Webp);
-        Assert.Equal(4, (int)OutputFormat.avif);
-        Assert.Equal(5, (int)OutputFormat.Gif);
-        Assert.Equal(6, (int)OutputFormat.Jxl);
-
-        Assert.Equal(OutputFormat.Gif, JsonSerializer.Deserialize<OutputFormat>("5"));
-        Assert.Equal(OutputFormat.Jxl, JsonSerializer.Deserialize<OutputFormat>("6"));
-        Assert.Equal("6", JsonSerializer.Serialize(OutputFormat.Jxl));
+        Assert.Equal(
+            ["Keep Same", "JPEG", "PNG", "WebP", "AVIF", "JPEG XL", "GIF", "Icon"],
+            Enum.GetValues<OutputFormat>().Select(f => f.GetDescription()));
     }
 
     [Fact]

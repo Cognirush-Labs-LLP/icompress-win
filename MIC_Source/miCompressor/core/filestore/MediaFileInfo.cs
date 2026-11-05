@@ -520,7 +520,8 @@ namespace miCompressor.core
                 File.Move(outputFile.FullName, FileToCompress.FullName, overwrite: true);
             }
 
-            if (outputMeta.FileSize > FileSize)
+            // An icon holds many sizes of the image, so being larger than a small input is expected.
+            if (outputMeta.FileSize > FileSize && OutputFormatHelper.GetOutputFormatFor(outputPath) != OutputFormat.Ico)
                 WarningHelper.Instance.AddPostWarning(PostCompressionWarningType.FileSizeIncreased, this);
 
             return (false, false); // Compressed file used successfully

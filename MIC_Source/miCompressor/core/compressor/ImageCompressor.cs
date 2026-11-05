@@ -209,7 +209,7 @@ public class ImageCompressor
 
         string sourcePath = mediaInfo.FilePath;
         string outputPath = mediaInfo.GetOutputPath(settings, multipleSelectPaths, forPreview);
-
+        bool isIco = OutputFormatHelper.GetOutputFormatFor(outputPath) == OutputFormat.Ico;
 
         if (!isRetry && !forPreview && settings.SkipIfFileExists && settings.OutputLocationSettings != OutputLocationSetting.ReplaceOriginal && !mediaInfo.IsReplaceOperation && File.Exists(outputPath))
         {
@@ -267,6 +267,9 @@ public class ImageCompressor
 
                     if (collection.Count > 1)
                     {
+                        if (isIco)
+                            throw new NotSupportedException($"Icon output doesn't support animated or multi-frame images: {sourcePath}");
+
                         ColorProfileHelper.ApplyProfileToAllFrames(collection, sourcePath);
                         // Input has multiple frames
                         if (!outputSupportsMulti)
@@ -410,6 +413,11 @@ public class ImageCompressor
 
                     OptimizeIfAnimatedPNG(outputPath);
                 }
+                else if (image != null && isIco)
+                {
+                    ImageOrientationHelper.CorrectOrientation(image);
+                    IcoWriter.Write(image, sourcePath, outputPath);
+                }
                 else if (image != null)
                 {
                     ImageOrientationHelper.CorrectOrientation(image);
@@ -476,7 +484,7 @@ public class ImageCompressor
             OptimizeIfPNG(outputPath, forPreview);
             OptimizeIfGIF(mediaInfo.FilePath, outputPath);
 
-            if (!forPreview)
+            if (!forPreview && !isIco)
                 (new MetadataCopyHelper()).Copy(mediaInfo.FilePath, outputPath, settings);
 
             if (stop)

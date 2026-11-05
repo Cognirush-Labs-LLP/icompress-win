@@ -22,6 +22,8 @@ namespace miCompressor.ui;
 /// </summary>
 public sealed partial class SettingsView : Page
 {
+    public MasterState CurrentState => App.CurrentState;
+
     public SettingsView()
     {
         this.InitializeComponent();

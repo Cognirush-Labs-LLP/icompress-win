@@ -11,13 +11,19 @@
 
     <Grid>
         <StackPanel VerticalAlignment="Stretch" Orientation="Vertical" Margin="10,10,20,10" Width="270">
-            <local:QualitySettings />
-            <Border Style="{StaticResource LineSeparatorStyle}" />
-            <local:DimensionSettingsView />
-            <Border Style="{StaticResource LineSeparatorStyle}" />
+            <StackPanel Visibility="{x:Bind CurrentState.IsIconOutput, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}">
+                <local:QualitySettings />
+                <Border Style="{StaticResource LineSeparatorStyle}" />
+                <local:DimensionSettingsView />
+                <Border Style="{StaticResource LineSeparatorStyle}" />
+            </StackPanel>
             <local:OutputFileSettingsView />
-            <Border Style="{StaticResource LineSeparatorStyle}" />
-            <local:ApplyWatermarkToggleView />
+            <TextBlock Text="Creates sizes up to 256x256." TextWrapping="Wrap" FontSize="{StaticResource TextSmall}" Foreground="{StaticResource Primary_50}"
+                       Visibility="{x:Bind CurrentState.IsIconOutput, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+            <StackPanel Visibility="{x:Bind CurrentState.IsIconOutput, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}">
+                <Border Style="{StaticResource LineSeparatorStyle}" />
+                <local:ApplyWatermarkToggleView />
+            </StackPanel>
         </StackPanel>
     </Grid>
 </Page>

@@ -65,7 +65,20 @@ namespace miCompressor.viewmodel
             this.PropertyChanged += MasterState_PropertyChanged;
             this.CompressionViewModel.PropertyChanged += CompressionViewModel_PropertyChanged;
             this.FileStore.PropertyChanged += FileStore_PropertyChanged;
+            this.OutputSettings.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName != nameof(OutputSettings.Format))
+                    return;
+                OnPropertyChanged(nameof(IsIconOutput));
+                if (IsIconOutput)
+                    ShowPreview = false;
+            };
         }
+
+        /// <summary>
+        /// Icon output has no preview and ignores quality, resize, watermark, metadata and file time settings, so the UI hides them.
+        /// </summary>
+        public bool IsIconOutput => OutputSettings.Format == OutputFormat.Ico;
 
         private void FileStore_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {

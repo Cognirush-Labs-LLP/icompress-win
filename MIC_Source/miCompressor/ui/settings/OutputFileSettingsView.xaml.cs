@@ -57,6 +57,8 @@ namespace miCompressor.ui
 
         public OutputSettings OutputSettings { get; set; }
 
+        public miCompressor.viewmodel.MasterState CurrentState => App.CurrentState;
+
         public List<OutputFormatItem> OutputFormats { get; }
 
         private OutputFormatItem _outputFormatItem;

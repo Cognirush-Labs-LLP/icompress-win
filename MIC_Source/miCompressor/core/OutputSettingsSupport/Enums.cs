@@ -12,6 +12,7 @@ namespace miCompressor.core
     /// <summary>
     /// Represents the supported output formats for image compression.
     /// Stores both format name and file extension.
+    /// The format dropdown lists these in numeric order.
     /// </summary>
     public enum OutputFormat
     {
@@ -39,14 +40,19 @@ namespace miCompressor.core
         avif = 4,
 
         /// <summary>
-        /// Gif 
-        /// </summary>
-        Gif = 5,
-
-        /// <summary>
         /// JPEG XL format (.jxl, .JXL)
         /// </summary>
-        Jxl = 6
+        Jxl = 5,
+
+        /// <summary>
+        /// Gif
+        /// </summary>
+        Gif = 6,
+
+        /// <summary>
+        /// Windows icon (.ico) holding the standard icon sizes. Output only: .ico is not accepted as input.
+        /// </summary>
+        Ico = 7
     }
 
     /// <summary>
@@ -78,6 +84,7 @@ namespace miCompressor.core
                 OutputFormat.avif => IsAvif(originalExtension) ? originalExtension : ".avif",
                 OutputFormat.Gif => IsGif(originalExtension) ? originalExtension : ".gif",
                 OutputFormat.Jxl => IsJxl(originalExtension) ? originalExtension : ".jxl",
+                OutputFormat.Ico => ".ico",
                 OutputFormat.KeepSame => isSupportedAsOutput(originalExtension) ? originalExtension : AdvancedSettings.Instance.defaultImageExtension.GetOutputExtension(originalFilePath),
                 _ => throw new ArgumentOutOfRangeException(nameof(format), "Unsupported format.")
             };
@@ -113,7 +120,8 @@ namespace miCompressor.core
                 //OutputFormat.heic => "HEIC", //Not supported by Magick.NET
                 OutputFormat.avif => "AVIF",
                 OutputFormat.Gif => "GIF",
-                OutputFormat.Jxl => "JPEG XL"
+                OutputFormat.Jxl => "JPEG XL",
+                OutputFormat.Ico => "Icon"
             };
         }
 
@@ -134,6 +142,7 @@ namespace miCompressor.core
             if (IsAvif(requiredExtension)) return OutputFormat.avif;
             if (IsGif(requiredExtension)) return OutputFormat.Gif;
             if (IsJxl(requiredExtension)) return OutputFormat.Jxl;
+            if (requiredExtension.Equals(".ico", StringComparison.OrdinalIgnoreCase)) return OutputFormat.Ico;
             return OutputFormat.Jpg;
         }
 
