@@ -43,6 +43,8 @@ public static class MicNative {
   [DllImport("user32.dll")] static extern bool SetCursorPos(int x, int y);
   [DllImport("user32.dll")] static extern void mouse_event(uint f, uint x, uint y, uint d, UIntPtr e);
   [DllImport("user32.dll")] static extern void keybd_event(byte k, byte s, uint f, UIntPtr e);
+  [DllImport("user32.dll")] static extern IntPtr GetForegroundWindow();
+  public static bool IsForeground(IntPtr h) { return GetForegroundWindow() == h; }
   public static void PrintShot(IntPtr h, string path) {
     RECT r; GetWindowRect(h, out r);
     using (var b = new Bitmap(r.R - r.L, r.B - r.T)) using (var g = Graphics.FromImage(b)) {
@@ -57,7 +59,8 @@ public static class MicNative {
     }
   }
   public static void RightClick(int x, int y) { SetCursorPos(x, y); Thread.Sleep(300); mouse_event(8, 0, 0, 0, UIntPtr.Zero); mouse_event(16, 0, 0, 0, UIntPtr.Zero); }
-  public static void Esc() { keybd_event(0x1B, 0, 0, UIntPtr.Zero); keybd_event(0x1B, 0, 2, UIntPtr.Zero); }
+  public static void Key(byte k) { keybd_event(k, 0, 0, UIntPtr.Zero); keybd_event(k, 0, 2, UIntPtr.Zero); }
+  public static void Esc() { Key(0x1B); }
 }
 '@
 
@@ -69,6 +72,7 @@ $InvokeP = [System.Windows.Automation.InvokePattern]::Pattern
 $SelectP = [System.Windows.Automation.SelectionPattern]::Pattern
 $SelectItemP = [System.Windows.Automation.SelectionItemPattern]::Pattern
 $ValueP = [System.Windows.Automation.ValuePattern]::Pattern
+$ToggleP = [System.Windows.Automation.TogglePattern]::Pattern
 
 function Cond($prop, $value) { [System.Windows.Automation.PropertyCondition]::new($prop, $value) }
 function ById($id) { $w.FindFirst($TS::Descendants, (Cond $UI::AutomationIdProperty $id)) }
@@ -159,6 +163,79 @@ function Run-Step($step) {
             if ($links.Count -eq 0) { throw 'No visible Preview link' }
             $links[0].GetCurrentPattern($InvokeP).Invoke(); Start-Sleep -Seconds 2
             "preview open=$(-not (IsShown 'COMPRESSION LIST'))"
+        }
+        'edit' {
+            # The file row's link. A folder row has none, and Preview's toolbar button is reached with click:PreviewEditButton.
+            $links = AllByName 'Edit'
+            if ($links.Count -eq 0) { throw 'No visible Edit link' }
+            $links[0].GetCurrentPattern($InvokeP).Invoke(); Start-Sleep -Seconds 2
+            "edit open=$((ById 'EditDone') -ne $null)"
+        }
+        'click' {
+            # Through UI Automation, so the user's mouse and other windows aren't involved. Takes an automation id or a visible name.
+            $e = ById $arg
+            if (-not $e) { $e = @(AllByName $arg) | Select-Object -First 1 }
+            if (-not $e) { throw "No control with id or name '$arg'" }
+            $pattern = $null
+            if ($e.TryGetCurrentPattern($InvokeP, [ref]$pattern)) { $pattern.Invoke() }
+            elseif ($e.TryGetCurrentPattern($ToggleP, [ref]$pattern)) { $pattern.Toggle() }
+            elseif ($e.TryGetCurrentPattern($SelectItemP, [ref]$pattern)) { $pattern.Select() }
+            else { throw "'$arg' can't be clicked through UI Automation" }
+            Start-Sleep -Seconds 1
+            "clicked $arg"
+        }
+        'key' {
+            # A key goes to whichever window is in front, so it's only sent if that's this app.
+            $codes = @{ Left = 0x25; Up = 0x26; Right = 0x27; Down = 0x28; Enter = 0x0D; Esc = 0x1B }
+            if (-not $codes.ContainsKey($arg)) { throw "Unknown key '$arg'. Known: $($codes.Keys -join ', ')" }
+            [void][MicNative]::SetForegroundWindow($hwnd); Start-Sleep -Milliseconds 400
+            if (-not [MicNative]::IsForeground($hwnd)) { throw 'The app is not the foreground window, so no key was sent' }
+            [MicNative]::Key([byte]$codes[$arg]); Start-Sleep -Milliseconds 800
+            "pressed $arg"
+        }
+        'resize' {
+            # resize:<width>,<height> of the window.
+            $size = $arg -split ','
+            $w.GetCurrentPattern([System.Windows.Automation.TransformPattern]::Pattern).Resize([double]$size[0], [double]$size[1]); Start-Sleep -Seconds 1
+            "resized window to $arg"
+        }
+        'text' {
+            "$arg = '$((NeedById $arg).Current.Name)'"
+        }
+        'add' {
+            (NeedById 'InputPathTextBox').GetCurrentPattern($ValueP).SetValue($arg); Start-Sleep -Milliseconds 600
+            (NeedById 'AddInputPathButton').GetCurrentPattern($InvokeP).Invoke(); Start-Sleep -Seconds 2
+            "added $arg"
+        }
+        'type' {
+            # type:<automation id>:<text>, leaving the box focused so that key:Enter goes to it.
+            $idAndText = $arg -split ':', 2
+            $box = NeedById $idAndText[0]
+            $box.GetCurrentPattern($ValueP).SetValue($idAndText[1]); $box.SetFocus(); Start-Sleep -Milliseconds 500
+            "typed '$($idAndText[1])' in $($idAndText[0])"
+        }
+        'slider' {
+            # slider:<automation id>:<value>
+            $idAndValue = $arg -split ':', 2
+            (NeedById $idAndValue[0]).GetCurrentPattern([System.Windows.Automation.RangeValuePattern]::Pattern).SetValue([double]$idAndValue[1]); Start-Sleep -Milliseconds 600
+            "set $($idAndValue[0]) to $($idAndValue[1])"
+        }
+        'value' {
+            "$arg = '$((NeedById $arg).GetCurrentPattern($ValueP).Current.Value)'"
+        }
+        'config' {
+            $file = Join-Path $env:LOCALAPPDATA "miCompressor\user_config\$arg.json"
+            if (Test-Path $file) { "$arg = $([IO.File]::ReadAllText($file))" } else { "$arg is not saved" }
+        }
+        'shown' {
+            "$arg shown=$((ById $arg) -ne $null)"
+        }
+        'rect' {
+            "$arg at $((NeedById $arg).Current.BoundingRectangle)"
+        }
+        'size' {
+            $image = [System.Drawing.Image]::FromFile($arg)
+            try { "$arg = $($image.Width) x $($image.Height)" } finally { $image.Dispose() }
         }
         'menu' {
             # The last match is the deepest row: the file, not the list header or the folder row.

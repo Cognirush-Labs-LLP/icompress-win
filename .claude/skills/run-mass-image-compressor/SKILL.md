@@ -41,6 +41,19 @@ Each argument is a step. Steps run in order, and a failed step stops the run wit
 | `folder` / `folder:<path>` | Prints or sets the output folder |
 | `expand` | Expands the compression list down to file rows |
 | `preview` | Clicks the first Preview link |
+| `edit` | Clicks the first Edit link, which opens the Edit screen |
+| `click:<id or name>` | Clicks a control through UI Automation, by automation id or visible name, such as `click:EditDone` or `"click:Remove All"`. Doesn't use the mouse |
+| `add:<path>` | Adds a file or folder to the compression list through the input box |
+| `config:<key>` | Prints a saved setting's file, such as `config:Edit.LastCropRatio`. Settings are restored when the driver ends |
+| `key:<name>` | Presses `Left`, `Right`, `Up`, `Down`, `Enter` or `Esc`. Fails without sending anything unless the app is in front |
+| `resize:<width>,<height>` | Resizes the window |
+| `shown:<id>` | Prints whether a control with that automation id is on screen |
+| `rect:<id>` | Prints a control's position and size on screen |
+| `text:<id>` | Prints a text control's content by automation id |
+| `type:<id>:<text>` | Types into a text box and leaves it focused, such as `type:EditWidthBox:800` |
+| `value:<id>` | Prints a text box's content, such as `value:EditWidthBox` |
+| `slider:<id>:<value>` | Sets a slider, such as `slider:EditZoomSlider:769`. The Edit screen's zoom slider takes a position from 0 to 1000 spaced by ratio (769 is 100%), and the zoom shows in `text:EditZoomText` |
+| `size:<path>` | Prints an output image's width and height (formats Windows' GDI+ can read, such as PNG and JPEG) |
 | `menu` / `menu:<shot>` | Right-clicks the file's row, prints the menu, and optionally takes a screenshot of it |
 | `compress` | Clicks Compress All |
 | `waitfile:<path>` | Waits up to 60 seconds for an output file |
@@ -84,6 +97,7 @@ dotnet test MIC_Source\miCompressor.IntegrationTests\miCompressor.IntegrationTes
 
 ## Gotchas
 
+- **Dragging can't be driven.** A left mouse press sent with `mouse_event` made VS Code take the foreground instead of reaching the app, so it could land in the user's editor. The driver has no drag step for that reason. Check the Edit screen's crop box and handles by hand.
 - **Compress overwrites the user's saved settings.** The app saves to `%LOCALAPPDATA%\miCompressor\user_config\` when Compress is clicked, and the running app shares that folder with any other build. The driver backs it up to `<OutDir>\user_config.backup` and restores it after every run. If the driver is killed mid-run, restore from that backup by hand.
 - **Don't hand-edit `SavedOutputSettings.json` with a tool that decodes escapes.** `Value` is JSON inside a string, with literal `"` quotes. If they're decoded, the file breaks and the app silently starts with default settings. Use `-SavedFormat`.
 - **Output goes next to the input by default**, in a `Compressed` folder. That's why the sample is copied out of the repo first. Passing a repo path to `-ImagePath` and compressing writes into the repo.

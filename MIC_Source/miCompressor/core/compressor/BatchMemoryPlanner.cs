@@ -53,7 +53,11 @@ public static class BatchMemoryPlanner
         {
             // Only the output extension is needed, not the full output path: that touches the disk and creates temp files for previews.
             OutputFormat outputFormat = OutputFormatHelper.GetOutputFormatFor(settings.format.GetOutputExtension(file.FilePath));
-            return EstimateBytes(file.Width, file.Height, file.FileSize, Path.GetExtension(file.FilePath), outputFormat, s_bytesPerPixel.Value);
+            // An edit can enlarge the image past its decoded size. An unknown size stays unknown, for which the estimate falls back on the file's size.
+            (uint editedWidth, uint editedHeight) = ImageEditor.ResolveOutputSize(file.Width, file.Height, file.Edit);
+            ulong pixels = (ulong)file.Width * file.Height;
+            bool enlarged = pixels > 0 && editedWidth * (ulong)editedHeight > pixels;
+            return EstimateBytes(enlarged ? editedWidth : file.Width, enlarged ? editedHeight : file.Height, file.FileSize, Path.GetExtension(file.FilePath), outputFormat, s_bytesPerPixel.Value);
         }
         catch
         {

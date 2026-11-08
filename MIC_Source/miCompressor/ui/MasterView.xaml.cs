@@ -55,6 +55,11 @@ namespace miCompressor.ui
 
         private void MasterView_DragOver(object sender, DragEventArgs e)
         {
+            if (CurrentState.ShowEdit)
+            {
+                e.AcceptedOperation = Windows.ApplicationModel.DataTransfer.DataPackageOperation.None;
+                return;
+            }
             e.AcceptedOperation = Windows.ApplicationModel.DataTransfer.DataPackageOperation.Copy;
             e.DragUIOverride.Caption = "Add to Selection";
         }

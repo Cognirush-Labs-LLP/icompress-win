@@ -95,8 +95,23 @@ namespace miCompressor.ui
                 OnPropertyChanged(nameof(SetFixedInFrame));
                 OnPropertyChanged(nameof(SetLength));
                 OnPropertyChanged(nameof(SetPrintSize));
+                OnPropertyChanged(nameof(ShowResizeOverrideNote));
             }
         }
+
+        /// <summary>
+        /// Cropped images keep their cropped size, which isn't obvious from the setting itself.
+        /// </summary>
+        public string ResizeOverrideNote
+        {
+            get
+            {
+                int count = ImageEditStore.ResizeOverrideCount;
+                return count == 1 ? "1 cropped image is excluded from resize." : $"{count} cropped images are excluded from resize.";
+            }
+        }
+
+        public bool ShowResizeOverrideNote => OutputSettings.DimensionStrategy != Strategy.KeepSame && ImageEditStore.ResizeOverrideCount > 0;
 
         /// <summary>
         /// List of available dimension reduction strategies with friendly names (for UI)
@@ -129,6 +144,11 @@ namespace miCompressor.ui
             SelectedStrategy = DimensionStrategies.Find(strategy => strategy.Value == OutputSettings.DimensionStrategy) ?? DimensionStrategies.FirstOrDefault();
 
             OutputSettings.PrintDimension.PropertyChanged += PrintDimension_PropertyChanged;
+            ImageEditStore.Changed += _ =>
+            {
+                OnPropertyChanged(nameof(ResizeOverrideNote));
+                OnPropertyChanged(nameof(ShowResizeOverrideNote));
+            };
 
             _selectedPrintDim = CommonPrintDimensions.FirstOrDefault(pd => pd.CommonName == PrintDimension.GetNameFromDimensions(OutputSettings.PrintDimension.longEdgeInInch, OutputSettings.PrintDimension.ShortEdgeInInch)) ?? CommonPrintDimensions[0];
         }

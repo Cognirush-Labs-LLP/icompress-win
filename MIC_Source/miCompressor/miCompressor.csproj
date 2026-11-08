@@ -97,6 +97,7 @@
     <None Remove="ui\gallery\FiltersView.xaml" />
     <None Remove="ui\gallery\InputSelectionView.xaml" />
     <None Remove="ui\MasterView.xaml" />
+    <None Remove="ui\edit\EditView.xaml" />
     <None Remove="ui\preview\PreviewView.xaml" />
     <None Remove="ui\RightPanelView.xaml" />
     <None Remove="ui\SelectedItemHeader.xaml" />
@@ -357,6 +358,9 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Page Update="ui\edit\EditView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="ui\preview\PreviewView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

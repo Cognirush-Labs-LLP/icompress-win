@@ -361,6 +361,11 @@ namespace miCompressor.ui.viewmodel
 
         public string ShortName { get; set; }
 
+        /// <summary>
+        /// <see cref="ShortName"/>, shortened so that a long name can't push the row's links and sizes off the window.
+        /// </summary>
+        public string ShortNameToShow => HumanReadable.MiddleEllipsis(ShortName);
+
         public bool IsFolder { get; }
         public bool IsImage => !IsFolder;
 
@@ -409,6 +414,15 @@ namespace miCompressor.ui.viewmodel
         }
 
         public string Dimensions => FileInfo != null ? $"{FileInfo.Width}×{FileInfo.Height}" : string.Empty;
+
+        /// <summary>
+        /// The image this row can edit: its own, or the only image in a folder, so a single selected image doesn't need its folder row opened. Null for a folder with more.
+        /// </summary>
+        public MediaFileInfo? ImageToEdit => FileInfo ?? (AllChildren.Count == 1 ? AllChildren[0].FileInfo : null);
+
+        public bool CanOfferEdit => ImageToEdit != null;
+
+        public bool IsEdited => ImageToEdit?.IsEdited == true;
 
         private ulong FileSizeInBytes = 0;
         private ulong SelectedFileSizeInBytes = 0;
@@ -552,6 +566,8 @@ namespace miCompressor.ui.viewmodel
         /// </summary>
         private void Child_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
+            if (e.PropertyName == nameof(IsEdited))
+                OnPropertyChanged(nameof(IsEdited));
             if (e.PropertyName == nameof(IsIncluded))
             {
                 // If any child's selection changes, update parent's selection state
@@ -685,6 +701,10 @@ namespace miCompressor.ui.viewmodel
             else if (e.PropertyName == nameof(MediaFileInfo.FileSize))
             {
                 OnPropertyChanged(nameof(FileSize));
+            }
+            else if (e.PropertyName == nameof(MediaFileInfo.IsEdited))
+            {
+                OnPropertyChanged(nameof(IsEdited));
             }
             else if (e.PropertyName == nameof(MediaFileInfo.ExcludeAndHide))
             {

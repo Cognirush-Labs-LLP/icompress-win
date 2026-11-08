@@ -34,6 +34,11 @@ namespace miCompressor.core
         /// </summary>
         public string ShortName;
 
+        /// <summary>
+        /// <see cref="ShortName"/>, shortened if it's too long for the row it's shown on.
+        /// </summary>
+        public string ShortNameToShow => HumanReadable.MiddleEllipsis(ShortName);
+
 
         /// <summary>
         /// The relative path of the image within the selected directory.
@@ -153,12 +158,38 @@ namespace miCompressor.core
         private bool excludeAndHide = false;
 
         /// <summary>
-        /// Exclude the media from processing but do not hide the file in gallery, may be show it greyed out
+        /// Exclude the media from processing but do not hide the file in gallery, may be show it grayed out
         /// </summary>
         [AutoNotify]
         private bool excludeAndShow = false;
 
         public bool IsMetadataLoaded => Width != 0 && Height != 0 && FileSize != 0;
+
+        /// <summary>
+        /// Rotation and crop chosen by the user, null if the image is not edited. Shared by all objects of the same file.
+        /// </summary>
+        public ImageEdit? Edit
+        {
+            get => ImageEditStore.Get(FilePath);
+            set => ImageEditStore.Set(FilePath, value);
+        }
+
+        /// <summary>
+        /// True if the user chose this image's size themselves, which excludes it from batch resize.
+        /// </summary>
+        public bool OverridesBatchResize => Edit?.OverridesBatchResize == true;
+
+        public bool IsEdited => Edit != null;
+
+        /// <summary>
+        /// Called by <see cref="FileStore"/> when the file's edit changes, as that can happen through another object of the same file.
+        /// </summary>
+        internal void NotifyEditChanged()
+        {
+            OnPropertyChanged(nameof(Edit));
+            OnPropertyChanged(nameof(OverridesBatchResize));
+            OnPropertyChanged(nameof(IsEdited));
+        }
 
         /// <summary>
         /// Determines whether this operation is replacing the original file.
@@ -518,6 +549,14 @@ namespace miCompressor.core
                 RemoveReadonly(outputFile.FullName);
 
                 File.Move(outputFile.FullName, FileToCompress.FullName, overwrite: true);
+
+                // The source now has the edit in it. Keeping the edit would apply it again on the next run.
+                if (Edit != null)
+                {
+                    Edit = null;
+                    Width = outputMeta.Width;
+                    Height = outputMeta.Height;
+                }
             }
 
             // An icon holds many sizes of the image, so being larger than a small input is expected.
@@ -536,7 +575,7 @@ namespace miCompressor.core
         /// <returns>True if the original file should be copied instead.</returns>
         private bool ShouldCopyOriginal(uint expectedWidth, uint expectedHeight, string outputPath)
         {
-            return HasSameExtension(outputPath) && HasSameDimensions(expectedWidth, expectedHeight);
+            return Edit == null && HasSameExtension(outputPath) && HasSameDimensions(expectedWidth, expectedHeight);
         }
 
         /// <summary>
@@ -547,7 +586,7 @@ namespace miCompressor.core
         /// <returns>True if the output file is larger without any useful change.</returns>
         private bool IsLargerFileWithoutChange(ImageMetadata outputMeta, string outputFilePath)
         {
-            return outputMeta.FileSize >= FileSize && HasSameDimensions(outputMeta.Width, outputMeta.Height) && HasSameExtension(outputFilePath);
+            return Edit == null && outputMeta.FileSize >= FileSize && HasSameDimensions(outputMeta.Width, outputMeta.Height) && HasSameExtension(outputFilePath);
         }
 
         /// <summary>

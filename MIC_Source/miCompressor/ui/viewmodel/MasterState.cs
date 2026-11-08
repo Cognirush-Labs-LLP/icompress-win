@@ -1,6 +1,9 @@
 ﻿using miCompressor.core;
 using miCompressor.ui.viewmodel;
+using Microsoft.UI.Xaml.Controls;
+using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace miCompressor.viewmodel
 {
@@ -39,6 +42,54 @@ namespace miCompressor.viewmodel
 
         [AutoNotify]
         public MediaFileInfo? selectedImageForPreview = null;
+
+        /// <summary>
+        /// True while the Edit screen is open. It sits over whichever screen opened it, so closing it returns there.
+        /// </summary>
+        [AutoNotify]
+        public bool showEdit = false;
+
+        [AutoNotify]
+        public MediaFileInfo? imageToEdit = null;
+
+        public bool ShowGalleryScreen => !ShowPreview && !ShowEdit;
+
+        public bool ShowPreviewScreen => ShowPreview && !ShowEdit;
+
+        private bool _isOpeningEdit = false;
+
+        /// <summary>
+        /// Opens the Edit screen, or explains why the image can't be edited.
+        /// </summary>
+        public async Task TryOpenEditAsync(MediaFileInfo media)
+        {
+            if (_isOpeningEdit)
+                return;
+
+            _isOpeningEdit = true;
+            try
+            {
+                if (await Task.Run(() => ImageEditor.CanEdit(media.FilePath)))
+                {
+                    ImageToEdit = media;
+                    ShowEdit = true;
+                    return;
+                }
+
+                ContentDialog dialog = new()
+                {
+                    Title = "This image can't be edited",
+                    Content = "GIF, SVG, animated and multi-page images can't be edited.",
+                    CloseButtonText = "OK",
+                    XamlRoot = App.MainWindow!.Content.XamlRoot
+                };
+                await dialog.ShowAsync();
+            }
+            finally
+            {
+                _isOpeningEdit = false;
+            }
+        }
 
         public Filter SelectionFilter = new();
 
@@ -115,6 +166,12 @@ namespace miCompressor.viewmodel
 
         private void MasterState_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
+            if (e.PropertyName == nameof(ShowPreview) || e.PropertyName == nameof(ShowEdit))
+            {
+                OnPropertyChanged(nameof(ShowGalleryScreen));
+                OnPropertyChanged(nameof(ShowPreviewScreen));
+            }
+
             if (e.PropertyName == nameof(ShowImageIconInFileSelectionTreeView))
                 AppSettingsManager.Set("Visuals." + nameof(ShowImageIconInFileSelectionTreeView), showImageIconInFileSelectionTreeView);
             if (e.PropertyName == nameof(ShowImageIconInFileSelectionTreeViewWhenMouseHovers))

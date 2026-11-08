@@ -10,6 +10,31 @@ namespace miCompressor.core
     public static class HumanReadable
     {
         /// <summary>
+        /// Longest file name shown in full, chosen so that the rest of a gallery row still fits a window of the default size.
+        /// </summary>
+        public const int MaxFileNameLength = 40;
+
+        /// <summary>
+        /// Shortens a long name by cutting out its middle, which keeps its start and its end, such as its extension.
+        /// </summary>
+        public static string MiddleEllipsis(string text, int maxLength = MaxFileNameLength)
+        {
+            if (text.Length <= maxLength)
+                return text;
+
+            int startLength = (maxLength - 1) * 2 / 3;
+            int endIndex = text.Length - (maxLength - 1 - startLength);
+
+            // Characters such as emoji take two positions, and half of one can't be shown.
+            if (char.IsHighSurrogate(text[startLength - 1]))
+                startLength--;
+            if (char.IsLowSurrogate(text[endIndex]))
+                endIndex++;
+
+            return $"{text[..startLength]}…{text[endIndex..]}";
+        }
+
+        /// <summary>
         /// Converts a file size in bytes to a human-readable string format.
         /// Supports B, KB, MB, GB, TB, PB up to exabytes.
         /// </summary>

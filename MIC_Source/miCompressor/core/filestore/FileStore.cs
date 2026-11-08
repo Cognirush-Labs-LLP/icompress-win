@@ -1,4 +1,4 @@
-﻿using ImageMagick;
+using ImageMagick;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -36,6 +36,11 @@ namespace miCompressor.core
         public string DisplayName => IsDirectory ? new DirectoryInfo(Path).Name : System.IO.Path.GetFileName(Path);
 
         /// <summary>
+        /// <see cref="DisplayName"/>, shortened if it's too long for the row it's shown on.
+        /// </summary>
+        public string DisplayNameToShow => HumanReadable.MiddleEllipsis(DisplayName);
+
+        /// <summary>
         /// Indicates whether the selected path is a directory.
         /// </summary>
         public bool IsDirectory { get; }
@@ -64,6 +69,45 @@ namespace miCompressor.core
         }
 
         private CancellationTokenSource? _cancellationTokenSource;
+
+        /// <summary>
+        /// Raised when a scan ends with <see cref="Files"/> complete. Not raised for a cancelled scan, even though it clears <see cref="ScanningForFiles"/>.
+        /// </summary>
+        public event EventHandler? ScanFinished;
+
+        /// <summary>
+        /// Compares split file paths the way the gallery lists them: at each level folders come before files, and then by name.
+        /// </summary>
+        private static readonly Comparer<string[]> s_galleryOrder = Comparer<string[]>.Create((a, b) =>
+        {
+            for (int i = 0; i < a.Length && i < b.Length; i++)
+            {
+                bool aIsFile = i == a.Length - 1;
+                bool bIsFile = i == b.Length - 1;
+                if (aIsFile != bIsFile)
+                    return aIsFile ? 1 : -1;
+
+                int byName = string.Compare(a[i], b[i]);
+                if (byName != 0)
+                    return byName;
+            }
+            return a.Length - b.Length;
+        });
+
+        private List<MediaFileInfo>? _filesInGalleryOrder;
+
+        /// <summary>
+        /// The files in the order the gallery shows them, as a scan finds them in no particular order. Sorted once per scan, as that takes about a second for 100,000 files.
+        /// Null from the moment a scan empties the list until a scan completes it, which unlike <see cref="ScanningForFiles"/> a cancelled scan can't change.
+        /// </summary>
+        public IReadOnlyList<MediaFileInfo>? FilesInGalleryOrder
+        {
+            get
+            {
+                using (_lockForFiles.ReadLock())
+                    return _filesInGalleryOrder;
+            }
+        }
 
         /// <summary>
         /// A read-only list of media files found in the selected path.
@@ -164,6 +208,7 @@ namespace miCompressor.core
                         ClearFiles();
                         _files.Add(new MediaFileInfo(basePath, new FileInfo(basePath)));
                     }
+                    SortFilesInGalleryOrder();
                     OnPropertyChanged(nameof(Files));
                     OnPropertyChanged(nameof(FileCount));
                     OnPropertyChanged(nameof(FirstFile));
@@ -181,6 +226,8 @@ namespace miCompressor.core
                             OnPropertyChanged(nameof(Files));
                             OnPropertyChanged(nameof(FileCount));
                             PopulateAllFilesForSupportedExtension(CodeConsts.SupportedInputExtensionsWithDot, Path, Path, IncludeSubDirectories, cancellationToken);
+                            if (!cancellationToken.IsCancellationRequested)
+                                SortFilesInGalleryOrder();
                         }
                     }, cancellationToken);
                 }
@@ -194,6 +241,8 @@ namespace miCompressor.core
                 ScanningForFiles = false;
                 OnPropertyChanged(nameof(Files));
                 OnPropertyChanged(nameof(FileCount));
+                if (!cancellationToken.IsCancellationRequested)
+                    ScanFinished?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -202,6 +251,14 @@ namespace miCompressor.core
             foreach (var file in _files)
                 file.Cleanup();
             _files.Clear();
+            _filesInGalleryOrder = null;
+        }
+
+        private void SortFilesInGalleryOrder()
+        {
+            List<MediaFileInfo> sorted = Files.OrderBy(file => file.FilePath.Split(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar), s_galleryOrder).ToList();
+            using (_lockForFiles.WriteLock())
+                _filesInGalleryOrder = sorted;
         }
 
         /// <summary>
@@ -306,6 +363,29 @@ namespace miCompressor.core
         private readonly ReaderWriterLockSlim _lock = new(LockRecursionPolicy.SupportsRecursion);
         private readonly object _uiStoreLock = new(); //plain simle lock for observable collection for UI. Optimization not required.
 
+        public FileStore()
+        {
+            ImageEditStore.Changed += NotifyFileOfEditChange;
+        }
+
+        /// <summary>
+        /// One file can have many objects, and each one's row shows whether it is edited.
+        /// </summary>
+        private void NotifyFileOfEditChange(string filePath)
+        {
+            using (_lock.ReadLock())
+            {
+                foreach (SelectedPath selectedPath in _store)
+                {
+                    foreach (MediaFileInfo file in selectedPath.Files)
+                    {
+                        if (file.FilePath.Equals(filePath, StringComparison.OrdinalIgnoreCase))
+                            file.NotifyEditChanged();
+                    }
+                }
+            }
+        }
+
 
         /// <summary>
         /// Retrieves a thread-safe read-only collection of selected paths.
@@ -346,7 +426,7 @@ namespace miCompressor.core
         }
 
         /// <summary>
-        /// Retrieves all unique media files across selected paths.
+        /// Retrieves all media files of each selected path, in the order the gallery shows them.
         /// </summary>
         /// <remarks>This is dynamically created list, be mindful and cache for multiple access. </remarks>
         public IEnumerable<MediaFileInfo> GetAllFilesIncludingDuplicates
@@ -366,7 +446,7 @@ namespace miCompressor.core
                 }
 
                 using (_lock.ReadLock())
-                    return _store.SelectMany(sp => sp.Files).ToList().AsEnumerable();
+                    return _store.SelectMany(sp => sp.FilesInGalleryOrder ?? sp.Files).ToList().AsEnumerable();
             }
         }
 
@@ -421,6 +501,7 @@ namespace miCompressor.core
                 try
                 {
                     var selectedPath = new SelectedPath(path, scanSubDirectories);
+                    selectedPath.ScanFinished += (_, _) => RemoveEditsOfUnselectedFiles();
                     _store.Add(selectedPath);
                     UIThreadHelper.RunOnUIThread(() =>
                     {
@@ -469,6 +550,7 @@ namespace miCompressor.core
                 });
                 selectedPath.CancelScanning();
                 selectedPath.Cleanup();
+                RemoveEditsOfUnselectedFiles();
                 //OnPropertyChanged(nameof(SelectedPaths));
                 return true;
             }
@@ -504,6 +586,7 @@ namespace miCompressor.core
                 _store.ForEach(selectedPath => selectedPath.CancelScanning());
                 _store.ForEach(selectedPath => selectedPath.Cleanup());
                 _store.Clear();
+                RemoveEditsOfUnselectedFiles();
                 UIThreadHelper.RunOnUIThread(() =>
                 {
                     lock (_uiStoreLock)
@@ -511,6 +594,21 @@ namespace miCompressor.core
                     OnPropertyChanged(nameof(SelectedPaths));
                 });
                 OnPropertyChanged(nameof(SelectedPaths));
+            }
+        }
+
+        /// <summary>
+        /// Removes edits of files that are no longer selected. Waits until every file list is complete, as a rescan empties it before filling it again, and each scan calls this when it ends.
+        /// </summary>
+        private void RemoveEditsOfUnselectedFiles()
+        {
+            if (ImageEditStore.IsEmpty)
+                return;
+
+            using (_lock.ReadLock())
+            {
+                if (_store.All(selectedPath => selectedPath.FilesInGalleryOrder != null))
+                    ImageEditStore.RetainOnly(_store.SelectMany(selectedPath => selectedPath.Files).Select(file => file.FilePath));
             }
         }
 

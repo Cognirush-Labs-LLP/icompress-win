@@ -22,9 +22,10 @@ public class MetadataCopyHelper
     /// </summary>
     /// <param name="copyFromImagePath"></param>
     /// <param name="copyToImagePath"></param>
+    /// <param name="resized">False if the image is excluded from batch resize, so the print DPI of the resize setting doesn't apply to it.</param>
     /// <returns></returns>
     /// <exception cref="FileNotFoundException">Both file should exist.</exception>
-    public int Copy(string copyFromImagePath, string copyToImagePath, OutputSettings settings)
+    public int Copy(string copyFromImagePath, string copyToImagePath, OutputSettings settings, bool resized)
     {
         string arguments = "";
         // Magick.NET writes a bare JXL codestream. ExifTool needs permission to
@@ -60,7 +61,7 @@ public class MetadataCopyHelper
 
             string dpi = "72";
             string dpiUnit = "inches";
-            if (settings.DimensionStrategy == DimensionReductionStrategy.FitInFrame || settings.DimensionStrategy == DimensionReductionStrategy.FixedWidth)
+            if (resized && (settings.DimensionStrategy == DimensionReductionStrategy.FitInFrame || settings.DimensionStrategy == DimensionReductionStrategy.FixedWidth))
             {
                 if (OutputFormatHelper.GetOutputFormatFor(copyToImagePath) == OutputFormat.Jpg)
                     options += " -EXIF:ResolutionUnit=inches -EXIF:XResolution=300 -EXIF:YResolution=300 -JFIF:XResolution=300 -JFIF:YResolution=300 -JFIF:ResolutionUnit=inches ";
@@ -82,7 +83,7 @@ public class MetadataCopyHelper
         }
         else
         {
-            // Colour information isn't metadata: removing it changes how colours render.
+            // Color information isn't metadata: removing it changes how colors render.
             arguments = $"{formatOptions} -all:all= -tagsFromFile @ -ICC_Profile -PNG:Gamma -PNG:SRGBRendering -overwrite_original \"{copyToImagePath}\" ";
         }
 

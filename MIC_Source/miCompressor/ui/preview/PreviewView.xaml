@@ -58,6 +58,12 @@
             </AppBarElementContainer>
             
             <AppBarSeparator Margin="10,0,10,0"/>
+            <AppBarButton Name="EditButton" Label="Edit" AutomationProperties.AutomationId="PreviewEditButton" Click="EditButton_Click">
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xE70F;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarSeparator Margin="10,0,10,0"/>
             <AppBarButton Name="Zoom100Button" Label="100%"  Click="Zoom100Button_Click">
             </AppBarButton>
             <AppBarButton Name="ZoomFitButton" Label="Fit" VerticalContentAlignment="Center" Click="ZoomFitButton_Click" >
@@ -91,7 +97,9 @@
         </CommandBar>
         <StackPanel Grid.Column="0" Grid.Row="1" Margin="6" >
             <StackPanel Orientation="Horizontal" Margin="3" Spacing="6" VerticalAlignment="Center">
-                <TextBlock Text="{x:Bind CurrentState.SelectedImageForPreview.ShortName, Mode=OneWay}" TextWrapping="Wrap" />
+                <TextBlock Text="{x:Bind CurrentState.SelectedImageForPreview.ShortNameToShow, Mode=OneWay}" ToolTipService.ToolTip="{x:Bind CurrentState.SelectedImageForPreview.ShortName, Mode=OneWay}" TextWrapping="Wrap" />
+                <TextBlock Text="Edited" Foreground="{StaticResource Acccent_100}" ToolTipService.ToolTip="Original shows the edited image before compression."
+                           Visibility="{x:Bind CurrentState.SelectedImageForPreview.IsEdited, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}" />
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="3" Spacing="6" VerticalAlignment="Center">
                 <TextBlock Text="{x:Bind CurrentState.SelectedImageForPreview.DimensionsToShow, Mode=OneWay}" Foreground="{StaticResource Primary_50}" VerticalAlignment="Center" />

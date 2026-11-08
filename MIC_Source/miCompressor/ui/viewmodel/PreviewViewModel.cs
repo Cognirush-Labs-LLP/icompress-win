@@ -142,7 +142,11 @@ namespace miCompressor.ui
 
             try
             {
-                OriginalImage_cached = await GetImage(Images[CurrentIndex], false);
+                MediaFileInfo media = Images[CurrentIndex];
+                // An edited image is compared in its edited shape, so the two tabs line up.
+                OriginalImage_cached = media.Edit is ImageEdit edit
+                    ? (await EditedImageLoader.LoadAsync(media, edit))?.Source
+                    : await GetImage(media, false);
             }
             catch
             {

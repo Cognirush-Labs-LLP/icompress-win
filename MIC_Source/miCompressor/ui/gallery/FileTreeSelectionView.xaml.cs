@@ -419,6 +419,12 @@ namespace miCompressor.ui
             CurrentState.ShowPreview = true;
         });
 
+        public ICommand ShowEditCommand => new RelayCommand<object>(async param =>
+        {
+            if (param is MediaFileInfo media)
+                await CurrentState.TryOpenEditAsync(media);
+        });
+
         public ICommand ShowAnyPreviewCommand => new RelayCommand<object>(param =>
         {
             if (param as ImageTreeNode != null)

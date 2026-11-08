@@ -32,7 +32,7 @@ public class ImageCompressor
     /// </summary>
     private bool stop = false;
 
-    string[] MultiFrameSupportedFormats = [".gif", ".webp", ".tif", ".tiff", ".png", ".apng", ".heic", ".avif", ".jp2", ".jxl"];
+    internal static readonly string[] MultiFrameSupportedFormats = [".gif", ".webp", ".tif", ".tiff", ".png", ".apng", ".heic", ".avif", ".jp2", ".jxl"];
 
     /// <summary>
     /// Cancel any on-going compression.
@@ -303,26 +303,7 @@ public class ImageCompressor
                 else
                 {
                     // Single-frame input, load normally
-                    if (new[] { ".dng", ".nef", ".cr2", ".cr3" }.Contains(Path.GetExtension(sourcePath).ToLower()))
-                    {
-                        try
-                        {
-                            image = await WindowsImageDecoder.LoadImageWithDefaultDecoderAsync(mediaInfo);
-                            if (image == null)
-                            {
-                                image = new MagickImage(sourcePath);
-                            }
-                            else
-                                MicLog.Info($"Used Windows Decoder for {Path.GetFileName(sourcePath)}");
-                        }
-                        catch (Exception ex)
-                        {
-                            MicLog.Info($"Windows Decoder crashed, so using fallback. {mediaInfo.ShortName}. No big deal, this happens. Error: {ex.Message}");
-                            image = new MagickImage(sourcePath);
-                        }
-                    }
-                    else
-                        image = new MagickImage(sourcePath);
+                    image = await LoadStillImageAsync(mediaInfo);
                 }
 
                 if (stop)
@@ -419,15 +400,18 @@ public class ImageCompressor
                 else if (image != null && isIco)
                 {
                     ImageOrientationHelper.CorrectOrientation(image);
+                    ImageEditor.Apply(image, mediaInfo.Edit, outputPath);
                     IcoWriter.Write(image, sourcePath, outputPath);
                 }
                 else if (image != null)
                 {
                     ImageOrientationHelper.CorrectOrientation(image);
+                    ImageEditor.Apply(image, mediaInfo.Edit, outputPath);
 
                     // Single frame image processing
-                    // Apply resizing
-                    ResizeHelper.ResizeImage(image, settings);
+                    // Apply resizing, unless the user chose this image's size in its edit.
+                    if (!mediaInfo.OverridesBatchResize)
+                        ResizeHelper.ResizeImage(image, settings);
                     WatermarkHelper.ApplyWatermark(image, settings);
 
                     // Set output quality for lossy formats
@@ -488,7 +472,7 @@ public class ImageCompressor
             OptimizeIfGIF(mediaInfo.FilePath, outputPath);
 
             if (!forPreview && !isIco)
-                (new MetadataCopyHelper()).Copy(mediaInfo.FilePath, outputPath, settings);
+                (new MetadataCopyHelper()).Copy(mediaInfo.FilePath, outputPath, settings, resized: !mediaInfo.OverridesBatchResize);
 
             if (stop)
             {
@@ -526,6 +510,31 @@ public class ImageCompressor
             MicLog.Exception(ex, $"Failed to process file: {mediaInfo.FilePath}");
             //WarningHelper.Instance.AddCompressionError(CompressionErrorType.FailedToCompress, mediaInfo);
             throw;  // rethrow to be handled in outer loop
+        }
+    }
+
+    /// <summary>
+    /// Decodes a still image the way compression does, so the Edit screen and Preview show the same pixels that get written.
+    /// </summary>
+    internal static async Task<MagickImage> LoadStillImageAsync(MediaFileInfo mediaInfo)
+    {
+        string sourcePath = mediaInfo.FilePath;
+        if (!new[] { ".dng", ".nef", ".cr2", ".cr3" }.Contains(Path.GetExtension(sourcePath).ToLower()))
+            return new MagickImage(sourcePath);
+
+        try
+        {
+            MagickImage? image = await WindowsImageDecoder.LoadImageWithDefaultDecoderAsync(mediaInfo);
+            if (image == null)
+                return new MagickImage(sourcePath);
+
+            MicLog.Info($"Used Windows Decoder for {Path.GetFileName(sourcePath)}");
+            return image;
+        }
+        catch (Exception ex)
+        {
+            MicLog.Info($"Windows Decoder crashed, so using fallback. {mediaInfo.ShortName}. No big deal, this happens. Error: {ex.Message}");
+            return new MagickImage(sourcePath);
         }
     }
 

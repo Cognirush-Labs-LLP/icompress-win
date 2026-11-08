@@ -58,7 +58,7 @@
                                             <FontIcon Glyph="&#xED44;" Visibility="{x:Bind IsFolder, Converter={StaticResource BoolToVisibilityConverter}}" Foreground="#FFDE48" Margin="0,0,6,0" />
                                             <FontIcon Glyph="&#xED43;"  Foreground="Black" Opacity="0.3" Margin="0,0,6,0" />
                                         </Grid>
-                                        <TextBlock Text="{x:Bind ShortName}" VerticalAlignment="Center" Opacity="0.6" TextWrapping="Wrap" Visibility="{x:Bind IsFolder, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                        <TextBlock Text="{x:Bind ShortNameToShow}" ToolTipService.ToolTip="{x:Bind ShortName}" VerticalAlignment="Center" Opacity="0.6" TextWrapping="Wrap" Visibility="{x:Bind IsFolder, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                                         <Border Visibility="{Binding Data.ShowImageIconInFileSelectionTreeView, Source={StaticResource CurrentState}, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" >
                                             <Grid Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}" Margin="6,0" Width="80">
@@ -76,7 +76,7 @@
                                             </Grid>
                                         </Border>
 
-                                        <TextBlock Text="{x:Bind ShortName}" MinWidth="150" VerticalAlignment="Center" TextWrapping="Wrap" FontSize="12" Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                        <TextBlock Text="{x:Bind ShortNameToShow}" ToolTipService.ToolTip="{x:Bind ShortName}" MinWidth="150" VerticalAlignment="Center" TextWrapping="Wrap" FontSize="12" Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     </StackPanel>
                                 </CheckBox>
                             </Border>
@@ -88,6 +88,7 @@
                             <TextBlock Text="{x:Bind Dimensions, Mode=OneWay}" VerticalAlignment="Center" Style="{StaticResource TextBlockSmall}" Margin="10,0,10,0" Foreground="{StaticResource Acccent_70}" />
 
                             <TextBlock Text="{x:Bind FileSize, Mode=OneWay}" VerticalAlignment="Center" Style="{StaticResource TextBlockSmall}" Foreground="{StaticResource Acccent_70}" Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            <TextBlock Text="Edited" VerticalAlignment="Center" Style="{StaticResource TextBlockSmall}" Margin="10,0,0,0" Foreground="{StaticResource Acccent_100}" Visibility="{x:Bind IsEdited, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
                             <!-- "Preview" Link (Only for Files) -->
                             <!--<HyperlinkButton Content="Preview" FontSize="12" Padding="4"
                                      Margin="20,-4,0,-4" Visibility="{x:Bind IsImage, Converter={StaticResource BoolToVisibilityConverter}}" Command="{Binding Data.ShowPreviewCommand, Source={StaticResource ThisObj}}" CommandParameter="{x:Bind FileInfo}" />-->
@@ -95,6 +96,10 @@
                             <HyperlinkButton Content="Preview" FontSize="12" Padding="4"
          Margin="20,-4,0,-4" Command="{Binding Data.ShowAnyPreviewCommand, Source={StaticResource ThisObj}}" CommandParameter="{Binding}"
          Visibility="{Binding Data.IsIconOutput, Source={StaticResource CurrentState}, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" />
+
+                            <HyperlinkButton Content="Edit" FontSize="12" Padding="4"
+         Margin="4,-4,0,-4" Command="{Binding Data.ShowEditCommand, Source={StaticResource ThisObj}}" CommandParameter="{x:Bind ImageToEdit}"
+         Visibility="{x:Bind CanOfferEdit, Converter={StaticResource BoolToVisibilityConverter}}" />
 
                             <StackPanel.ContextFlyout>
                                 <MenuFlyout>

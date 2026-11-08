@@ -171,8 +171,7 @@ public sealed partial class PreviewView : UserControl
         if (image == null)
             return;
 
-        OriginalHeight = image.Height;
-        OriginalWidth = image.Width;
+        (OriginalWidth, OriginalHeight) = ImageEditor.ResolveOutputSize(image.Width, image.Height, image.Edit);
 
         if (ImageGridScrollViewArea.ActualHeight != 0)
         {
@@ -232,8 +231,10 @@ public sealed partial class PreviewView : UserControl
             if (CurrentState.SelectedImageForPreview == null)
                 return "";
 
-            double imageWidth = (double)CurrentState.SelectedImageForPreview.Width; ;
-            double imageHeight = (double)CurrentState.SelectedImageForPreview.Height;
+            MediaFileInfo media = CurrentState.SelectedImageForPreview;
+            (uint originalWidth, uint originalHeight) = ImageEditor.ResolveOutputSize(media.Width, media.Height, media.Edit);
+            double imageWidth = originalWidth;
+            double imageHeight = originalHeight;
             double containerHeight = OriginalImage.ActualHeight;
             double containerWidth = OriginalImage.ActualWidth;
 
@@ -281,6 +282,12 @@ public sealed partial class PreviewView : UserControl
     {
         CurrentState.ShowPreview = false;
 
+    }
+
+    private async void EditButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (CurrentState.SelectedImageForPreview is MediaFileInfo media)
+            await CurrentState.TryOpenEditAsync(media);
     }
 
     private async void OriginalButton_Click(object sender, RoutedEventArgs e)

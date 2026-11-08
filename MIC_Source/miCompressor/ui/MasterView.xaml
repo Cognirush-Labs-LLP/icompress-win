@@ -26,7 +26,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Column="0" Grid.Row="0" Visibility="{x:Bind CurrentState.ShowPreview, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}">
+        <Grid Grid.Column="0" Grid.Row="0" Visibility="{x:Bind CurrentState.ShowGalleryScreen, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <!-- Warning banner only takes needed space -->
@@ -58,9 +58,10 @@
             </Grid>
         </Grid>
 
-        <local:PreviewView  Grid.Column="0" Grid.Row="0" Visibility="{x:Bind CurrentState.ShowPreview, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+        <local:PreviewView  Grid.Column="0" Grid.Row="0" Visibility="{x:Bind CurrentState.ShowPreviewScreen, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
         <!-- Right Side (Settings View) -->
-        <local:RightPanelView Grid.Column="1" />
+        <local:RightPanelView Grid.Column="1" Visibility="{x:Bind CurrentState.ShowEdit, Mode=OneWay, Converter={StaticResource ReverseBoolToVisibilityConverter}}" />
+        <local:EditView Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Visibility="{x:Bind CurrentState.ShowEdit, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
     </Grid>
 
 </Page>

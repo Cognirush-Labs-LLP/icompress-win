@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="miCompressor.ui.EditView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:miCompressor.ui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    IsTabStop="True"
+    KeyDown="EditView_KeyDown">
+
+    <UserControl.Resources>
+        <!-- Stands for transparency: stripes are the closest thing to a checkerboard that a XAML brush can draw. -->
+        <LinearGradientBrush x:Key="TransparentFillBrush" MappingMode="Absolute" StartPoint="0,0" EndPoint="14,14" SpreadMethod="Repeat">
+            <GradientStop Color="#FFBDBDBD" Offset="0" />
+            <GradientStop Color="#FFBDBDBD" Offset="0.5" />
+            <GradientStop Color="#FFF2F2F2" Offset="0.5" />
+            <GradientStop Color="#FFF2F2F2" Offset="1" />
+        </LinearGradientBrush>
+
+        <!-- The same stripes at the size of a swatch. -->
+        <LinearGradientBrush x:Key="TransparentSwatchBrush" MappingMode="Absolute" StartPoint="0,0" EndPoint="6,6" SpreadMethod="Repeat">
+            <GradientStop Color="#FFBDBDBD" Offset="0" />
+            <GradientStop Color="#FFBDBDBD" Offset="0.5" />
+            <GradientStop Color="#FFF2F2F2" Offset="0.5" />
+            <GradientStop Color="#FFF2F2F2" Offset="1" />
+        </LinearGradientBrush>
+
+        <!-- One option of a select-one group: looks like a button, and the group's frame shows that they belong together. -->
+        <Style x:Key="SegmentStyle" TargetType="RadioButton">
+            <Setter Property="MinWidth" Value="0" />
+            <Setter Property="MinHeight" Value="0" />
+            <Setter Property="Padding" Value="10,4" />
+            <Setter Property="Foreground" Value="{ThemeResource TextFillColorPrimaryBrush}" />
+            <Setter Property="UseSystemFocusVisuals" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Grid x:Name="Root" Background="Transparent" CornerRadius="3">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="PointerOver">
+                                        <VisualState.Setters>
+                                            <Setter Target="Root.Background" Value="{StaticResource Primary_10}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed">
+                                        <VisualState.Setters>
+                                            <Setter Target="Root.Background" Value="{StaticResource Primary_20}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Disabled">
+                                        <VisualState.Setters>
+                                            <Setter Target="Root.Opacity" Value="0.4" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                                <VisualStateGroup x:Name="CheckStates">
+                                    <VisualState x:Name="Checked">
+                                        <VisualState.Setters>
+                                            <Setter Target="SelectedMark.Opacity" Value="1" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Unchecked" />
+                                    <VisualState x:Name="Indeterminate" />
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+
+                            <Border x:Name="SelectedMark" Background="{StaticResource Acccent_70}" CornerRadius="3" Opacity="0" />
+                            <ContentPresenter Margin="{TemplateBinding Padding}" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SegmentGroupStyle" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource Primary_05}" />
+            <Setter Property="BorderBrush" Value="{StaticResource Primary_20}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="Padding" Value="2" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <Style x:Key="SwatchStyle" TargetType="Border">
+            <Setter Property="Width" Value="16" />
+            <Setter Property="Height" Value="16" />
+            <Setter Property="BorderBrush" Value="{StaticResource Primary_50}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="2" />
+        </Style>
+
+        <Style x:Key="IconButtonStyle" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+            <Setter Property="Padding" Value="8,6" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Crop size and rotation. -->
+        <Grid Grid.Row="0" Margin="9,6" ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                <!-- The ways to leave this screen, which work even if the image can't be opened. -->
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                    <Button Content="Cancel" AutomationProperties.AutomationId="EditCancel" VerticalAlignment="Center" Click="CancelButton_Click">
+                        <Button.KeyboardAccelerators>
+                            <KeyboardAccelerator Key="Escape" />
+                        </Button.KeyboardAccelerators>
+                    </Button>
+                    <Button x:Name="RemoveEditButton" Style="{StaticResource IconButtonStyle}" AutomationProperties.AutomationId="EditRemove" AutomationProperties.Name="Remove edit" ToolTipService.ToolTip="Remove all edits from this image" Click="RemoveEditButton_Click">
+                        <FontIcon Glyph="&#xE7A7;" FontSize="14" />
+                    </Button>
+                </StackPanel>
+
+                <ContentControl x:Name="CropControls" IsTabStop="False" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <Button x:Name="RotateLeftButton" Style="{StaticResource IconButtonStyle}" AutomationProperties.AutomationId="EditRotateLeft" AutomationProperties.Name="Rotate left" ToolTipService.ToolTip="Rotate left" Click="RotateLeftButton_Click">
+                                <FontIcon Glyph="&#xE7AD;" FontSize="14" RenderTransformOrigin="0.5,0.5">
+                                    <FontIcon.RenderTransform>
+                                        <ScaleTransform ScaleX="-1" />
+                                    </FontIcon.RenderTransform>
+                                </FontIcon>
+                            </Button>
+                            <Button x:Name="RotateRightButton" Style="{StaticResource IconButtonStyle}" AutomationProperties.AutomationId="EditRotateRight" AutomationProperties.Name="Rotate right" ToolTipService.ToolTip="Rotate right" Click="RotateRightButton_Click">
+                                <FontIcon Glyph="&#xE7AD;" FontSize="14" />
+                            </Button>
+                        </StackPanel>
+
+                        <Border Style="{StaticResource SegmentGroupStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <RadioButton x:Name="RatioFree" GroupName="EditRatio" Style="{StaticResource SegmentStyle}" Content="Free" Tag="free" AutomationProperties.AutomationId="EditRatioFree" ToolTipService.ToolTip="Any shape" Checked="RatioButton_Checked" />
+                                <RadioButton x:Name="Ratio1x1" GroupName="EditRatio" Style="{StaticResource SegmentStyle}" Content="1:1" Tag="1:1" AutomationProperties.AutomationId="EditRatio1x1" Checked="RatioButton_Checked" />
+                                <RadioButton x:Name="Ratio4x5" GroupName="EditRatio" Style="{StaticResource SegmentStyle}" Content="4:5" Tag="4:5" AutomationProperties.AutomationId="EditRatio4x5" Checked="RatioButton_Checked" />
+                                <RadioButton x:Name="Ratio16x9" GroupName="EditRatio" Style="{StaticResource SegmentStyle}" Content="16:9" Tag="16:9" AutomationProperties.AutomationId="EditRatio16x9" Checked="RatioButton_Checked" />
+                                <RadioButton x:Name="Ratio9x16" GroupName="EditRatio" Style="{StaticResource SegmentStyle}" Content="9:16" Tag="9:16" AutomationProperties.AutomationId="EditRatio9x16" Checked="RatioButton_Checked" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- The crop only changes on OK, so that it doesn't jump about on every digit. -->
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <TextBox x:Name="WidthBox" AutomationProperties.AutomationId="EditWidthBox" AutomationProperties.Name="Crop width" PlaceholderText="Width" Width="76" MaxLength="7" VerticalAlignment="Center" ToolTipService.ToolTip="Output width in pixels"
+                                     BeforeTextChanging="SizeBox_BeforeTextChanging" TextChanged="SizeBox_TextChanged" PreviewKeyDown="SizeBox_PreviewKeyDown" />
+                            <TextBlock Text="x" VerticalAlignment="Center" />
+                            <TextBox x:Name="HeightBox" AutomationProperties.AutomationId="EditHeightBox" AutomationProperties.Name="Crop height" PlaceholderText="Height" Width="76" MaxLength="7" VerticalAlignment="Center" ToolTipService.ToolTip="Output height in pixels"
+                                     BeforeTextChanging="SizeBox_BeforeTextChanging" TextChanged="SizeBox_TextChanged" PreviewKeyDown="SizeBox_PreviewKeyDown" />
+                            <Button x:Name="ApplySizeButton" Content="OK" AutomationProperties.AutomationId="EditApplySize" Visibility="Collapsed" Background="{StaticResource Acccent_50}" VerticalAlignment="Center" Click="ApplySizeButton_Click" />
+                        </StackPanel>
+
+                        <TeachingTip x:Name="SizeErrorTip" Target="{x:Bind HeightBox}" PreferredPlacement="Bottom" IsLightDismissEnabled="True">
+                            <TextBlock x:Name="SizeErrorText" AutomationProperties.AutomationId="EditSizeError" TextWrapping="Wrap" />
+                        </TeachingTip>
+                    </StackPanel>
+                </ContentControl>
+            </StackPanel>
+
+            <TextBlock x:Name="FileNameText" Grid.Column="1" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+
+            <Button x:Name="DoneButton" Grid.Column="2" Content="Done" AutomationProperties.AutomationId="EditDone" Background="{StaticResource Acccent_70}" VerticalAlignment="Center" Click="DoneButton_Click">
+                <Button.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="Enter" />
+                </Button.KeyboardAccelerators>
+            </Button>
+        </Grid>
+
+        <Grid x:Name="StageHost" Grid.Row="1" SizeChanged="StageHost_SizeChanged">
+            <!-- Handles reach past the image's edges, so the stage is kept away from the host's. -->
+            <Canvas x:Name="Stage" Margin="{x:Bind StageMargin}" Opacity="0" IsHitTestVisible="False">
+                <!-- Clipped to the stage, as a zoomed image is larger than it. The crop box and handles are outside this, so that handles aren't cut in half at the stage's edge. -->
+                <Canvas x:Name="ImageLayer" IsHitTestVisible="False">
+                    <Canvas.Clip>
+                        <RectangleGeometry x:Name="ImageLayerClip" />
+                    </Canvas.Clip>
+
+                    <Rectangle x:Name="FillPreview" Visibility="Collapsed" />
+
+                    <Image x:Name="EditImage" Stretch="Fill" RenderTransformOrigin="0.5,0.5">
+                        <Image.RenderTransform>
+                            <RotateTransform x:Name="EditImageRotation" />
+                        </Image.RenderTransform>
+                    </Image>
+
+                    <Rectangle x:Name="ShadeTop" Fill="Black" Opacity="0.55" />
+                    <Rectangle x:Name="ShadeBottom" Fill="Black" Opacity="0.55" />
+                    <Rectangle x:Name="ShadeLeft" Fill="Black" Opacity="0.55" />
+                    <Rectangle x:Name="ShadeRight" Fill="Black" Opacity="0.55" />
+                </Canvas>
+
+                <!-- Two tones and a contrasting edge: no single color shows up on every image. -->
+                <local:CursorGrid x:Name="CropBox" CursorShape="SizeAll" AutomationProperties.AutomationId="EditCropBox" Background="Transparent" BorderBrush="#C9A7F5" BorderThickness="2"
+                                  PointerPressed="CropBox_PointerPressed" PointerMoved="Drag_PointerMoved" PointerReleased="Drag_PointerReleased" PointerCaptureLost="Drag_PointerCaptureLost">
+                    <Border BorderBrush="#99000000" BorderThickness="1" IsHitTestVisible="False" />
+                </local:CursorGrid>
+
+                <local:CursorGrid x:Name="HandleTopLeft" Tag="TopLeft" CursorShape="SizeNorthwestSoutheast" AutomationProperties.AutomationId="EditHandleTopLeft" Width="14" Height="14" Background="#7B2CBF" BorderBrush="White" BorderThickness="1"
+                                  PointerPressed="Handle_PointerPressed" PointerMoved="Drag_PointerMoved" PointerReleased="Drag_PointerReleased" PointerCaptureLost="Drag_PointerCaptureLost" />
+                <local:CursorGrid x:Name="HandleTopRight" Tag="TopRight" CursorShape="SizeNortheastSouthwest" AutomationProperties.AutomationId="EditHandleTopRight" Width="14" Height="14" Background="#7B2CBF" BorderBrush="White" BorderThickness="1"
+                                  PointerPressed="Handle_PointerPressed" PointerMoved="Drag_PointerMoved" PointerReleased="Drag_PointerReleased" PointerCaptureLost="Drag_PointerCaptureLost" />
+                <local:CursorGrid x:Name="HandleBottomRight" Tag="BottomRight" CursorShape="SizeNorthwestSoutheast" AutomationProperties.AutomationId="EditHandleBottomRight" Width="14" Height="14" Background="#7B2CBF" BorderBrush="White" BorderThickness="1"
+                                  PointerPressed="Handle_PointerPressed" PointerMoved="Drag_PointerMoved" PointerReleased="Drag_PointerReleased" PointerCaptureLost="Drag_PointerCaptureLost" />
+                <local:CursorGrid x:Name="HandleBottomLeft" Tag="BottomLeft" CursorShape="SizeNortheastSouthwest" AutomationProperties.AutomationId="EditHandleBottomLeft" Width="14" Height="14" Background="#7B2CBF" BorderBrush="White" BorderThickness="1"
+                                  PointerPressed="Handle_PointerPressed" PointerMoved="Drag_PointerMoved" PointerReleased="Drag_PointerReleased" PointerCaptureLost="Drag_PointerCaptureLost" />
+            </Canvas>
+
+            <ProgressRing x:Name="LoadingRing" IsActive="False" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <TextBlock x:Name="LoadFailedText" Text="This image can't be opened for editing." HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed" />
+        </Grid>
+
+        <!-- The image inside the crop. Nothing here changes height, so the image above never jumps. -->
+        <StackPanel Grid.Row="2" Margin="9,6" Spacing="4">
+            <ContentControl x:Name="ImageControls" IsTabStop="False">
+                <StackPanel Orientation="Horizontal" Spacing="24">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <Button x:Name="ZoomOutButton" Style="{StaticResource IconButtonStyle}" AutomationProperties.AutomationId="EditZoomOut" AutomationProperties.Name="Make image smaller" ToolTipService.ToolTip="Make the image smaller in the crop" Click="ZoomOutButton_Click">
+                            <FontIcon Glyph="&#xE71F;" FontSize="14" />
+                        </Button>
+                        <Slider x:Name="ZoomSlider" AutomationProperties.AutomationId="EditZoomSlider" AutomationProperties.Name="Image size in crop" Width="220" VerticalAlignment="Center" Minimum="0" Maximum="1000" StepFrequency="1" SmallChange="5" LargeChange="50" IsThumbToolTipEnabled="False"
+                                ToolTipService.ToolTip="Size of the image in the crop. At 100% its pixels stay unchanged." ValueChanged="ZoomSlider_ValueChanged" />
+                        <Button x:Name="ZoomInButton" Style="{StaticResource IconButtonStyle}" AutomationProperties.AutomationId="EditZoomIn" AutomationProperties.Name="Make image larger" ToolTipService.ToolTip="Make the image larger in the crop" Click="ZoomInButton_Click">
+                            <FontIcon Glyph="&#xE8A3;" FontSize="14" />
+                        </Button>
+                        <TextBlock x:Name="ZoomText" AutomationProperties.AutomationId="EditZoomText" Width="44" Margin="4,0,0,0" VerticalAlignment="Center" TextAlignment="Center" />
+                        <Button x:Name="FitButton" Style="{StaticResource IconButtonStyle}" AutomationProperties.AutomationId="EditZoomFit" AutomationProperties.Name="Fit image in crop" ToolTipService.ToolTip="Fit the whole image in the crop (may add blank space)" Click="FitButton_Click">
+                            <FontIcon Glyph="&#xE9A6;" FontSize="14" />
+                        </Button>
+                        <Button x:Name="FillButton" Style="{StaticResource IconButtonStyle}" AutomationProperties.AutomationId="EditZoomFill" AutomationProperties.Name="Fill crop with image" ToolTipService.ToolTip="Fill the crop with the image (no blank space)" Click="FillButton_Click">
+                            <FontIcon Glyph="&#xE740;" FontSize="14" />
+                        </Button>
+                        <Button x:Name="ActualSizeButton" Style="{StaticResource IconButtonStyle}" Content="100%" AutomationProperties.AutomationId="EditZoomReset" ToolTipService.ToolTip="Image pixels unchanged" Click="ActualSizeButton_Click" />
+                    </StackPanel>
+
+                    <StackPanel x:Name="BackgroundChoice" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Visibility="Collapsed" Opacity="0" ToolTipService.ToolTip="Color of the blank space in the crop">
+                        <StackPanel.OpacityTransition>
+                            <ScalarTransition Duration="0:0:0.3" />
+                        </StackPanel.OpacityTransition>
+                        <TextBlock Text="Background" VerticalAlignment="Center" Foreground="{StaticResource Primary_70}" />
+                        <Border Style="{StaticResource SegmentGroupStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <RadioButton x:Name="FillBlack" GroupName="EditFill" Style="{StaticResource SegmentStyle}" AutomationProperties.AutomationId="EditFillBlack" AutomationProperties.Name="Black background" ToolTipService.ToolTip="Black" Checked="FillButton_Checked">
+                                    <Border Style="{StaticResource SwatchStyle}" Background="Black" />
+                                </RadioButton>
+                                <RadioButton x:Name="FillWhite" GroupName="EditFill" Style="{StaticResource SegmentStyle}" AutomationProperties.AutomationId="EditFillWhite" AutomationProperties.Name="White background" ToolTipService.ToolTip="White" Checked="FillButton_Checked">
+                                    <Border Style="{StaticResource SwatchStyle}" Background="White" />
+                                </RadioButton>
+                                <RadioButton x:Name="FillTransparent" GroupName="EditFill" Style="{StaticResource SegmentStyle}" AutomationProperties.AutomationId="EditFillTransparent" AutomationProperties.Name="Transparent background" ToolTipService.ToolTip="Transparent" Checked="FillButton_Checked">
+                                    <Border Style="{StaticResource SwatchStyle}" Background="{StaticResource TransparentSwatchBrush}" />
+                                </RadioButton>
+                                <RadioButton x:Name="FillCustom" GroupName="EditFill" Style="{StaticResource SegmentStyle}" AutomationProperties.AutomationId="EditFillCustom" AutomationProperties.Name="Pick a background color" ToolTipService.ToolTip="Pick a color" Click="FillCustom_Click">
+                                    <FlyoutBase.AttachedFlyout>
+                                        <Flyout>
+                                            <ColorPicker x:Name="FillPicker" IsAlphaEnabled="False" IsMoreButtonVisible="False" ColorChanged="FillPicker_ColorChanged" />
+                                        </Flyout>
+                                    </FlyoutBase.AttachedFlyout>
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <FontIcon Glyph="&#xE790;" FontSize="14" />
+                                        <Border x:Name="CustomSwatch" Style="{StaticResource SwatchStyle}" Visibility="Collapsed" />
+                                    </StackPanel>
+                                </RadioButton>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+            </ContentControl>
+
+            <StackPanel Orientation="Horizontal" Spacing="16">
+                <!-- Hidden with opacity, so that the row keeps its height. -->
+                <TextBlock x:Name="ExclusionNote" Text="Excluded from batch resize. Resize here with crop size and zoom." Style="{StaticResource TextBlockSmall}" Foreground="{StaticResource Primary_50}" Opacity="0" />
+                <TextBlock x:Name="PushNote" AutomationProperties.AutomationId="EditPushNote" Text="Drag the crop box to the edge to see more of the image." Style="{StaticResource TextBlockSmall}" Foreground="{StaticResource Primary_50}" Opacity="0" />
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</UserControl>
