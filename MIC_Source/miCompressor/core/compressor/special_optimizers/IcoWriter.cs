@@ -32,7 +32,7 @@ internal static class IcoWriter
         // An .ico path can't carry a profile, so this converts to sRGB: icon loaders ignore embedded profiles.
         ColorProfileHelper.StripMetadata(source, outputPath);
         source.BackgroundColor = MagickColors.None;
-        source.Alpha(AlphaOption.Set);
+        source.Alpha(AlphaAction.Set);
 
         // The full set is prepared first, so a failure on any size never leaves a partial icon.
         var entries = Sizes.Where(size => size <= longEdge).Select(size => (size, png: EncodeSize(source, size))).ToList();

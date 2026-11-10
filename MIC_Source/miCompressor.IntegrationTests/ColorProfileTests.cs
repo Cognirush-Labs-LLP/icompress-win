@@ -215,7 +215,7 @@ public class ColorProfileTests : IDisposable
         {
             image.ColorSpace = ColorSpace.sRGB;
         }
-        image.Alpha(AlphaOption.Off);
+        image.Alpha(AlphaAction.Off);
         byte[] rgb = image.GetPixels().ToByteArray(PixelMapping.RGB)!;
         var mean = new double[3];
         for (int i = 0; i < rgb.Length; i++)

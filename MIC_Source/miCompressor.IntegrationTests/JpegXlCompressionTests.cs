@@ -361,7 +361,7 @@ public class JpegXlCompressionTests : IDisposable
             foreach (var frame in new[] { original[i], output[i] })
             {
                 frame.BackgroundColor = MagickColors.Magenta;
-                frame.Alpha(AlphaOption.Remove);
+                frame.Alpha(AlphaAction.Remove);
             }
             Assert.Equal(
                 original[i].GetPixels().ToByteArray(PixelMapping.RGB),

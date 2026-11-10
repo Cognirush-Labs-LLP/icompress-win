@@ -200,7 +200,7 @@ public static class ImageEditor
         }
 
         if (fill.A < 255)
-            image.Alpha(AlphaOption.Set);
+            image.Alpha(AlphaAction.Set);
         image.BackgroundColor = new MagickColor(fill.R, fill.G, fill.B, fill.A);
         image.Extent(new MagickGeometry(canvasX, canvasY, output.Width, output.Height));
         image.ResetPage();

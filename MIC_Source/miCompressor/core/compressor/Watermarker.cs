@@ -62,7 +62,7 @@ namespace miCompressor.core
             watermark.Resize(0, (uint)targetHeight);
 
             // Apply opacity (alpha blending)
-            watermark.Alpha(AlphaOption.Set);
+            watermark.Alpha(AlphaAction.Set);
             watermark.Evaluate(Channels.Alpha, EvaluateOperator.Multiply, opacityPercentage / 100.0);
 
             // Position: bottom-right with margin

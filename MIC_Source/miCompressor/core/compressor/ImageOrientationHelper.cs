@@ -15,7 +15,7 @@ public static class ImageOrientationHelper
         if (image == null)
             throw new ArgumentNullException(nameof(image));
         // Get the original orientation
-        OrientationType orientation = image.Orientation;
+        Orientation orientation = image.Orientation;
 
         image.AutoOrient();
         return;

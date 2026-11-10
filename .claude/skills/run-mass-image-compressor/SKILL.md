@@ -9,7 +9,7 @@ All commands run from the repo root in PowerShell.
 
 ## Prerequisites
 
-Windows, Windows PowerShell 5.1 (`powershell.exe`, not `pwsh`: the driver needs .NET Framework's UI Automation) and the .NET SDK. There's no `global.json`. This was verified with SDK 9.0.319:
+Windows, Windows PowerShell 5.1 (`powershell.exe`, not `pwsh`: the driver needs .NET Framework's UI Automation) and the .NET 10 SDK, since the app targets .NET 10. There's no `global.json`. This was verified with SDK 10.0.403:
 
 ```powershell
 dotnet --version
@@ -21,7 +21,7 @@ dotnet --version
 dotnet build MIC_Source\miCompressor\miCompressor.csproj -c Release -p:Platform=x64 -p:GenerateAppxPackageOnBuild=false
 ```
 
-About 40 seconds. The driver runs `MIC_Source\miCompressor\bin\x64\Release\net8.0-windows10.0.19041.0\win-x64\Mass Image Compressor.exe`, which runs unpackaged even though the project is set up for MSIX. Rebuild first: the driver doesn't, and it will happily test a stale exe.
+About 40 seconds. The driver runs `MIC_Source\miCompressor\bin\x64\Release\net10.0-windows10.0.19041.0\win-x64\Mass Image Compressor.exe`, which runs unpackaged even though the project is set up for MSIX. Rebuild first: the driver doesn't, and it will happily test a stale exe.
 
 ## Run (agent path)
 

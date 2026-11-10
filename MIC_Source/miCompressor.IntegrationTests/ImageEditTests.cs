@@ -692,12 +692,12 @@ public class ImageEditTests : IDisposable
         {
             // Displayed turned clockwise, blue in the top left. Magick writes the tag from the property, into a profile that must already have it.
             var exif = new ExifProfile();
-            exif.SetValue(ExifTag.Orientation, (ushort)OrientationType.RightTop);
+            exif.SetValue(ExifTag.Orientation, (ushort)Orientation.RightTop);
             source.SetProfile(exif);
-            source.Orientation = OrientationType.RightTop;
+            source.Orientation = Orientation.RightTop;
             source.Write(input, MagickFormat.Jpeg);
         }
-        Assert.Equal(OrientationType.RightTop, new MagickImageInfo(input).Orientation);
+        Assert.Equal(Orientation.RightTop, new MagickImageInfo(input).Orientation);
 
         string output = await CompressAsync(input, new ImageEdit(0, TopLeftQuadrant), CreateSettings(OutputFormat.Png));
 
@@ -1136,11 +1136,11 @@ public class ImageEditTests : IDisposable
         using var source = CreateQuadrantsImage();
         // Magick writes the tag from the property, into a profile that must already have it.
         var exif = new ExifProfile();
-        exif.SetValue(ExifTag.Orientation, (ushort)OrientationType.RightTop);
+        exif.SetValue(ExifTag.Orientation, (ushort)Orientation.RightTop);
         source.SetProfile(exif);
-        source.Orientation = OrientationType.RightTop;
+        source.Orientation = Orientation.RightTop;
         source.Write(path, MagickFormat.Jpeg);
-        Assert.Equal(OrientationType.RightTop, new MagickImageInfo(path).Orientation);
+        Assert.Equal(Orientation.RightTop, new MagickImageInfo(path).Orientation);
         return path;
     }
 
@@ -1184,7 +1184,7 @@ public class ImageEditTests : IDisposable
 
         string output = await CompressAsync(input, new ImageEdit(1, null), settings);
 
-        Assert.Contains(new MagickImageInfo(output).Orientation, new[] { OrientationType.Undefined, OrientationType.TopLeft });
+        Assert.Contains(new MagickImageInfo(output).Orientation, new[] { Orientation.Undefined, Orientation.TopLeft });
         using var image = new MagickImage(output);
         Assert.Equal((400u, 200u), (image.Width, image.Height));
     }

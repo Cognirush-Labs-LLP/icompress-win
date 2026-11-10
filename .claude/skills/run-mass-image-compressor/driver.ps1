@@ -18,7 +18,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '..\..\..')).Path
-if (-not $Exe) { $Exe = Join-Path $repo 'MIC_Source\miCompressor\bin\x64\Release\net8.0-windows10.0.19041.0\win-x64\Mass Image Compressor.exe' }
+if (-not $Exe) { $Exe = Join-Path $repo 'MIC_Source\miCompressor\bin\x64\Release\net10.0-windows10.0.19041.0\win-x64\Mass Image Compressor.exe' }
 if (-not (Test-Path $Exe)) { Write-Output "App not built: $Exe"; exit 1 }
 
 $shots = Join-Path $OutDir 'shots'

@@ -256,10 +256,10 @@ namespace miCompressor.core
                     MagickImageInfo imageInfo = new MagickImageInfo(FileToCompress.FullName);
                     switch (imageInfo.Orientation)
                     {
-                        case OrientationType.LeftTop:  // Rotated 90° CW, horizontal flip
-                        case OrientationType.RightTop:  // Rotated 90° CW
-                        case OrientationType.RightBottom:  // Rotated 90° CCW, horizontal flip
-                        case OrientationType.LeftBottom:  // Rotated 90° CCW, 
+                        case Orientation.LeftTop:  // Rotated 90° CW, horizontal flip
+                        case Orientation.RightTop:  // Rotated 90° CW
+                        case Orientation.RightBottom:  // Rotated 90° CCW, horizontal flip
+                        case Orientation.LeftBottom:  // Rotated 90° CCW, 
                             Width = imageInfo.Height;
                             Height = imageInfo.Width;
                             break;
@@ -323,10 +323,10 @@ namespace miCompressor.core
 
                 switch (imageInfo.Orientation)
                 {
-                    case OrientationType.LeftTop:
-                    case OrientationType.RightTop:
-                    case OrientationType.RightBottom:
-                    case OrientationType.LeftBottom:
+                    case Orientation.LeftTop:
+                    case Orientation.RightTop:
+                    case Orientation.RightBottom:
+                    case Orientation.LeftBottom:
                         (imageWidth, imageHeight) = (imageHeight, imageWidth);
                         break;
                 }
